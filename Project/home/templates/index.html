@@ -2,17 +2,13 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a supportive community.">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-    
     <!-- Load static files -->
     {% load static %}
-    
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <title>My Workout App</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static/styles.css">
 </head>
 
 <body>
@@ -31,11 +27,12 @@
     <div class="container">
         <div class="main-section">
             <h1>Welcome to Your Workout Journey!</h1>
-            <img src="https://source.unsplash.com/featured/?fitness" alt="Fitness Image">
-            <p>Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a supportive community. Let's get started!</p>
+            <img src="{% static 'images/fitness_pic.jpg' %}" alt="Person Getting Ready to Deadlift" style="max-width: 100%; height: auto;">
+            <p>Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a
+                supportive community. Let's get started!</p>
         </div>
 
-        <div class="welcome">Welcome back, [User  's Name]!</div>
+        <div class="welcome">Welcome back, [User 's Name]!</div>
 
         <div class="workout-today">
             <h2>Today's Workout</h2>
@@ -86,7 +83,7 @@
                 <div class="workout">Rest Day</div>
             </div>
             <div class="day">
-                <h3>Sun</ ```html
+                <h3>Sun</h3>
                 <div class="workout">Long Run - 45 min</div>
             </div>
         </div>

@@ -50,6 +50,11 @@ li a:hover {
     padding: 20px;
 }
 
+.welcome {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
 .main-section {
     background-color: white;
     padding: 20px;
@@ -64,11 +69,6 @@ li a:hover {
     height: auto;
     border-radius: 8px;
     margin-bottom: 15px;
-}
-
-.welcome {
-    font-size: 24px;
-    margin-bottom: 20px;
 }
 
 .workout-today, .progress, .upcoming-workouts, .calendar {
