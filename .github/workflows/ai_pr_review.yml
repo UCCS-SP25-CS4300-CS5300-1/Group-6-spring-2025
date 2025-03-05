@@ -19,10 +19,14 @@ jobs:
           json_diff_file_output: diff.json
           raw_diff_file_output: diff.txt
           file_output_only: "true"
-          env:
-            DIFF: ${{ steps.git-diff-action.outputs.raw-diff-path }}
-        -name: OpenAI
-          with:
-            openai-api-key: ${{ secrets.OPENAIAPI }}
-            openai-prompt: "Explain the differences of the given diff file to tell me what changes have occured in a pretty format: ${{ steps.git-diff-action.outputs.raw-diff-path }}"
-            model: gpt-4
+      - name: OpenAI
+        uses: riccardolinares/openai-commit@v0.0.1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          openai-prompt: "Review the changes in this diff file and tell me whats going on: \n${{ steps.git-diff-action.outputs.raw-diff-path }}"
+        id: openai
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code_review
+          path: code_review.txt
