@@ -13,7 +13,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Get PR Diff
-        uses: GrantBirki/git-diff-action@vX.X.X
+        uses: GrantBirki/git-diff-action@v2.5.0
         id: git-diff-action
         with:
           json_diff_file_output: diff.json
@@ -28,5 +28,5 @@ jobs:
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: code_review
+          name: openai
           path: code_review.txt
