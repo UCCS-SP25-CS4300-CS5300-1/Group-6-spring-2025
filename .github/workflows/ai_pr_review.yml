@@ -22,7 +22,7 @@ jobs:
       - name: OpenAI
         uses: riccardolinares/openai-commit@v0.0.1
         with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          openai-api-key: ${{ secrets.OPENAIAPI }}
           openai-prompt: "Review the changes in this diff file and tell me whats going on: \n${{ steps.git-diff-action.outputs.raw-diff-path }}"
         id: openai
       - name: Upload results
