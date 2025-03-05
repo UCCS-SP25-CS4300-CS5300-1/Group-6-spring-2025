@@ -7,17 +7,15 @@ jobs:
   deploy:
     name: OpenAI
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
-      - name: Set up Node.js (for OpenAI API interaction)
-        uses: actions/setup-node@v1
-        with:
-          node-version: '16'
-          
+        
       - name: Get PR Diff
         uses: GrantBirki/git-diff-action@v2.5.0
         id: git-diff-action
@@ -26,19 +24,9 @@ jobs:
           raw_diff_file_output: diff.txt
           file_output_only: "true"
           
-      - name: OpenAI
-        uses: Just-Moh-it/openai@v0.0.1
+      - uses: sshnaidm/gpt-code-review-action@v2.0
         with:
-          openai-api-key: ${{ secrets.OPENAIAPI }}
-          openai-mode: "chat"
-          openai-params: '{"prompt":"Repeat after me, Hello World: ", "model": "text-davinci-003"}'
-        id: openai
-      - name: Print
-        run: |
-          echo  "${{ steps.openai.outputs.completion }}"
-        
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: openai
-          path: code_review.txt
+          openai-key: ${{ secrets.OPENAIAPI }}
+          model: 'gpt-3'
+          max-length: 8000
+          prompt: 'Explain what changes are occuring with this code.'
