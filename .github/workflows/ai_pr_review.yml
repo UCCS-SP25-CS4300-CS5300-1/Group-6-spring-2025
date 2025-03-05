@@ -24,7 +24,7 @@ jobs:
           raw_diff_file_output: diff.txt
           file_output_only: "true"
           
-      - uses: sshnaidm/gpt-code-review-action@v2.0
+      - uses: sshnaidm/gpt-code-review-action@v2.1
         with:
           openai-key: ${{ secrets.OPENAIAPI }}
           model: 'gpt-3'
