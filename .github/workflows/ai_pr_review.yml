@@ -30,8 +30,8 @@ jobs:
         uses: Just-Moh-it/openai@v0.0.1
         with:
           openai-api-key: ${{ secrets.OPENAIAPI }}
-          openai-mode: "completion"
-          openai-params: '{"prompt":"Repeat after me, Hello World: }}", "model": "text-davinci-003"}'
+          openai-mode: "chat"
+          openai-params: '{"prompt":"Repeat after me, Hello World: ", "model": "text-davinci-003"}'
         id: openai
       - name: Print
         run: |
