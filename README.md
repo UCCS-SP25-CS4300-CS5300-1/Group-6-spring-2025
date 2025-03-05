@@ -6,3 +6,4 @@ In order to try and imitate a proper environment we will utilize this type of wo
 
 This will start the server by default on 127.0.0.1:8000.
 In settings.py the ALLOWED_HOSTS setting is ['*'] so any host can access the website (unsecure but usable for testing)
+##Something
