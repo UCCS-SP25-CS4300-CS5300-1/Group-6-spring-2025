@@ -12,7 +12,7 @@ I order to make sure we maintain a list of packages we are using that can easily
 To install dependencies using it do:
 > pip install requirements.txt
 
-In order to update the file if you install do:
+In order to update the file if you install new dependencies do:
 > pipreqs Group-6-spring-2025/Project
 
 You may need to install pipreqs first:
