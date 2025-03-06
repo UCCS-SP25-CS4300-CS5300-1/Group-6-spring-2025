@@ -4,5 +4,14 @@ In order to try and imitate a proper environment we will utilize this type of wo
 ## Starting Django Server
 > python3 manage.py runserver
 
-This will start the server by default on 127.0.0.1:8000.
+This will start the server by default on 127.0.0.1:2000.
 In settings.py the ALLOWED_HOSTS setting is ['*'] so any host can access the website (unsecure but usable for testing)
+
+## django Requirements
+I order to make sure we maintain a list of packages we are using that can easily be installed we will leverage requirements.txt located in Group-6-spring-2025/Project/requirements.txt
+To install dependencies using it do:
+> pip install requirements.txt
+In order to update the file if you install do:
+> pipreqs Group-6-spring-2025/Project
+You may need to install pipreqs first:
+> pip install pipreqs
