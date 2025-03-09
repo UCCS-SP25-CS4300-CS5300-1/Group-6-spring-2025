@@ -10,14 +10,12 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            login(request, user)
-            return redirect('home')
-        else:
-            form = UserRegistrationForm()
-        return render(request, 'accounts/register.html', {'form': form})
+            user = form.save()
+            login(request, user)  # Log the user in after registration
+            return redirect('home')  # Redirect to home or another page after saving
+    else:
+        form = UserRegistrationForm()  # Create a new form instance for GET requests
+    return render(request, 'accounts/register.html', {'form': form})  # Always return the form
 
 def user_login(request):
     if request.method == 'POST':
