@@ -1,0 +1,13 @@
+<h2>Update Profile</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="bmi">BMI:</label>
+    <input type="text" name="bmi" value="{{ profile.bmi }}">
+    <label for="fitness_level">Fitness Level:</label>
+    <input type="text" name="fitness_level" value="{{ profile.fitness_level }}">
+    <label for="goals">Goals:</label>
+    <textarea name="goals">{{ profile.goals }}</textarea>
+    <label for="injury_history">Injury History:</label>
+    <textarea name="injury_history">{{ profile.injury_history }}</textarea>
+    <button type="submit">Update</button>
+</form>

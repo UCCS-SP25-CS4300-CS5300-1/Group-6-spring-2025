@@ -17,9 +17,15 @@
         <nav>
             <ul>
                 <li><a class="activate" href="#home">Home</a></li>
-                <li><a href="#generate">Generate Workout</a></li>
-                <li><a href="#account">Account</a></li>
-                <li><a href="#calendar">Calendar</a></li>
+                <li><a href="{{ base_url }}#generate"#generate">Generate Workout</a></li>
+                <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{{ base_url }}account">Account</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Add logout link -->
+                {% else %}
+                    <li><a href="{{ base_url }}accounts/login/">Login</a></li>  <!-- Link to login page -->
+                    <li><a href="{{ base_url }}accounts/register/">Register</a></li>  <!-- Link to registration page -->
+                {% endif %}
             </ul>
         </nav>
     </header>
@@ -27,13 +33,15 @@
     <div class="container">
         <div class="main-section">
             <h1>Welcome to Your Workout Journey!</h1>
-            <!-- not having the proxy 8000 was causing the image to not show up so hard coded for now until a better means is found -->
             <img src="{% static 'images/fitness_pic.jpg' %}" alt="Person Getting Ready to Deadlift" style="max-width: 40%; height: auto;">
-            <p>Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a
-                supportive community. Let's get started!</p>
+            <p>Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a supportive community. Let's get started!</p>
         </div>
 
-        <div class="welcome">Welcome back, [User 's Name]!</div>
+        {% if user.is_authenticated %}
+            <div class="welcome">Welcome back, {{ user.username }}!</div>  <!-- Personalized welcome message -->
+        {% else %}
+            <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
+        {% endif %}
 
         <div class="workout-today">
             <h2>Today's Workout</h2>
@@ -78,7 +86,7 @@
             <div class="day">
                 <h3>Fri</h3>
                 <div class="workout">Strength - Lower Body</div>
-            </div>
+            </ div>
             <div class="day">
                 <h3>Sat</h3>
                 <div class="workout">Rest Day</div>
