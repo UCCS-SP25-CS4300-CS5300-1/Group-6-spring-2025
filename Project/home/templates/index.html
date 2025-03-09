@@ -20,11 +20,17 @@
             display: none;
             position: absolute;
             background-color: #f9f9f9;
-            min-width: 200px;
+            min-width: 250px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1;
             padding: 10px; /* Add some padding */
             right: 0; /* Align to the right */
+        }
+
+        .dropdown-content h3 {
+            margin: 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #ccc; /* Separator line */
         }
 
         .dropdown-content form {
@@ -37,8 +43,7 @@
             padding: 8px;
         }
 
-        .dropdown-content button,
-        .register-button {
+        .dropdown-content button {
             padding: 8px;
             background-color: #007BFF;
             color: white;
@@ -49,17 +54,42 @@
             margin-top: 5px; /* Add some space above the button */
             font-size: 14px; /* Set the same font size */
             font-weight: 700; /* Set the same font weight */
-            width: calc(100% - 0px); /* Make buttons full width minus padding */
+            width: 100%; /* Make buttons full width */
             box-sizing: border-box; /* Include padding in width calculation */
         }
 
-        .dropdown-content button:hover,
-        .register-button:hover {
+        .dropdown-content button:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
 
         .dropdown:hover .dropdown-content {
             display: block; /* Show the dropdown on hover */
+        }
+
+        .separator {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .separator::before {
+            content: "";
+            display: inline-block;
+            width: 40%;
+            height: 1px;
+            background: #ccc;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .separator::after {
+            content: "";
+            display: inline-block;
+            width: 40%;
+            height: 1px;
+            background: #ccc;
+            vertical-align: middle;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -70,7 +100,7 @@
         <nav>
             <ul>
                 <li><a class="activate" href="#home">Home</a></li>
-                <li><a href="{{ base_url }}#generate"#generate">Generate Workout</a></li>
+                <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
                 <li><a href="{{ base_url }}#calendar">Calendar</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{{ base_url }}account">Account</a></li>
@@ -79,6 +109,7 @@
                 <li class="dropdown">
                     <a href="#">Login/Register</a>
                     <div class="dropdown-content">
+                        <h3>Login</h3>
                         <form method="post" action="{% url 'login' %}">
                             {% csrf_token %}
                             <input type="text" name="username" placeholder="Username" required>
@@ -88,14 +119,24 @@
                             {% endif %}
                             <button type="submit">Log In</button>
                         </form>
-                        <a href="{{ base_url }}accounts/register/" class="register-button">Register</a>
+
+                        <div class="separator">OR</div>
+                        
+                        <h3>Register</h3>
+                        <form method="post" action="{% url 'register' %}">
+                            {% csrf_token %}
+                            <input type="text" name="username" placeholder="Username" required>
+                            <input type="email" name="email" placeholder="Email" required>
+                            <input type="password" name="password" placeholder="Password" required>
+                            <button type="submit">Register</button>
+                        </form>
                     </div>
                 </li>
                 {% endif %}
             </ul>
         </nav>
     </header>
-
+    
     <div class="container">
         <div class="main-section">
             <h1>Welcome to Your Workout Journey!</h1>
@@ -152,7 +193,7 @@
             <div class="day">
                 <h3>Fri</h3>
                 <div class="workout">Strength - Lower Body</div>
-            </ div>
+            </div>
             <div class="day">
                 <h3>Sat</h3>
                 <div class="workout">Rest Day</div>
