@@ -134,3 +134,8 @@ BASE_URL = os.getenv('BASE_URL', '/')
 LOGIN_REDIRECT_URL = 'home'  
 LOGOUT_REDIRECT_URL = 'home' 
 
+# For User Creation adding Max's environment as a trusted origin
+CSRF_TRUSTED_ORIGINS = [
+    'https://editor-mhymercontainer-5.devedu.io',
+    # Add other trusted origins as needed
+]
