@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'home',
     'accounts',
-    # 'django.contrib.sites', django Allauth
+    'django.contrib.sites',  # django Allauth
 ]
 
 MIDDLEWARE = [
