@@ -13,7 +13,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)  # Log the user in after registration
-            return redirect('home')  # Redirect to home or another page after saving
+            return redirect('')  # Redirect to home or another page after saving
     else:
         form = UserRegistrationForm()  # Create a new form instance for GET requests
     return render(request, 'accounts/register.html', {'form': form})  # Always return the form
@@ -33,11 +33,13 @@ def user_login(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 def user_data(request):
-    if request.POST.get('bmi'):
+    if request.method == 'POST':
         bmi = request.POST.get('bmi')
-        fitness_level = request.POST.get('goals')
+        fitness_level = request.POST.get('fitness_level')  # Corrected to get fitness_level
+        goals = request.POST.get('goals')  # Ensure you retrieve goals from the request
         UserData.objects.create(user=request.user, bmi=bmi, fitness_level=fitness_level, goals=goals)
         return redirect('user_data')
+    
     user_data = UserData.objects.filter(user=request.user)
     return render(request, 'accounts/user_data.html', {'user_data': user_data})
 

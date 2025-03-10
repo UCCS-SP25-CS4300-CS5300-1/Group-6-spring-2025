@@ -1,0 +1,21 @@
+<h2>User Data</h2>
+<table>
+    <tr>
+        <th>Date</th>
+        <th>BMI</th>
+        <th>Fitness Level</th>
+        <th>Goals</th>
+    </tr>
+    {% for data in user_data %}
+    <tr>
+        <td>{{ data.date }}</td>
+        <td>{{ data.bmi }}</td>
+        <td>{{ data.fitness_level }}</td>
+        <td>{{ data.goals }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">No data available.</td>
+    </tr>
+    {% endfor %}
+</table>

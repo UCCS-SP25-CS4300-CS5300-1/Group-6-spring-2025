@@ -120,12 +120,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'home/static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'home/static'),
+    ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Sets the script name for application behind a reverse proxy
+FORCE_SCRIPT_NAME = "/proxy/8000"  
+# Use x fowarded host header to determine original host
+USE_X_FORWARDED_HOST = True
 
 # Default Root if not set
 BASE_URL = os.getenv('BASE_URL', '/')
