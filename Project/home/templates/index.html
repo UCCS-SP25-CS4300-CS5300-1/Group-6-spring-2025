@@ -10,6 +10,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="static/styles.css">
     <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003366;
+            padding: 20px 40px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        li {
+            margin-left: 30px;
+        }
+
+        li a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        li a:hover {
+            background-color: #007BFF;
+            transform: scale(1.05);
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .welcome {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .main-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .workout-today, .progress, .upcoming-workouts, .calendar {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .workout-today h2, .progress h2, .upcoming-workouts h2, .calendar h2 {
+            margin-top: 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: #0056B3;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 columns for the days of the week */
+            gap: 10px;
+        }
+
+        .day {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .day h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .workout {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .day-header {
+            font-weight: bold;
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none; /* Hide the dropdown content by default */
+            position: absolute;
+            background-color: #f9f9f9; /* Background color of the dropdown */
+            min-width: 150px; /* Set a minimum width for the dropdown */
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow effect */
+            z-index: 1; /* Ensure it appears above other elements */
+            padding: 10px; /* Add some padding */
+            right: 0; /* Align to the right */
+        }
+
+        .dropdown-content a {
+            color: black; /* Link color */
+            padding: 10px 15px; /* Padding for links */
+            text-decoration: none; /* Remove underline */
+            display: block; /* Make links block elements */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1; /* Change background on hover */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block; /* Show the dropdown on hover */
+        }
+
         .dropdown {
             position: relative;
             display: inline-block;
