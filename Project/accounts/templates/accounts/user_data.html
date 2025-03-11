@@ -99,7 +99,7 @@
                 <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
                 <li><a href="{{ base_url }}#calendar">Calendar</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="{{ base_url }}account">Account</a></li>
+                    <li><a href="{% url 'user_data' %}">Account</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
                     <li><a href="{% url 'login' %}">Login</a></li>

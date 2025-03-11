@@ -57,4 +57,4 @@ def update_profile(request):
             return redirect('/')  # Redirect to home or another page after saving
     else:
         form = UserProfileUpdateForm(instance=profile)  # Pre-fill the form with existing data
-    return render(request, 'users/update_profile.html', {'form': form})
+    return render(request, 'accounts/update_profile.html', {'form': form})
