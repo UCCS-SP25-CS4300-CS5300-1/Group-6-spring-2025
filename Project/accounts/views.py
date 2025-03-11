@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import UserRegistrationForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .models import UserData
 from django.contrib.auth.decorators import login_required
@@ -13,7 +13,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)  # Log the user in after registration
-            return redirect('')  # Redirect to home or another page after saving
+            return redirect('/')  # Redirect to home or another page after saving
     else:
         form = UserRegistrationForm()  # Create a new form instance for GET requests
     return render(request, 'accounts/register.html', {'form': form})  # Always return the form
@@ -27,7 +27,7 @@ def user_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                return redirect('/')
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
@@ -43,6 +43,10 @@ def user_data(request):
     user_data = UserData.objects.filter(user=request.user)
     return render(request, 'accounts/user_data.html', {'user_data': user_data})
 
+def custom_logout(request):
+    logout(request)  # This will terminate the user's session
+    return redirect('/')  # Redirect to the home page or any other page
+
 @login_required  # Ensure the user is logged in
 def update_profile(request):
     profile = request.user.userprofile  # Get the user's profile
@@ -50,7 +54,7 @@ def update_profile(request):
         form = UserProfileUpdateForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()  # Save the updated profile
-            return redirect('home')  # Redirect to home or another page after saving
+            return redirect('/')  # Redirect to home or another page after saving
     else:
         form = UserProfileUpdateForm(instance=profile)  # Pre-fill the form with existing data
     return render(request, 'users/update_profile.html', {'form': form})

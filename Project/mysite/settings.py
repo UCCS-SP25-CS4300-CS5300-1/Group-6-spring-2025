@@ -137,8 +137,8 @@ USE_X_FORWARDED_HOST = True
 BASE_URL = os.getenv('BASE_URL', '/')
 
 # Redirect to home if user logs in or out
-LOGIN_REDIRECT_URL = 'home'  
-LOGOUT_REDIRECT_URL = 'home' 
+LOGIN_REDIRECT_URL = '/'  
+LOGOUT_REDIRECT_URL = '/' 
 
 # For User Creation adding Max's environment as a trusted origin
 CSRF_TRUSTED_ORIGINS = [
