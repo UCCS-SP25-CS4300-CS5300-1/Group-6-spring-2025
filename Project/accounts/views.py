@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import UserRegistrationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .models import UserData
+from .models import UserProfile
 from django.contrib.auth.decorators import login_required
 from .forms import UserProfileUpdateForm
 
@@ -33,15 +33,15 @@ def user_login(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 def user_data(request):
-    if request.method == 'POST':
-        bmi = request.POST.get('bmi')
-        fitness_level = request.POST.get('fitness_level')  # Corrected to get fitness_level
-        goals = request.POST.get('goals')  # Ensure you retrieve goals from the request
-        UserData.objects.create(user=request.user, bmi=bmi, fitness_level=fitness_level, goals=goals)
-        return redirect('user_data')
-    
-    user_data = UserData.objects.filter(user=request.user)
-    return render(request, 'accounts/user_data.html', {'user_data': user_data})
+    # Retrieve the user's profile
+    user_profile = request.user.userprofile
+    # Retrieve all user data entries for the logged-in user
+    user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')  # Prefetch related goals for efficiency
+
+    return render(request, 'accounts/user_data.html', {
+        'user_profile': user_profile,
+        'user_data_entries': user_data_entries,
+    })
 
 def custom_logout(request):
     logout(request)  # This will terminate the user's session
@@ -52,9 +52,42 @@ def update_profile(request):
     profile = request.user.userprofile  # Get the user's profile
     if request.method == 'POST':
         form = UserProfileUpdateForm(request.POST, instance=profile)
+        print(request.POST)  # Print the submitted data
         if form.is_valid():
-            form.save()  # Save the updated profile
+            profile = form.save(commit=False)  # Save the form but don't commit yet
+            
+            # Calculate BMI
+            height_m = profile.height * 0.0254 if profile.height else 0  # Convert height from inches to meters
+            weight_kg = profile.weight * 0.453592 if profile.weight else 0  # Convert weight from pounds to kg
+            
+            if height_m > 0:  # Prevent division by zero
+                profile.bmi = weight_kg / (height_m ** 2)
+            else:
+                profile.bmi = None  # Handle case where height is zero
+            
+            # Save the updated profile
+            profile.save()  
+            
+            # Handle goals and injuries
+            goals = request.POST.getlist('goals')  # Get selected goals from the form
+            injuries = request.POST.getlist('injury_history')  # Get selected injuries from the form
+            
+            # Update the ManyToMany fields
+            profile.goals.set(goals)  # Update the user's goals
+            profile.injury_history.set(injuries)  # Update the user's injury history
+            
             return redirect('/')  # Redirect to home or another page after saving
+        else:
+            print(form.errors)  # Print any validation errors
     else:
         form = UserProfileUpdateForm(instance=profile)  # Pre-fill the form with existing data
-    return render(request, 'accounts/update_profile.html', {'form': form})
+
+    # Prepare a list of selected goal IDs and injury IDs
+    selected_goals = profile.goals.values_list('id', flat=True)
+    selected_injuries = profile.injury_history.values_list('id', flat=True)
+
+    return render(request, 'accounts/update_profile.html', {
+        'form': form,
+        'selected_goals': selected_goals,
+        'selected_injuries': selected_injuries,
+    })

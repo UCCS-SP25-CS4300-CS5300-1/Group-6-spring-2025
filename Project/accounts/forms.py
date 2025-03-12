@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserProfile
+from .models import UserProfile, Goal, Injury, FitnessLevel
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -39,10 +39,22 @@ class UserRegistrationForm(forms.ModelForm):
         return user
 
 class UserProfileUpdateForm(forms.ModelForm):
+    HEIGHT_CHOICES = [(i, f"{i} inches") for i in range(24, 96)]  # Height from 2'0" (24 inches) to 8'0" (96 inches)
+    WEIGHT_CHOICES = [(i, f"{i} lbs") for i in range(20, 600)]  # Weight from 20 lbs to 600 lbs
+
+    height = forms.ChoiceField(choices=HEIGHT_CHOICES, required=False)
+    weight = forms.ChoiceField(choices=WEIGHT_CHOICES, required=False)
+    fitness_level = forms.ModelChoiceField(queryset=FitnessLevel.objects.all(), required=False)
+
     class Meta:
         model = UserProfile
-        fields = ['bmi', 'fitness_level', 'goals', 'injury_history']
+        fields = ['height', 'weight', 'fitness_level', 'goals', 'injury_history']
         widgets = {
-            'goals': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter your fitness goals here...'}),
-            'injury_history': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter any injury history here...'}),
+            'goals': forms.CheckboxSelectMultiple(),  # Use checkboxes for goals
+            'injury_history': forms.CheckboxSelectMultiple(),  # Use checkboxes for injuries
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['goals'].queryset = Goal.objects.all()  # Populate goals
+        self.fields['injury_history'].queryset = Injury.objects.all()  # Populate injuries

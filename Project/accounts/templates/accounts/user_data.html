@@ -87,6 +87,22 @@
         p {
             margin-top: 15px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
     <title>User Data</title>
 </head>
@@ -109,6 +125,13 @@
     </header>
 
     <div class="container">
+        <h2>User Profile</h2>
+        <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
+        <p><strong>Height:</strong> {{ user_profile.height }} inches</p>
+        <p><strong>Weight:</strong> {{ user_profile.weight }} lbs</p>
+        <p><strong>BMI:</strong> {{ user_profile.bmi }}</p>
+        <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>  <!-- Display the fitness level description -->
+
         <h2>User Data</h2>
         <table>
             <tr>
@@ -117,12 +140,16 @@
                 <th>Fitness Level</th>
                 <th>Goals</th>
             </tr>
-            {% for data in user_data %}
+            {% for data in user_data_entries %}
             <tr>
                 <td>{{ data.date }}</td>
                 <td>{{ data.bmi }}</td>
-                <td>{{ data.fitness_level }}</td>
-                <td>{{ data.goals }}</td>
+                <td>{{ data.fitness_level.name }}</td>  <!-- Display the fitness level name -->
+                <td>
+                    {% for goal in data.goals.all %}
+                        {{ goal.name }}{% if not forloop.last %}, {% endif %}  <!-- Display each goal, separated by commas -->
+                    {% endfor %}
+                </td>
             </tr>
             {% empty %}
             <tr>

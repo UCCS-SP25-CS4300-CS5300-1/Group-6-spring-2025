@@ -211,7 +211,7 @@
         <a class="logo" href="#home">Workout App</a>
         <nav>
             <ul>
-                <li><a class="activate" href="#home">Home</a></li>
+                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
                 <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
                 <li><a href="{{ base_url }}#calendar">Calendar</a></li>
                 {% if user.is_authenticated %}

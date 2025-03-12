@@ -55,6 +55,8 @@
 
         .container {
             padding: 20px;
+            max-width: 600px; /* Set a max width for the form */
+            margin: 0 auto; /* Center the container */
         }
 
         .main-section {
@@ -62,12 +64,13 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            text-align: left; /* Align text to the left */
             margin-bottom: 20px;
         }
 
         .main-section h2 {
             margin-top: 0;
+            color: #003366; /* Change header color */
         }
 
         button {
@@ -78,6 +81,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 16px; /* Increase button font size */
         }
 
         button:hover {
@@ -86,6 +90,45 @@
 
         p {
             margin-top: 15px;
+        }
+
+        /* Add some margin to form elements */
+        form div {
+            margin-bottom: 20px; /* Increase margin for better spacing */
+        }
+
+        form label {
+            display: block; /* Make labels block elements */
+            margin-bottom: 5px; /* Space between label and input */
+            font-weight: bold; /* Make labels bold */
+            color: #333; /* Darker color for labels */
+        }
+
+        form select {
+            width: 100%; /* Make inputs and textareas full width */
+            padding: 10px; /* Add padding inside inputs */
+            border: 1px solid #ccc; /* Add border */
+            border-radius: 4px; /* Rounded corners */
+            font-size: 16px; /* Increase font size */
+        }
+
+        /* Style checkboxes */
+        .checkbox-label {
+            display: flex;
+            align-items: center; /* Center align checkbox and label */
+            margin-bottom: 10px; /* Space between checkboxes */
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px; /* Space between checkbox and label */
+            width: auto; /* Keep checkbox size small */
+        }
+
+        /* Flexbox for goals and injuries */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column; /* Stack checkboxes vertically */
+            margin-top: 10px; /* Space above the checkbox group */
         }
     </style>
     <title>User Data</title>
@@ -108,25 +151,93 @@
         </nav>
     </header>
 
-    <form method="post">
-        {% csrf_token %}
-        <div style="margin-bottom: 10px;">
-            <label for="bmi">BMI:</label>
-            <input type="text" name="bmi" value="{{ profile.bmi }}">
+    <div class="container">
+        <div class="main-section">
+            <h2>Update Profile</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div>
+                    <label for="height">Height (in inches):</label>
+                    <select name="height" id="height" onchange="calculateBMI()">
+                        <option value="">Select Height</option>
+                        {% for value, label in form.height.field.choices %}
+                            <option value="{{ value }}" {% if value|stringformat:"d" == profile.height|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="weight">Weight (in lbs):</label>
+                    <select name="weight" id="weight" onchange="calculateBMI()">
+                        <option value="">Select Weight</option>
+                        {% for value, label in form.weight.field.choices %}
+                            <option value="{{ value }}" {% if value|stringformat:"d" == profile.weight|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="bmi">Your BMI:</label>
+                    <input type="text" id="bmi" value="0" readonly>
+                </div>
+                <div>
+                    <label for="fitness_level">Fitness Level:</label>
+                    <select name="fitness_level" id="fitness_level">
+                        <option value="">Select Fitness Level</option>
+                        {% for fitness in form.fitness_level.field.queryset %}
+                            <option value="{{ fitness.id }}" {% if fitness.id == profile.fitness_level %}selected{% endif %}>{{ fitness.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>User Goals:</label>
+                    <div class="checkbox-group">
+                        {% for goal in form.goals %}
+                            <div class="checkbox-label">
+                                <input type="checkbox" name="goals" value="{{ goal.choice_value }}" 
+                                    {% if goal.choice_value|add:"0" in selected_goals %}checked{% endif %}>
+                                <label>{{ goal.choice_label }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <label>Common Injuries:</label>
+                    <div class="checkbox-group">
+                        {% for injury in form.injury_history %}
+                            <div class="checkbox-label">
+                                <input type="checkbox" name="injury_history" value="{{ injury.choice_value }}" 
+                                    {% if injury.choice_value|add:"0" in selected_injuries %}checked{% endif %}>
+                                <label>{{ injury.choice_label }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="submit">Update</button>
+            </form>
         </div>
-        <div style="margin-bottom: 10px;">
-            <label for="fitness_level">Fitness Level:</label>
-            <input type="text" name="fitness_level" value="{{ profile.fitness_level }}">
-        </div>
-        <div style="margin-bottom: 10px;">
-            <label for="goals">Goals:</label>
-            <textarea name="goals">{{ profile.goals }}</textarea>
-        </div>
-        <div style="margin-bottom: 10px;">
-            <label for="injury_history">Injury History:</label>
-            <textarea name="injury_history">{{ profile.injury_history }}</textarea>
-        </div>
-        <button type="submit">Update</button>
-    </form>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            const heightSelect = document.getElementById('height');
+            const weightSelect = document.getElementById('weight');
+            const bmiInput = document.getElementById('bmi');
+
+            const height = parseFloat(heightSelect.value);
+            const weight = parseFloat(weightSelect.value);
+
+            if (height && weight) {
+                // Convert height from inches to meters
+                const heightInMeters = height * 0.0254;
+                // Convert weight from pounds to kilograms
+                const weightInKg = weight * 0.453592;
+
+                // Calculate BMI
+                const bmi = weightInKg / (heightInMeters * heightInMeters);
+                bmiInput.value = bmi.toFixed(2); // Display BMI with 2 decimal places
+            } else {
+                bmiInput.value = "0"; // Reset to 0 if height or weight is not selected
+            }
+        }
+    </script>
 </body>
 </html>
