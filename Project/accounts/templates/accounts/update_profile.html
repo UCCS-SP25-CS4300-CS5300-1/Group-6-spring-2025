@@ -156,61 +156,7 @@
             <h2>Update Profile</h2>
             <form method="post">
                 {% csrf_token %}
-                <div>
-                    <label for="height">Height (in inches):</label>
-                    <select name="height" id="height" onchange="calculateBMI()">
-                        <option value="">Select Height</option>
-                        {% for value, label in form.height.field.choices %}
-                            <option value="{{ value }}" {% if value|stringformat:"d" == profile.height|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label for="weight">Weight (in lbs):</label>
-                    <select name="weight" id="weight" onchange="calculateBMI()">
-                        <option value="">Select Weight</option>
-                        {% for value, label in form.weight.field.choices %}
-                            <option value="{{ value }}" {% if value|stringformat:"d" == profile.weight|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label for="bmi">Your BMI:</label>
-                    <input type="text" id="bmi" value="0" readonly>
-                </div>
-                <div>
-                    <label for="fitness_level">Fitness Level:</label>
-                    <select name="fitness_level" id="fitness_level">
-                        <option value="">Select Fitness Level</option>
-                        {% for fitness in form.fitness_level.field.queryset %}
-                            <option value="{{ fitness.id }}" {% if fitness.id == profile.fitness_level %}selected{% endif %}>{{ fitness.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label>User Goals:</label>
-                    <div class="checkbox-group">
-                        {% for goal in form.goals %}
-                            <div class="checkbox-label">
-                                <input type="checkbox" name="goals" value="{{ goal.choice_value }}" 
-                                    {% if goal.choice_value|add:"0" in selected_goals %}checked{% endif %}>
-                                <label>{{ goal.choice_label }}</label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div>
-                    <label>Common Injuries:</label>
-                    <div class="checkbox-group">
-                        {% for injury in form.injury_history %}
-                            <div class="checkbox-label">
-                                <input type="checkbox" name="injury_history" value="{{ injury.choice_value }}" 
-                                    {% if injury.choice_value|add:"0" in selected_injuries %}checked{% endif %}>
-                                <label>{{ injury.choice_label }}</label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+                {{ form.as_p }}
                 <button type="submit">Update</button>
             </form>
         </div>

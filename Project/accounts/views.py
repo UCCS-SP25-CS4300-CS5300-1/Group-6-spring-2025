@@ -56,6 +56,9 @@ def update_profile(request):
         if form.is_valid():
             profile = form.save(commit=False)  # Save the form but don't commit yet
             
+            profile.height = float(request.POST.get('height', 0)) if request.POST.get('height') else None
+            profile.weight = float(request.POST.get('weight', 0)) if request.POST.get('weight') else None
+
             # Calculate BMI
             height_m = profile.height * 0.0254 if profile.height else 0  # Convert height from inches to meters
             weight_kg = profile.weight * 0.453592 if profile.weight else 0  # Convert weight from pounds to kg
