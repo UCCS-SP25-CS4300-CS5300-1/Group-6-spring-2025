@@ -1,14 +1,13 @@
+<!-- Load static files -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-    <!-- Load static files -->
-    {% load static %}
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <style>
         body {
             margin: 0;
@@ -212,9 +211,9 @@
         <nav>
             <ul>
                 <li><a class="activate" href="{% url 'home' %}">Home</a></li>
-                <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
-                <li><a href="{{ base_url }}#calendar">Calendar</a></li>
                 {% if user.is_authenticated %}
+                    <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+                    <li><a href="{{ base_url }}#calendar">Calendar</a></li>
                     <li><a href="{% url 'user_data' %}">Account</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Add logout link -->
                 {% else %}
@@ -239,63 +238,100 @@
 
         {% if user.is_authenticated %}
             <div class="welcome">Welcome back, {{ user.username }}!</div>  <!-- Personalized welcome message -->
+            <div class="workout-today">
+                <h2>Today's Workout</h2>
+                <p>Exercise: <strong>Full Body Strength Training</strong></p>
+                <p>Duration: <strong>45 minutes</strong></p>
+                <a href="#start-workout" class="cta-button">Start Workout</a>
+            </div>
+    
+            <div class="progress">
+                <h2>Your Progress</h2>
+                <p>You've completed <strong>85%</strong> of your workouts this month!</p>
+                <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
+                    <div style="width: 85%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
+                </div>
+            </div>
+    
+            <div class="calendar">
+                <h2 style="grid-column: span 7; text-align: center;">Workout Calendar</h2>
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+                <div class="day-header">Sun</div>
+                <div class="day">
+                    <div class="workout">Cardio - 30 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Strength - Upper Body</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Yoga - 60 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">HIIT - 20 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Strength - Lower Body</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Long Run - 45 min</div>
+                </div>
+            </div>
         {% else %}
             <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
+            <div class="workout-today">
+                <h2>Daily Workouts Tailored to You</h2>
+                <p>Exercise: <strong>Squats</strong></p>
+                <p>Duration: <strong>45 minutes</strong></p>
+            </div>
+    
+            <div class="progress">
+                <h2>Your Plan Progress Visualized For You!</h2>
+                <p>You've completed <strong>75%</strong> of your workouts this month!</p>
+                <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
+                    <div style="width: 75%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
+                </div>
+            </div>
+    
+            <div class="calendar">
+                <h2 style="grid-column: span 7; text-align: center;">Viewable Via a Calendar</h2>
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+                <div class="day-header">Sun</div>
+                <div class="day">
+                    <div class="workout">Cardio - 30 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Yoga - 60 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Stretching - 20 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Long Run - 45 min</div>
+                </div>
+            </div>
         {% endif %}
-
-        <div class="workout-today">
-            <h2>Today's Workout</h2>
-            <p>Exercise: <strong>Full Body Strength Training</strong></p>
-            <p>Duration: <strong>45 minutes</strong></p>
-            <a href="#start-workout" class="cta-button">Start Workout</a>
-        </div>
-
-        <div class="progress">
-            <h2>Your Progress</h2>
-            <p>You've completed <strong>75%</strong> of your workouts this month!</p>
-            <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
-                <div style="width: 75%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
-            </div>
-        </div>
-
-        <div class="calendar">
-            <h2 style="grid-column: span 7; text-align: center;">Workout Calendar</h2>
-            <div class="day-header">Mon</div>
-            <div class="day-header">Tue</div>
-            <div class="day-header">Wed</div>
-            <div class="day-header">Thu</div>
-            <div class="day-header">Fri</div>
-            <div class="day-header">Sat</div>
-            <div class="day-header">Sun</div>
-            <div class="day">
-                <h3>Mon</h3>
-                <div class="workout">Cardio - 30 min</div>
-            </div>
-            <div class="day">
-                <h3>Tue</h3>
-                <div class="workout">Strength - Upper Body</div>
-            </div>
-            <div class="day">
-                <h3>Wed</h3>
-                <div class="workout">Yoga - 60 min</div>
-            </div>
-            <div class="day">
-                <h3>Thu</h3>
-                <div class="workout">HIIT - 20 min</div>
-            </div>
-            <div class="day">
-                <h3>Fri</h3>
-                <div class="workout">Strength - Lower Body</div>
-            </div>
-            <div class="day">
-                <h3>Sat</h3>
-                <div class="workout">Rest Day</div>
-            </div>
-            <div class="day">
-                <h3>Sun</h3>
-                <div class="workout">Long Run - 45 min</div>
-            </div>
-        </div>
     </div>
 </body>
 
