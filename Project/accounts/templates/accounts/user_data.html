@@ -129,35 +129,37 @@
         <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
         <p><strong>Height:</strong> {{ user_profile.height }} inches</p>
         <p><strong>Weight:</strong> {{ user_profile.weight }} lbs</p>
-        <p><strong>BMI:</strong> {{ user_profile.bmi }}</p>
-        <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>  <!-- Display the fitness level description -->
+        <p><strong>BMI:</strong> {{ user_profile.bmi|floatformat:2 }}</p>
+        <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>
+    
+        <!-- Goals Section (Vertically Listed) -->
+        <div>
+            <h3>🏆 Goals</h3>
+                {% if user_profile.goals.all %}
+                    <ul>
+                        {% for goal in user_profile.goals.all %}
+                            <li>✅ {{ goal.name }}</li>  <!-- Adjust 'name' based on your Goal model -->
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>• No goals set.</p>
+                {% endif %}
+            </div>
 
-        <h2>User Data</h2>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>BMI</th>
-                <th>Fitness Level</th>
-                <th>Goals</th>
-            </tr>
-            {% for data in user_data_entries %}
-            <tr>
-                <td>{{ data.date }}</td>
-                <td>{{ data.bmi }}</td>
-                <td>{{ data.fitness_level.name }}</td>  <!-- Display the fitness level name -->
-                <td>
-                    {% for goal in data.goals.all %}
-                        {{ goal.name }}{% if not forloop.last %}, {% endif %}  <!-- Display each goal, separated by commas -->
-                    {% endfor %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">No data available.</td>
-            </tr>
-            {% endfor %}
-        </table>
-
+            <!-- Injury History Section (Vertically Listed) -->
+            <div style="margin-bottom: 40px;">
+                <h3>⚕️ Injury History</h3>
+                {% if user_profile.injury_history.all %}
+                    <ul>
+                        {% for injury in user_profile.injury_history.all %}
+                            <li>⚠️ {{ injury.name }}</li>  <!-- Adjust 'name' based on your Injury model -->
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>• No injury history recorded.</p>
+                {% endif %}
+            </div>
+    
         <!-- Button to Update Profile -->
         <div class="main-section">
             <h2>Profile Actions</h2>

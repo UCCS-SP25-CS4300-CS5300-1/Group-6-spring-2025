@@ -41,10 +41,12 @@ class UserRegistrationForm(forms.ModelForm):
 class UserProfileUpdateForm(forms.ModelForm):
     HEIGHT_CHOICES = [(i, f"{i} inches") for i in range(24, 96)]  # Height from 2'0" (24 inches) to 8'0" (96 inches)
     WEIGHT_CHOICES = [(i, f"{i} lbs") for i in range(20, 600)]  # Weight from 20 lbs to 600 lbs
+    FITNESS_LEVEL_CHOICES = UserProfile.FITNESS_LEVEL_CHOICES
 
     height = forms.ChoiceField(choices=HEIGHT_CHOICES, required=False)
     weight = forms.ChoiceField(choices=WEIGHT_CHOICES, required=False)
-    fitness_level = forms.ModelChoiceField(queryset=FitnessLevel.objects.all(), required=False)
+    fitness_level = forms.ChoiceField(choices=FITNESS_LEVEL_CHOICES, required=False)
+    #fitness_level = forms.ModelChoiceField(queryset=FitnessLevel.objects.all(), required=False)
 
     class Meta:
         model = UserProfile
