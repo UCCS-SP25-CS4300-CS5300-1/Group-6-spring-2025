@@ -128,8 +128,9 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Sets the script name for application behind a reverse proxy
-FORCE_SCRIPT_NAME = "/proxy/8000"  
+# 
+FORCE_SCRIPT_NAME = "/proxy/3000"  
+
 # Use x fowarded host header to determine original host
 USE_X_FORWARDED_HOST = True
 
