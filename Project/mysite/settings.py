@@ -123,13 +123,14 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "home/static"),
 ]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 
-FORCE_SCRIPT_NAME = "/proxy/3000"  
+#FORCE_SCRIPT_NAME = "/proxy/3000"  
 
 # Use x fowarded host header to determine original host
 USE_X_FORWARDED_HOST = True

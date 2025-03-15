@@ -1,5 +1,4 @@
 from django.urls import path
-from django.contrib.auth.views import LogoutView
 from .views import register, user_login, user_data, update_profile, custom_logout
 
 urlpatterns = [
