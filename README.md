@@ -10,7 +10,8 @@ In settings.py the ALLOWED_HOSTS setting is ['*'] so any host can access the web
 
 
 ## Starting the AI model
-    Go into project directory
+Go into project directory, copy and paste the following into terminal:
 
-    cd /path/to/project
-    pip install transformers torch
+```bash
+pip install transformers torch
+```
