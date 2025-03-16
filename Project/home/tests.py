@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from .ai import ai_model
 from django.urls import reverse
 
+
 class AIModelTests(TestCase):
 
     #Ensure AI Response is a string and not empty.
@@ -33,3 +34,10 @@ class ViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "AI Response")
         self.assertContains(response, "lose fat")
+
+# Create your tests here.
+class FakeTestCase(TestCase):
+    def test_assertion(self):
+        self.assertEqual(type(1), int)
+        self.assertEqual(type("hello"), str)
+
