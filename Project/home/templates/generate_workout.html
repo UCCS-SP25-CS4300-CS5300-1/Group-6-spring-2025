@@ -9,31 +9,40 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
+    <!-- Top Navigation Bar -->
     <header>
-        <a class="logo" href="#home">Workout App</a>
-        <nav>
-            <ul>
-                <li><a class="activate" href="#home">Home</a></li>
-                <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
-                <li><a href="#account">Account</a></li>
-                <li><a href="#calendar">Calendar</a></li>
-            </ul>
-        </nav>
+        <div class="nav-container">
+            <a class="logo" href="{% url 'home' %}">Workout App</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a class="activate" href="{% url 'generate_workout' %}">Generate Workout</a></li>
+                    <li><a href="#account">Account</a></li>
+                    <li><a href="#calendar">Calendar</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
-    
-    <div class="container">
-        <h2>Ask AI for a Fitness Plan!</h2>
-        <form method="post" action="">
+
+    <!-- Main Section -->
+    <main class="container">
+        <h2 style="margin-top: 30px;">💬 Ask AI for a Fitness Plan!</h2>
+
+        <form method="post" action="" class="ai-form">
             {% csrf_token %}
-            <input type="text" name="user_input" placeholder="Enter your fitness goal" autofocus>
+            <input type="text" name="user_input" placeholder="Enter your fitness goal..." value="{{ user_input|default:'' }}" required>
             <button type="submit">Submit</button>
         </form>
 
         {% if output %}
-            <p>AI Response: {{ output }}</p>
+            <div class="ai-response">
+                <h2>AI Response:</h2>
+                <p>{{ output }}</p>
+            </div>
         {% endif %}
-    </div>
+    </main>
 
+    <!-- Footer -->
     <footer>
         <p>© 2025 Workout App. All rights reserved.</p>
     </footer>
