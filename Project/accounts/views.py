@@ -79,7 +79,7 @@ def update_profile(request):
             profile.goals.set(goals)  # Update the user's goals
             profile.injury_history.set(injuries)  # Update the user's injury history
             
-            return redirect('/')  # Redirect to home or another page after saving
+            return redirect('/accounts/user_data/')  # Redirect to home or another page after saving
         else:
             print(form.errors)  # Print any validation errors
     else:
