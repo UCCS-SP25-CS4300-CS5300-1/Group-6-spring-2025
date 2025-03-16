@@ -35,7 +35,6 @@ class AIModel:
             attention_mask=inputs['attention_mask'],
             max_length=20,
             top_k=50,
-            top_p=0.95,
             pad_token_id=self.tokenizer.pad_token_id  
         )
 
