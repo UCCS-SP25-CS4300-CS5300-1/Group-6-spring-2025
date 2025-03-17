@@ -1,14 +1,208 @@
+<!-- Load static files -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-    <!-- Load static files -->
-    {% load static %}
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003366;
+            padding: 20px 40px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        li {
+            margin-left: 30px;
+        }
+
+        li a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        li a:hover {
+            background-color: #007BFF;
+            transform: scale(1.05);
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .welcome {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .main-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .workout-today, .progress, .upcoming-workouts, .calendar {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .workout-today h2, .progress h2, .upcoming-workouts h2, .calendar h2 {
+            margin-top: 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: #0056B3;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 columns for the days of the week */
+            gap: 10px;
+        }
+
+        .day {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .day h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .workout {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .day-header {
+            font-weight: bold;
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none; /* Hide the dropdown content by default */
+            position: absolute;
+            background-color: #f9f9f9; /* Background color of the dropdown */
+            min-width: 150px; /* Set a minimum width for the dropdown */
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow effect */
+            z-index: 1; /* Ensure it appears above other elements */
+            padding: 10px; /* Add some padding */
+            right: 0; /* Align to the right */
+        }
+
+        .dropdown-content a {
+            color: black; /* Link color */
+            padding: 10px 15px; /* Padding for links */
+            text-decoration: none; /* Remove underline */
+            display: block; /* Make links block elements */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1; /* Change background on hover */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block; /* Show the dropdown on hover */
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none; /* Hide the dropdown content by default */
+            position: absolute;
+            background-color: #f9f9f9; /* Background color of the dropdown */
+            min-width: 150px; /* Set a minimum width for the dropdown */
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow effect */
+            z-index: 1; /* Ensure it appears above other elements */
+            padding: 10px; /* Add some padding */
+            right: 0; /* Align to the right */
+        }
+
+        .dropdown-content a {
+            color: black; /* Link color */
+            padding: 10px 15px; /* Padding for links */
+            text-decoration: none; /* Remove underline */
+            display: block; /* Make links block elements */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1; /* Change background on hover */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block; /* Show the dropdown on hover */
+        }
+
+    </style>
 </head>
 
 <body>
@@ -16,78 +210,128 @@
         <a class="logo" href="#home">Workout App</a>
         <nav>
             <ul>
-                <li><a class="activate" href="#home">Home</a></li>
-                <li><a href="#generate">Generate Workout</a></li>
-                <li><a href="#account">Account</a></li>
-                <li><a href="#calendar">Calendar</a></li>
+                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+                    <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+                    <li><a href="{% url 'user_data' %}">Account</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Add logout link -->
+                {% else %}
+                <li class="dropdown">
+                    <a href="#">Login/Register</a>
+                    <div class="dropdown-content">
+                        <a href="{% url 'login' %}">Login</a>
+                        <a href="{% url 'register' %}">Register</a>
+                    </div>
+                </li>
+                {% endif %}
             </ul>
         </nav>
     </header>
-
+    
     <div class="container">
         <div class="main-section">
             <h1>Welcome to Your Workout Journey!</h1>
-            <!-- not having the proxy 8000 was causing the image to not show up so hard coded for now until a better means is found -->
             <img src="{% static 'images/fitness_pic.jpg' %}" alt="Person Getting Ready to Deadlift" style="max-width: 40%; height: auto;">
-            <p>Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a
-                supportive community. Let's get started!</p>
+            <p>Join us in achieving your fitness goals with personalized workout plans, progress tracking, and a supportive community. Let's get started!</p>
         </div>
 
-        <div class="welcome">Welcome back, [User 's Name]!</div>
-
-        <div class="workout-today">
-            <h2>Today's Workout</h2>
-            <p>Exercise: <strong>Full Body Strength Training</strong></p>
-            <p>Duration: <strong>45 minutes</strong></p>
-            <a href="#start-workout" class="cta-button">Start Workout</a>
-        </div>
-
-        <div class="progress">
-            <h2>Your Progress</h2>
-            <p>You've completed <strong>75%</strong> of your workouts this month!</p>
-            <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
-                <div style="width: 75%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
+        {% if user.is_authenticated %}
+            <div class="welcome">Welcome back, {{ user.username }}!</div>  <!-- Personalized welcome message -->
+            <div class="workout-today">
+                <h2>Today's Workout</h2>
+                <p>Exercise: <strong>Full Body Strength Training</strong></p>
+                <p>Duration: <strong>45 minutes</strong></p>
+                <a href="#start-workout" class="cta-button">Start Workout</a>
             </div>
-        </div>
-
-        <div class="calendar">
-            <h2 style="grid-column: span 7; text-align: center;">Workout Calendar</h2>
-            <div class="day-header">Mon</div>
-            <div class="day-header">Tue</div>
-            <div class="day-header">Wed</div>
-            <div class="day-header">Thu</div>
-            <div class="day-header">Fri</div>
-            <div class="day-header">Sat</div>
-            <div class="day-header">Sun</div>
-            <div class="day">
-                <h3>Mon</h3>
-                <div class="workout">Cardio - 30 min</div>
+    
+            <div class="progress">
+                <h2>Your Progress</h2>
+                <p>You've completed <strong>85%</strong> of your workouts this month!</p>
+                <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
+                    <div style="width: 85%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
+                </div>
             </div>
-            <div class="day">
-                <h3>Tue</h3>
-                <div class="workout">Strength - Upper Body</div>
+    
+            <div class="calendar">
+                <h2 style="grid-column: span 7; text-align: center;">Workout Calendar</h2>
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+                <div class="day-header">Sun</div>
+                <div class="day">
+                    <div class="workout">Cardio - 30 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Strength - Upper Body</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Yoga - 60 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">HIIT - 20 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Strength - Lower Body</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Long Run - 45 min</div>
+                </div>
             </div>
-            <div class="day">
-                <h3>Wed</h3>
-                <div class="workout">Yoga - 60 min</div>
+        {% else %}
+            <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
+            <div class="workout-today">
+                <h2>Daily Workouts Tailored to You</h2>
+                <p>Exercise: <strong>Squats</strong></p>
+                <p>Duration: <strong>45 minutes</strong></p>
             </div>
-            <div class="day">
-                <h3>Thu</h3>
-                <div class="workout">HIIT - 20 min</div>
+    
+            <div class="progress">
+                <h2>Your Plan Progress Visualized For You!</h2>
+                <p>You've completed <strong>75%</strong> of your workouts this month!</p>
+                <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
+                    <div style="width: 75%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
+                </div>
             </div>
-            <div class="day">
-                <h3>Fri</h3>
-                <div class="workout">Strength - Lower Body</div>
+    
+            <div class="calendar">
+                <h2 style="grid-column: span 7; text-align: center;">Viewable Via a Calendar</h2>
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+                <div class="day-header">Sun</div>
+                <div class="day">
+                    <div class="workout">Cardio - 30 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Yoga - 60 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Stretching - 20 min</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Rest Day</div>
+                </div>
+                <div class="day">
+                    <div class="workout">Long Run - 45 min</div>
+                </div>
             </div>
-            <div class="day">
-                <h3>Sat</h3>
-                <div class="workout">Rest Day</div>
-            </div>
-            <div class="day">
-                <h3>Sun</h3>
-                <div class="workout">Long Run - 45 min</div>
-            </div>
-        </div>
+        {% endif %}
     </div>
 </body>
 

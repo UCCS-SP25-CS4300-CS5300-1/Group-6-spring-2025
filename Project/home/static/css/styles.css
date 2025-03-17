@@ -128,3 +128,34 @@ li a:hover {
     border-radius: 5px;
     text-align: center;
 }
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none; /* Hide the dropdown content by default */
+    position: absolute;
+    background-color: #f9f9f9; /* Background color of the dropdown */
+    min-width: 150px; /* Set a minimum width for the dropdown */
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    z-index: 1; /* Ensure it appears above other elements */
+    padding: 10px; /* Add some padding */
+    right: 0; /* Align to the right */
+}
+
+.dropdown-content a {
+    color: black; /* Link color */
+    padding: 10px 15px; /* Padding for links */
+    text-decoration: none; /* Remove underline */
+    display: block; /* Make links block elements */
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1; /* Change background on hover */
+}
+
+.dropdown:hover .dropdown-content {
+    display: block; /* Show the dropdown on hover */
+}
