@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout App - Goals</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base Reset & Typography */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #003366;
+      padding: 20px 40px;
+      margin: 0;
+    }
+    .logo {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    nav li {
+      margin-left: 30px;
+    }
+    nav a {
+      color: white;
+      font-size: 18px;
+      padding: 15px;
+      border-radius: 4px;
+      transition: background-color 0.3s, transform 0.3s;
+      /* Ensure consistent line-height */
+      line-height: 1;
+    }
+    nav a:hover {
+      background-color: #007BFF;
+      transform: scale(1.05);
+    }
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    /* Main Sections */
+    .main-section {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .main-section h1,
+    .main-section h2 {
+      margin-top: 0;
+      color: #003366;
+      text-align: center;
+    }
+    /* Goals List */
+    ul {
+      padding-left: 20px;
+    }
+    ul li {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    /* Button Group */
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-evenly;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056B3;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="{% url 'home' %}">Workout App</a>
+    <nav>
+      <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        {% if user.is_authenticated %}
+          <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+          <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+          <li><a href="{% url 'goals:goals' %}">Goals</a></li>
+          <li><a href="{% url 'user_data' %}">Account</a></li>
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+          <li><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="main-section">
+      <h1>Current Goals</h1>
+      {% if user_goals %}
+        <ul>
+          {% for goal in user_goals %}
+            <li>{{ goal }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>You have not set any goals yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="main-section">
+      {% if exercises %}
+        <h2>Exercise Details</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Exercise</th>
+              <th>Current Weight</th>
+              <th>Reps</th>
+              <th>% Increase</th>
+              <th>Goal Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in exercises %}
+              <tr>
+                <td>{{ entry.exercise.name }}</td>
+                <td>{{ entry.current_weight }}</td>
+                <td>{{ entry.reps }}</td>
+                <td>{{ entry.percent_increase }}%</td>
+                <td>{{ entry.goal_weight|floatformat:2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+
+    <div class="main-section button-group">
+      <a href="{% url 'goals:set_exercises' %}">
+        <button type="button">Set Exercises</button>
+      </a>
+      <a href="{% url 'update_profile' %}">
+        <button type="button">Update Profile</button>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

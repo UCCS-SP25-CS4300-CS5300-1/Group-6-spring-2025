@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'django.contrib.sites',  # django Allauth
+    'goals'
 ]
 
 MIDDLEWARE = [
@@ -145,5 +146,6 @@ LOGOUT_REDIRECT_URL = '/'
 # For User Creation adding Max's environment as a trusted origin
 CSRF_TRUSTED_ORIGINS = [
     'https://editor-mhymercontainer-5.devedu.io',
+    'https://app-matth-5.devedu.io'
     # Add other trusted origins as needed
 ]

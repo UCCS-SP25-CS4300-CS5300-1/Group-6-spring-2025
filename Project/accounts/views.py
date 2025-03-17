@@ -6,6 +6,8 @@ from .models import UserProfile
 from django.contrib.auth.decorators import login_required
 from .forms import UserProfileUpdateForm
 
+
+
 def register(request):
     print("Register view called")
     if request.method == 'POST':

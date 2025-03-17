@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirm Delete</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base Reset & Typography */
+    * {
+      box-sizing: border-box;
+    }
+    /* Header Styles (same as in user_data.html) */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #003366;
+      padding: 20px 40px;
+    }
+    .logo {
+      color: white;
+      font-size: 32px;
+      text-decoration: none;
+    }
+    nav ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    nav li {
+      margin-left: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 15px;
+      font-size: 18px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    nav a:hover {
+      background-color: #007BFF;
+      transform: scale(1.05);
+    }
+
+    body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+    /* Container & Card Layout */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #003366;
+      margin-top: 0;
+    }
+    p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+    /* Button Styles */
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 10px;
+    }
+    button:hover {
+      background-color: #0056B3;
+    }
+    /* Cancel Link Styled as a Button */
+    .cancel-link {
+      font-size: 16px;
+      color: #007BFF;
+      text-decoration: none;
+      padding: 12px 25px;
+      border: 1px solid #007BFF;
+      border-radius: 4px;
+      transition: background-color 0.3s, color 0.3s;
+      margin: 10px;
+      display: inline-block;
+    }
+    .cancel-link:hover {
+      background-color: #007BFF;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <a class="logo" href="{% url 'home' %}">Workout App</a>
+        <nav>
+          <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            {% if user.is_authenticated %}
+              <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+              <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+              <li><a href="{% url 'goals:goals' %}">Goals</a></li>
+              <li><a href="{% url 'user_data' %}">Account</a></li>
+              <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+              <li><a href="{% url 'login' %}">Login</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+    </header>
+
+
+  <div class="container">
+    <h1>Confirm Delete</h1>
+    <p>Are you sure you want to delete the exercise: <strong>{{ exercise.exercise.name }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit">Yes, Delete</button>
+      <a class="cancel-link" href="{% url 'goals:my_exercises' %}">Cancel</a>
+    </form>
+  </div>
+</body>
+</html>

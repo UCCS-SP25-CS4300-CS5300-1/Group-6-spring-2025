@@ -214,6 +214,7 @@
                 {% if user.is_authenticated %}
                     <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
                     <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+                    <li><a href="{% url 'goals:goals' %}">Goals</a></li>
                     <li><a href="{% url 'user_data' %}">Account</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Add logout link -->
                 {% else %}
@@ -243,6 +244,20 @@
                 <p>Exercise: <strong>Full Body Strength Training</strong></p>
                 <p>Duration: <strong>45 minutes</strong></p>
                 <a href="#start-workout" class="cta-button">Start Workout</a>
+            </div>
+        </head>
+        <body>
+
+        </body>
+            <div class="progress">
+                <h2>Current Goals</h2>
+                <p><strong>
+                    {% for goal in goals %}
+                      <li>{{ goal.name }}</li> 
+                    {% empty %}
+                      <li>No goals found.</li>
+                    {% endfor %}
+                </p>            
             </div>
     
             <div class="progress">
