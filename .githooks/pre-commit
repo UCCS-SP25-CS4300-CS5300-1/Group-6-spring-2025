@@ -10,7 +10,7 @@
 #Adding this section for displaying code metrics to console
 echo "===== TESTING CODE COVERAGE ====="
 pwd
-coverage run --source=home,mysite Project/manage.py test
+coverage run --source=home,mysite,accounts,goals Project/manage.py test
 coverage report
 echo "===== END TESTING METRICS ====="
 if git rev-parse --verify HEAD >/dev/null 2>&1
