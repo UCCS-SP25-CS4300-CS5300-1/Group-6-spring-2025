@@ -33,8 +33,7 @@ class AIModel:
         output_ids = self.model.generate(
             inputs['input_ids'],
             attention_mask=inputs['attention_mask'],
-            max_length=20,
-            top_k=50,
+            max_length=50,
             pad_token_id=self.tokenizer.pad_token_id  
         )
 
