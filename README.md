@@ -31,6 +31,7 @@ Associated Urls:
 2. register
 3. update_profile
 4. user_data
+
 The user profile page is capable of displaying data such as height, weight, body mass index (BMI) through height/weight calculations. The User can also change the Fitness level, Goals, and Injury History to reflect their needs.
 
 ### 2. Goal Setting (New feature)
@@ -42,6 +43,7 @@ Associated Urls:
    
 The goal setting page provides the User with the capable of setting goals based on exercises, current weights, and the desired increase in that exercise.
 The User may add exercises, remove exercises, view their selections and conveintely see the exercises selected along with their profile goals so they can make decisions accordingly.
+
 ### 3. AI Generate Workout Plans (New feature)
 Associated Urls:
 1. generate-workout
@@ -63,4 +65,4 @@ Using Lukamac/PlayPart-AI-Personal-Trainer the user can query the AI with certai
 ### 6. Host Production Environment
 Using Digital Ocean through the GitHub Student Developer Pack the team was capable of deploying our main branch (with some adjustments) to the Digital Ocean Droplet to deploy the application. Every time our main branch is changed the build process automatically starts to deploy the latest and greatest of our applicaiton.
 The default url to find the application is: [https://aifitnessapp-kqi6e.ondigitalocean.app].
-Alternatively you can find it as this super cool url: [aifitnessapp.workingout.rocks]
+Alternatively you can find it as this super cool url: [https://aifitnessapp.workingout.rocks]
