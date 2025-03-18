@@ -11,7 +11,7 @@
 echo "===== TESTING CODE COVERAGE ====="
 pwd
 coverage run --source=home,mysite,accounts,goals Project/manage.py test
-coverage report
+coverage report --include=Project/accounts/admin.py,Project/accounts/apps.py,Project/accounts/forms.py,Project/accounts/models.py,Project/accounts/urls.py,Project/accounts/views.py,Project/goals/admin.py,Project/goals/app.py,Project/goals/forms.py,Project/goals/models.py,Project/goals/urls.py,Project/goals/views.py,Project/home/admin.pyProject/home/app.py,Project/home/models.py,Project/home/urls.py,Project/home/views.py,Project/mysite/urls.py,Project/mysite/settings.py
 echo "===== END TESTING METRICS ====="
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
