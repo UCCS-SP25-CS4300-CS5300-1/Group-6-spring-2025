@@ -140,8 +140,8 @@
             <ul>
                 <li><a class="activate" href="{% url 'home' %}">Home</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
-                    <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+                    <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+                    <li><a href="#">Calendar</a></li>
                     <li><a href="{% url 'goals:goals' %}">Goals</a></li>
                     <li><a href="{% url 'user_data' %}">Account</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
