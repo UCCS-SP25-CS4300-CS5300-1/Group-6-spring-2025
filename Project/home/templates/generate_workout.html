@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask AI for a Fitness Plan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header>
+        <div class="nav-container">
+            <a class="logo" href="{% url 'home' %}">Workout App</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a class="activate" href="{% url 'generate_workout' %}">Generate Workout</a></li>
+                    <li><a href="#account">Account</a></li>
+                    <li><a href="#calendar">Calendar</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <main class="container">
+        <h2 style="margin-top: 30px;"> Ask AI for a Fitness Plan!</h2>
+
+        <form method="post" action="" class="ai-form">
+            {% csrf_token %}
+            <input type="text" name="user_input" placeholder="Enter your fitness goal..." value="{{ user_input|default:'' }}" required>
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if output %}
+            <div class="ai-response">
+                <h2>AI Response:</h2>
+                <p>{{ output }}</p>
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Workout App. All rights reserved.</p>
+    </footer>
+</body>
+</html>
