@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Your Exercises</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base Reset & Typography */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Header */
+    header {
+      background-color: #003366;
+      color: #fff;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+    nav li {
+      margin-left: 30px;
+    }
+    nav a {
+      color: #fff;
+      font-size: 18px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    nav a:hover {
+      background-color: #007BFF;
+      transform: scale(1.05);
+    }
+    /* Container & Card Layout */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #003366;
+      margin-top: 0;
+    }
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    /* Form Error Messages */
+    .error {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+    /* Button Styles */
+    button, .btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 5px;
+      display: inline-block;
+    }
+    button:hover, .btn:hover {
+      background-color: #0056B3;
+    }
+    button.remove-form {
+      background-color: #dc3545;
+    }
+    button.remove-form:hover {
+      background-color: #a71d2a;
+    }
+    /* Centering Button Container */
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="{% url 'home' %}">Workout App</a>
+    <nav>
+      <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        {% if user.is_authenticated %}
+          <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+          <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+          <li><a href="{% url 'goals:goals' %}">Goals</a></li>
+          <li><a href="{% url 'user_data' %}">Account</a></li>
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+          <li><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>Set Your Exercises</h1>
+    <form method="post" id="exercise-form">
+      {% csrf_token %}
+      {{ formset.management_form }}
+      <table id="formset_table">
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Current Weight</th>
+            <th>Reps</th>
+            <th>% Increase Goal</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for form in formset %}
+            <tr class="form-row">
+              <td>
+                {{ form.exercise.label_tag }} {{ form.exercise }}
+                {% if form.exercise.errors %}
+                  <div class="error">
+                    {% for error in form.exercise.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {{ form.current_weight.label_tag }} {{ form.current_weight }}
+                {% if form.current_weight.errors %}
+                  <div class="error">
+                    {% for error in form.current_weight.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {{ form.reps.label_tag }} {{ form.reps }}
+                {% if form.reps.errors %}
+                  <div class="error">
+                    {% for error in form.reps.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {{ form.percent_increase.label_tag }} {{ form.percent_increase }}
+                {% if form.percent_increase.errors %}
+                  <div class="error">
+                    {% for error in form.percent_increase.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                <button type="button" class="remove-form">Remove</button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="button-container">
+        <button type="button" id="add-exercise">Add Exercise</button>
+        <button type="submit">Save</button>
+      </div>
+    </form>
+    <!-- Button to view selected exercises (styled as a link button) -->
+    <div class="button-container">
+      <a class="btn" href="{% url 'goals:my_exercises' %}">View My Selected Exercises</a>
+    </div>
+
+    <!-- Hidden template row for a new form -->
+    <table style="display: none;">
+      <tbody>
+        <tr id="empty-form-template">
+          <td>
+            {{ formset.empty_form.exercise }}
+            <div class="error"></div>
+          </td>
+          <td>
+            {{ formset.empty_form.current_weight }}
+            <div class="error"></div>
+          </td>
+          <td>
+            {{ formset.empty_form.reps }}
+            <div class="error"></div>
+          </td>
+          <td>
+            {{ formset.empty_form.percent_increase }}
+            <div class="error"></div>
+          </td>
+          <td>
+            <button type="button" class="remove-form">Remove</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Function to update indices in all form rows and the TOTAL_FORMS count
+    function updateFormIndices() {
+      var rows = document.querySelectorAll('#formset_table tbody tr.form-row');
+      rows.forEach(function(row, index) {
+        row.querySelectorAll('input, select, textarea').forEach(function(input) {
+          input.name = input.name.replace(/form-(\d+|__prefix__)-/, 'form-' + index + '-');
+          if (input.id) {
+            input.id = input.id.replace(/form-(\d+|__prefix__)-/, 'form-' + index + '-');
+          }
+        });
+      });
+      document.getElementById('id_form-TOTAL_FORMS').value = rows.length;
+    }
+
+    // Add new exercise form on button click
+    document.getElementById('add-exercise').addEventListener('click', function() {
+      var totalForms = document.getElementById('id_form-TOTAL_FORMS');
+      var currentFormCount = parseInt(totalForms.value);
+      var templateRow = document.getElementById('empty-form-template');
+      var newRow = templateRow.cloneNode(true);
+      newRow.removeAttribute('id');
+      newRow.classList.add('form-row');
+      newRow.style.display = '';
+      newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount);
+      document.querySelector('#formset_table tbody').appendChild(newRow);
+      updateFormIndices();
+    });
+
+    // Remove form row when remove button is clicked
+    document.querySelector('#formset_table tbody').addEventListener('click', function(e) {
+      if (e.target && e.target.classList.contains('remove-form')) {
+        var row = e.target.closest('tr.form-row');
+        if (row) {
+          row.remove();
+          updateFormIndices();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,10 +1,9 @@
 from django.shortcuts import render
+from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
 
 def index(request):
     return render(request, 'index.html')
-
-
 
 #Recieves a request object from django
 def generate_workout(request):
@@ -32,3 +31,16 @@ def generate_workout(request):
 
     #Rendering the html while passing the context diary
     return render(request, 'generate_workout.html', context)
+
+def index(request):
+    if request.user.is_authenticated:
+        try:
+            user_profile = request.user.userprofile
+            goals = user_profile.goals.all()
+            print("Goals found:", goals.count())
+        except UserProfile.DoesNotExist:
+            print("UserProfile does not exist for:", request.user)
+            goals = []
+    else:
+        goals = []
+    return render(request, 'index.html', {'goals': goals})

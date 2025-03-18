@@ -1,0 +1,27 @@
+[
+    {
+      "model": "goals.exercise",
+      "pk": 1,
+      "fields": {
+        "name": "Bench Press",
+        "slug": "bench-press"
+      }
+    },
+    {
+      "model": "goals.exercise",
+      "pk": 2,
+      "fields": {
+        "name": "Squat",
+        "slug": "squat"
+      }
+    },
+    {
+      "model": "goals.exercise",
+      "pk": 3,
+      "fields": {
+        "name": "Deadlift",
+        "slug": "deadlift"
+      }
+    }
+  ]
+  

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Exercises</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base Reset & Typography */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Container & Card Layout */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #003366;
+      margin-top: 0;
+    }
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center; /* Center content in table cells */
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    /* Action Link Styles */
+    .action-link {
+      color: #dc3545;
+      font-weight: 700;
+      transition: color 0.3s;
+    }
+    .action-link:hover {
+      color: #a71d2a;
+    }
+    /* Navigation Button */
+    .nav-button {
+      display: inline-block;
+      font-size: 16px;
+      color: #fff;
+      background-color: #007BFF;
+      padding: 12px 25px;
+      border-radius: 4px;
+      text-align: center;
+      transition: background-color 0.3s;
+      margin-top: 20px;
+    }
+    .nav-button:hover {
+      background-color: #0056B3;
+    }
+    /* Centering for bottom button container */
+    .button-container {
+      text-align: center;
+    }
+
+    /* Header */
+    header {
+      background-color: #003366;
+      color: #fff;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+    nav li {
+      margin-left: 30px;
+    }
+    nav a {
+      color: #fff;
+      font-size: 18px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    nav a:hover {
+      background-color: #007BFF;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <a class="logo" href="{% url 'home' %}">Workout App</a>
+        <nav>
+          <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            {% if user.is_authenticated %}
+              <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+              <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+              <li><a href="{% url 'goals:goals' %}">Goals</a></li>
+              <li><a href="{% url 'user_data' %}">Account</a></li>
+              <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+              <li><a href="{% url 'login' %}">Login</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+    </header>
+
+
+
+  <div class="container">
+    <h1>My Exercises</h1>
+    {% if exercises %}
+      <table>
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Current Weight</th>
+            <th>Reps</th>
+            <th>% Increase</th>
+            <th>Goal Weight</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in exercises %}
+            <tr>
+              <td>{{ entry.exercise.name }}</td>
+              <td>{{ entry.current_weight }}</td>
+              <td>{{ entry.reps }}</td>
+              <td>{{ entry.percent_increase }}%</td>
+              <td>{{ entry.goal_weight|floatformat:2 }}</td>
+              <td>
+                <a class="action-link" href="{% url 'goals:delete_exercise' entry.pk %}">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p style="text-align: center;">You have not selected any exercises yet.</p>
+    {% endif %}
+    
+    <!-- Bottom centered navigation button -->
+    <div class="button-container">
+      <a class="nav-button" href="{% url 'goals:set_exercises' %}">Edit Your Exercises</a>
+    </div>
+  </div>
+</body>
+</html>

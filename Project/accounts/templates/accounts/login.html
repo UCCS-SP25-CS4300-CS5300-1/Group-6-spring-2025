@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003366;
+            padding: 20px 40px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        li {
+            margin-left: 30px;
+        }
+
+        li a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        li a:hover {
+            background-color: #007BFF;
+            transform: scale(1.05);
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .main-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-section h2 {
+            margin-top: 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056B3;
+        }
+
+        p {
+            margin-top: 15px;
+        }
+    </style>
+    <title>User Login</title>
+</head>
+<body>
+    <header>
+        <a class="logo" href="#home">Workout App</a>
+        <nav>
+            <ul>
+                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'user_data' %}">Account</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-section">
+            <h2>User Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003366;
+            padding: 20px 40px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            text-decoration: none;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        li {
+            margin-left: 30px;
+        }
+
+        li a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        li a:hover {
+            background-color: #007BFF;
+            transform: scale(1.05);
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 600px; /* Set a max width for the form */
+            margin: 0 auto; /* Center the container */
+        }
+
+        .main-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left; /* Align text to the left */
+            margin-bottom: 20px;
+        }
+
+        .main-section h2 {
+            margin-top: 0;
+            color: #003366; /* Change header color */
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px; /* Increase button font size */
+        }
+
+        button:hover {
+            background-color: #0056B3;
+        }
+
+        p {
+            margin-top: 15px;
+        }
+
+        /* Add some margin to form elements */
+        form div {
+            margin-bottom: 20px; /* Increase margin for better spacing */
+        }
+
+        form label {
+            display: block; /* Make labels block elements */
+            margin-bottom: 5px; /* Space between label and input */
+            font-weight: bold; /* Make labels bold */
+            color: #333; /* Darker color for labels */
+        }
+
+        form select {
+            width: 100%; /* Make inputs and textareas full width */
+            padding: 10px; /* Add padding inside inputs */
+            border: 1px solid #ccc; /* Add border */
+            border-radius: 4px; /* Rounded corners */
+            font-size: 16px; /* Increase font size */
+        }
+
+        /* Style checkboxes */
+        .checkbox-label {
+            display: flex;
+            align-items: center; /* Center align checkbox and label */
+            margin-bottom: 10px; /* Space between checkboxes */
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px; /* Space between checkbox and label */
+            width: auto; /* Keep checkbox size small */
+        }
+
+        /* Flexbox for goals and injuries */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column; /* Stack checkboxes vertically */
+            margin-top: 10px; /* Space above the checkbox group */
+        }
+    </style>
+    <title>User Data</title>
+</head>
+<body>
+    <header>
+        <a class="logo" href="#home">Workout App</a>
+        <nav>
+            <ul>
+                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
+                    <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+                    <li><a href="{% url 'goals:goals' %}">Goals</a></li>
+                    <li><a href="{% url 'user_data' %}">Account</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-section">
+            <h2>Update Profile</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            const heightSelect = document.getElementById('height');
+            const weightSelect = document.getElementById('weight');
+            const bmiInput = document.getElementById('bmi');
+
+            const height = parseFloat(heightSelect.value);
+            const weight = parseFloat(weightSelect.value);
+
+            if (height && weight) {
+                // Convert height from inches to meters
+                const heightInMeters = height * 0.0254;
+                // Convert weight from pounds to kilograms
+                const weightInKg = weight * 0.453592;
+
+                // Calculate BMI
+                const bmi = weightInKg / (heightInMeters * heightInMeters);
+                bmiInput.value = bmi.toFixed(2); // Display BMI with 2 decimal places
+            } else {
+                bmiInput.value = "0"; // Reset to 0 if height or weight is not selected
+            }
+        }
+    </script>
+</body>
+</html>
