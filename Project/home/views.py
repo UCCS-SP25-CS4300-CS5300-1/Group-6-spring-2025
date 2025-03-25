@@ -44,3 +44,6 @@ def index(request):
     else:
         goals = []
     return render(request, 'index.html', {'goals': goals})
+
+def calendar_view(request):
+    return render(request, 'calendar.html')
