@@ -2,9 +2,14 @@ from django import forms
 from .models import UserExercise
 
 class UserExerciseForm(forms.ModelForm):
+
     class Meta:
         model = UserExercise
-        fields = ['exercise', 'current_weight', 'reps', 'percent_increase']
+        fields = ['exercise', 'current_weight', 'reps', 'percent_increase', 'start_date', 'end_date', 'recurring_day']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
     def clean_exercise(self):
         exercise = self.cleaned_data.get('exercise')
@@ -18,3 +23,8 @@ class UserExerciseForm(forms.ModelForm):
             raise forms.ValidationError("Current weight cannot be negative.")
         return current_weight
 
+    def clean_recurring_day(self):
+        recurring_day = self.cleaned_data.get('recurring_day')
+        if recurring_day is None:
+            raise forms.ValidationError("Please select a recurrence day.")
+        return recurring_day

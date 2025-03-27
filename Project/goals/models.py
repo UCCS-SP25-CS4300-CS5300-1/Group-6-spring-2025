@@ -5,6 +5,15 @@ from django.conf import settings
 from decimal import Decimal
 from django.utils.timezone import now 
 
+RECURRENCE_CHOICES = [
+    (0, 'Monday'),
+    (1, 'Tuesday'),
+    (2, 'Wednesday'),
+    (3, 'Thursday'),
+    (4, 'Friday'),
+    (5, 'Saturday'),
+    (6, 'Sunday'),
+]
 
 class Goal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='goals')
@@ -28,7 +37,11 @@ class UserExercise(models.Model):
     current_weight = models.DecimalField(max_digits=6, decimal_places=2)
     reps = models.PositiveIntegerField()
     percent_increase = models.IntegerField(choices=PERCENT_CHOICES, default=0)
-    planned_date = models.DateField(default=now)  # Default to today's date
+    
+     # Recurring workout fields
+    start_date = models.DateField(default=now)  # When recurrence starts
+    end_date = models.DateField(null=True, blank=True)  # Optional end date
+    recurring_day = models.IntegerField(choices=RECURRENCE_CHOICES, default=0)  # Default to Monday
 
     @property
     def goal_weight(self):
@@ -36,4 +49,4 @@ class UserExercise(models.Model):
         return self.current_weight * (Decimal('1') + Decimal(self.percent_increase) / Decimal('100'))
 
     def __str__(self):
-        return f"{self.user.username} - {self.exercise.name} on {self.planned_date}"
+        return f"{self.user.username} - {self.exercise.name} (Every {self.get_recurring_day_display()} from {self.start_date} to {self.end_date})"

@@ -20,7 +20,7 @@
     }
     /* Container & Card Layout */
     .container {
-      max-width: 900px;
+      max-width: 1500px;
       margin: 0 auto;
       background-color: #fff;
       border-radius: 8px;
@@ -142,6 +142,9 @@
             <th>Reps</th>
             <th>% Increase</th>
             <th>Goal Weight</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Recurrence</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -153,6 +156,9 @@
               <td>{{ entry.reps }}</td>
               <td>{{ entry.percent_increase }}%</td>
               <td>{{ entry.goal_weight|floatformat:2 }}</td>
+              <td>{{ entry.start_date }}</td>
+              <td>{{ entry.end_date }}</td>
+              <td>{{ entry.get_recurring_day_display }}</td>
               <td>
                 <a class="action-link" href="{% url 'goals:delete_exercise' entry.pk %}">Delete</a>
               </td>
