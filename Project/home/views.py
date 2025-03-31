@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
+from goals.models import UserExercise
 
 def index(request):
     return render(request, 'index.html')
@@ -46,4 +47,38 @@ def index(request):
     return render(request, 'index.html', {'goals': goals})
 
 def calendar_view(request):
-    return render(request, 'calendar.html')
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # Filter exercises based on the logged-in user
+        exercises = UserExercise.objects.filter(user=request.user)  # Assuming a user field in UserExercise
+    else:
+        # If the user is not authenticated, you might want to handle that case (e.g., redirect to login)
+        exercises = []
+
+    print(f"Fetched {exercises.count()} exercises for user {request.user.username}")
+    return render(request, 'calendar.html', {'events': exercises})
+
+def workout_events(request):
+    exercises = UserExercise.objects.all()
+    events = []
+
+    weekday_map = {
+        1: "Monday",
+        2: "Tuesday",
+        3: "Wednesday",
+        4: "Thursday",
+        5: "Friday",
+        6: "Saturday",
+        7: "Sunday",
+    }
+
+    for exercise in exercises:
+        events.append({
+            "title": exercise.exercise.name,
+            "start": exercise.start_date.strftime('%Y-%m-%d'),  # Format date for JS
+            "end": exercise.end_date.strftime('%Y-%m-%d'),
+            "dow": [exercise.recurring_day - 1] if exercise.recurring_day else [],  # Adjust for FullCalendar (0 = Sunday)
+            "color": "#007BFF"  # Optional: Set color
+        })
+
+    return JsonResponse(events, safe=False)
