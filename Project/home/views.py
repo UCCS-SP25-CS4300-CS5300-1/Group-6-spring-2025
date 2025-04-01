@@ -3,6 +3,8 @@ from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
 from goals.models import UserExercise
 from django.http import JsonResponse
+import datetime
+from django.utils import timezone
 
 
 def index(request):
@@ -66,15 +68,33 @@ def workout_events(request):
     else:
         exercises = []
 
-    events = []  # Initialize list before using it
+    events = []
 
     for exercise in exercises:
-        events.append({
-            "title": exercise.exercise.name,
-            "start": exercise.start_date.strftime('%Y-%m-%d'),  # Ensure proper date format
-            "end": exercise.end_date.strftime('%Y-%m-%d') if exercise.end_date else exercise.start_date.strftime('%Y-%m-%d'),
-            "dow": [exercise.recurring_day - 1] if getattr(exercise, 'recurring_day', None) else [],  # Adjust for FullCalendar
-            "color": "#007BFF"
-        })
+        start_date = exercise.start_date
+        end_date = exercise.end_date if exercise.end_date else start_date  # If no end_date, use start_date
+        recurring_day = exercise.recurring_day  # This represents the day of the week (0=Monday, 6=Sunday)
+
+        # Start with the first date that matches the recurring day
+        current_date = start_date
+
+        # Find the first date that matches the recurring day
+        # This will ensure that we start on the correct weekday
+        days_ahead = recurring_day - current_date.weekday()
+        if days_ahead <= 0:
+            days_ahead += 7  # If the day is earlier in the week, find the next occurrence
+        first_occurrence = current_date + datetime.timedelta(days=days_ahead)
+
+        # Now, iterate over the range from the first occurrence to the end_date
+        current_date = first_occurrence
+        while current_date <= end_date:
+            # Create event for this specific date
+            events.append({
+                "title": exercise.exercise.name,
+                "start": current_date.strftime('%Y-%m-%d'),  # Set to the recurring day
+                "color": "#007BFF",
+            })
+            # Move to the next occurrence of the recurring day
+            current_date += datetime.timedelta(weeks=1)  # Move one week ahead
 
     return JsonResponse(events, safe=False)
