@@ -2,6 +2,8 @@ from django.shortcuts import render
 from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
 from goals.models import UserExercise
+from django.http import JsonResponse
+
 
 def index(request):
     return render(request, 'index.html')
@@ -59,26 +61,20 @@ def calendar_view(request):
     return render(request, 'calendar.html', {'events': exercises})
 
 def workout_events(request):
-    exercises = UserExercise.objects.all()
-    events = []
+    if request.user.is_authenticated:
+        exercises = UserExercise.objects.filter(user=request.user)
+    else:
+        exercises = []
 
-    weekday_map = {
-        1: "Monday",
-        2: "Tuesday",
-        3: "Wednesday",
-        4: "Thursday",
-        5: "Friday",
-        6: "Saturday",
-        7: "Sunday",
-    }
+    events = []  # Initialize list before using it
 
     for exercise in exercises:
         events.append({
             "title": exercise.exercise.name,
-            "start": exercise.start_date.strftime('%Y-%m-%d'),  # Format date for JS
-            "end": exercise.end_date.strftime('%Y-%m-%d'),
-            "dow": [exercise.recurring_day - 1] if exercise.recurring_day else [],  # Adjust for FullCalendar (0 = Sunday)
-            "color": "#007BFF"  # Optional: Set color
+            "start": exercise.start_date.strftime('%Y-%m-%d'),  # Ensure proper date format
+            "end": exercise.end_date.strftime('%Y-%m-%d') if exercise.end_date else exercise.start_date.strftime('%Y-%m-%d'),
+            "dow": [exercise.recurring_day - 1] if getattr(exercise, 'recurring_day', None) else [],  # Adjust for FullCalendar
+            "color": "#007BFF"
         })
 
     return JsonResponse(events, safe=False)

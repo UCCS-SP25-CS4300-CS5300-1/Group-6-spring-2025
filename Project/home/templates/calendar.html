@@ -110,7 +110,7 @@
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                events: '/workout-events/',  
+                events: "{% url 'workout_events' %}",
                 eventColor: '#007BFF', 
                 editable: true,
                 eventDisplay: 'block',
