@@ -63,9 +63,20 @@
         }
 
         .container {
+            display: flex;
             padding: 20px;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 20px auto;
+            justify-content: space-between;
+        }
+
+        .left-container {
+            width: 25%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
         }
 
         .main-section {
@@ -74,10 +85,33 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
+            flex-grow: 1;
         }
 
         #calendar {
             margin-top: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .left-container {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+        h3{
+            padding-left: 110px;
+        }
+
+        /* New style for active links in the navbar */
+        .active {
+            background-color: #007BFF !important;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -88,7 +122,7 @@
         <nav>
             <ul>
                 <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
-                <li><a href="{% url 'calendar' %}" style="background-color: #007BFF;">Calendar</a></li>
+                <li><a href="{% url 'calendar' %}" class="{% if request.path == '/calendar/' %}active{% endif %}">Calendar</a></li>
                 <li><a href="{% url 'goals:goals' %}">Goals</a></li>
                 <li><a href="{% url 'user_data' %}">Account</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
@@ -98,6 +132,15 @@
 
     <!-- Main Content -->
     <div class="container">
+        <!-- Left Container for Workouts/Events -->
+        <div class="left-container">
+            <h3>Workouts</h3>
+            <div id="workouts-container">
+                <!-- Workouts will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Calendar Section -->
         <div class="main-section">
             <h2>Workout Calendar</h2>
             <div id="calendar"></div>
@@ -107,17 +150,85 @@
     <!-- FullCalendar Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                events: "{% url 'workout_events' %}",
-                eventColor: '#007BFF', 
-                editable: true,
-                eventDisplay: 'block',
-                firstDay: 1
-            });
-            calendar.render();
+        console.log("DOM fully loaded and parsed"); // Debugging
+
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: "{% url 'workout_events' %}",
+            eventColor: '#007BFF', 
+            editable: true,
+            eventDisplay: 'block',
+            firstDay: 1,
+            dateClick: function(info) {
+                console.log("Date clicked:", info.dateStr); // Debugging
+                loadWorkouts(info.dateStr);
+            }
         });
+
+        // Render the calendar
+        calendar.render();
+        console.log("Calendar rendered"); // Debugging
+
+        // Load today's workouts initially
+        loadWorkouts(new Date().toISOString().split('T')[0]);
+
+        function loadWorkouts(date) {
+            console.log("Loading workouts for date:", date); // Debugging
+            $.ajax({
+                url: "{% url 'workout_events' %}",
+                data: { date: date },
+                success: function(data) {
+                    console.log("Received workout data:", data); // Debugging
+                    let workoutsContainer = $('#workouts-container');
+                    workoutsContainer.empty();
+
+                    if (data && data.length > 0) {
+                        data.forEach(function(workout) {
+                            let workoutHtml = `
+                                <div class="workout-item">
+                                    <input type="checkbox" class="workout-checkbox" data-id="${workout.id}" ${workout.completed ? 'checked' : ''}>
+                                    <strong>${workout.title}</strong> - ${workout.start}
+                                </div>
+                            `;
+                            workoutsContainer.append(workoutHtml);
+                        });
+
+                        // Attach event listeners for checkboxes
+                        $('.workout-checkbox').on('change', function() {
+                            let workoutId = $(this).data('id');
+                            let completed = $(this).is(':checked');
+                            updateWorkoutCompletion(workoutId, completed);
+                        });
+
+                    } else {
+                        findNextAvailableDay();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching workouts:", error); // Debugging
+                }
+            });
+        }
+
+        function updateWorkoutCompletion(workoutId, completed) {
+            $.ajax({
+                url: "{% url 'mark_workout_complete' %}",
+                method: "POST",
+                data: {
+                    workout_id: workoutId,
+                    completed: completed,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log("Workout completion updated:", response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error updating workout:", error);
+                }
+            });
+        }
+    });
     </script>
 </body>
 </html>

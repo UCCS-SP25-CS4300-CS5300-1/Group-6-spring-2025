@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
-from goals.models import UserExercise
+from goals.models import UserExercise, WorkoutLog
 from django.http import JsonResponse
 import datetime
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+import json
+from datetime import timedelta
 
 
 def index(request):
@@ -63,38 +66,95 @@ def calendar_view(request):
     return render(request, 'calendar.html', {'events': exercises})
 
 def workout_events(request):
-    if request.user.is_authenticated:
-        exercises = UserExercise.objects.filter(user=request.user)
-    else:
-        exercises = []
+    if not request.user.is_authenticated:
+        return JsonResponse([], safe=False)
 
-    events = []
+    # Retrieve all exercises associated with the logged-in user
+    exercises = UserExercise.objects.filter(user=request.user)
+
+    # Retrieve completed workouts from the WorkoutLog model
+    completed_workouts = WorkoutLog.objects.filter(user=request.user).values_list("exercise_id", "date_completed")
+    completed_dict = {(ex_id, date_completed) for ex_id, date_completed in completed_workouts}
+
+    # Prepare an empty dictionary to store workouts grouped by date
+    events_by_date = {}
 
     for exercise in exercises:
         start_date = exercise.start_date
-        end_date = exercise.end_date if exercise.end_date else start_date  # If no end_date, use start_date
-        recurring_day = exercise.recurring_day  # This represents the day of the week (0=Monday, 6=Sunday)
+        end_date = exercise.end_date if exercise.end_date else start_date
+        recurring_day = exercise.recurring_day
 
-        # Start with the first date that matches the recurring day
         current_date = start_date
+        if current_date.weekday() != recurring_day:
+            days_ahead = (recurring_day - current_date.weekday()) % 7
+            current_date += timedelta(days=days_ahead)
 
-        # Find the first date that matches the recurring day
-        # This will ensure that we start on the correct weekday
-        days_ahead = recurring_day - current_date.weekday()
-        if days_ahead <= 0:
-            days_ahead += 7  # If the day is earlier in the week, find the next occurrence
-        first_occurrence = current_date + datetime.timedelta(days=days_ahead)
-
-        # Now, iterate over the range from the first occurrence to the end_date
-        current_date = first_occurrence
         while current_date <= end_date:
-            # Create event for this specific date
-            events.append({
-                "title": exercise.exercise.name,
-                "start": current_date.strftime('%Y-%m-%d'),  # Set to the recurring day
-                "color": "#007BFF",
-            })
-            # Move to the next occurrence of the recurring day
-            current_date += datetime.timedelta(weeks=1)  # Move one week ahead
+            # Check if this event is marked as completed in WorkoutLog
+            completed = (exercise.id, current_date) in completed_dict
 
-    return JsonResponse(events, safe=False)
+            event = {
+                "title": exercise.exercise.name,
+                "start": current_date.strftime('%Y-%m-%d'),
+                "color": "#28A745" if completed else "#007BFF",  # Green if completed, blue otherwise
+                "completed": completed,
+            }
+
+            # Add event to the dictionary, grouped by date
+            if current_date not in events_by_date:
+                events_by_date[current_date] = []
+            events_by_date[current_date].append(event)
+
+            # Move to the next recurrence (one week later)
+            current_date += timedelta(weeks=1)
+
+    # Flatten the grouped events and return as a list sorted by date
+    sorted_events = []
+    for date in sorted(events_by_date.keys()):
+        sorted_events.extend(events_by_date[date])
+
+    return JsonResponse(sorted_events, safe=False)
+
+def completed_workouts(request):
+    if not request.user.is_authenticated:
+        return JsonResponse([], safe=False)
+
+    logs = WorkoutLog.objects.filter(user=request.user).order_by("-date_completed")
+
+    results = [
+        {
+            "title": log.exercise.exercise.name,
+            "date_completed": log.date_completed.strftime("%Y-%m-%d"),
+        }
+        for log in logs
+    ]
+
+    return JsonResponse(results, safe=False)
+
+@csrf_exempt 
+def mark_workout_complete(request):
+    if request.method == "POST" and request.user.is_authenticated:
+        data = json.loads(request.body)
+        exercise_id = data.get("exercise_id")
+        date_completed = data.get("date_completed")  # Expected format: "YYYY-MM-DD"
+
+        if not exercise_id or not date_completed:
+            return JsonResponse({"error": "Invalid data"}, status=400)
+
+        # Get the UserExercise instance
+        try:
+            exercise = UserExercise.objects.get(id=exercise_id, user=request.user)
+        except UserExercise.DoesNotExist:
+            return JsonResponse({"error": "Exercise not found"}, status=404)
+
+        # Check if the workout has already been logged
+        workout, created = WorkoutLog.objects.get_or_create(
+            user=request.user,
+            exercise=exercise,
+            date_completed=date_completed,
+            defaults={"completed": True}
+        )
+
+        return JsonResponse({"message": "Workout marked as complete" if created else "Workout already marked complete"})
+
+    return JsonResponse({"error": "Unauthorized"}, status=403)
