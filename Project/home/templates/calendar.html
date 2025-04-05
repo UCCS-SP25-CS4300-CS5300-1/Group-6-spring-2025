@@ -19,7 +19,7 @@
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
         }
-
+    
         header {
             display: flex;
             justify-content: space-between;
@@ -27,91 +27,206 @@
             background-color: #003366;
             padding: 20px 40px;
         }
-
+    
         .logo {
             color: white;
             font-size: 32px;
             text-decoration: none;
         }
-
-        nav {
-            display: flex;
-        }
-
-        ul {
+    
+        nav ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
             display: flex;
         }
-
-        li {
+    
+        nav ul li {
             margin-left: 30px;
         }
-
-        li a {
+    
+        nav ul li a {
             color: white;
             text-decoration: none;
             padding: 15px;
             font-size: 18px;
             transition: background-color 0.3s, transform 0.3s;
         }
-
-        li a:hover {
+    
+        nav ul li a:hover {
             background-color: #007BFF;
             transform: scale(1.05);
         }
-
+    
         .container {
             display: flex;
             padding: 20px;
-            max-width: 1200px;
-            margin: 20px auto;
+            max-width: 100%; /* Use full screen width */
+            margin: 0 auto; /* Center the content */
             justify-content: space-between;
+            gap: 20px; /* Adds space between the left and calendar sections */
         }
-
+    
         .left-container {
-            width: 25%;
+            width: 26%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-right: 20px;
+            height: 91vh; /* This will keep the left container a fixed height */
+            justify-content: space-between; /* Distribute space evenly */
+        }
+    
+        .workout-section, .completed-workout-section {
+            width: 100%;
             background-color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-right: 20px;
+            min-height: 200px; /* Ensures a minimum height for the section */
+            flex-grow: 1; /* Allows sections to grow equally */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto; /* Makes the content scrollable */
+            height: 50%; /* Ensures equal height for both sections */
         }
-
+    
+        .workout-list h4 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #003366;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+    
+        .empty-message {
+            text-align: center;
+            color: gray;
+            font-style: italic;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%; /* Makes sure it fills the container */
+        }
+    
+        .workout-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+    
+        .workout-item:hover {
+            background-color: #f1f1f1;
+        }
+    
+        .workout-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+    
+        .workout-date {
+            font-size: 14px;
+            color: #777;
+        }
+    
+        .workout-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);  /* Larger checkbox for easier interaction */
+        }
+    
+        /* Completed workout styles */
+        .workout-item.completed {
+            background-color: #e0e0e0;
+            text-decoration: line-through;
+            color: #bbb;
+        }
+    
         .main-section {
+            flex-grow: 1;
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
-            flex-grow: 1;
         }
-
+    
         #calendar {
             margin-top: 20px;
+            width: 100%; /* Make the calendar container expand fully */
+            max-height: 82vh; /* Was 82vh — reduced to avoid bottom scroll */
+            overflow-y: auto;
+        }
+    
+        .left-container h3 {
+            text-align: center;
+            background: #003366;
+            color: #fff;
+            padding: 0px 18px;         /* Increased padding for better visibility */
+            border-radius: 6px;
+            font-size: 24px;            /* Larger font size for better visibility */
+            text-transform: uppercase;
+            letter-spacing: 1px;        /* Slightly more spacing for a bolder look */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);  /* A bit more pronounced shadow */
+            margin-bottom: 0px;        /* More space below to separate from content */
+        }
+    
+        .workout-section > h4 {
+            text-align: center;
+            background: #003366;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 20px;
+            margin: 0px 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 800px) {
-            .container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .left-container {
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 20px;
-            }
+        #pending-workouts, #completed-workouts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1; /* Ensures both workout lists grow equally */
+            overflow-y: auto; /* Makes content scrollable when overflowing */
         }
-        h3{
-            padding-left: 110px;
+    
+        /* Tweak the empty message to match */
+        .empty-message {
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #ffeeba;
+            margin-top: 16px;
         }
-
-        /* New style for active links in the navbar */
+    
         .active {
             background-color: #007BFF !important;
             transform: scale(1.05);
+        }
+    
+        /* Add responsive behavior */
+        @media (max-width: 800px) {
+            .container {
+                flex-direction: column;
+            }
+    
+            .left-container {
+                width: 100%;
+            }
+    
+            /* Ensure the calendar still occupies full width in smaller screens */
+            .main-section {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -121,6 +236,7 @@
         <a class="logo" href="{% url 'home' %}">Workout App</a>
         <nav>
             <ul>
+                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
                 <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
                 <li><a href="{% url 'calendar' %}" class="{% if request.path == '/calendar/' %}active{% endif %}">Calendar</a></li>
                 <li><a href="{% url 'goals:goals' %}">Goals</a></li>
@@ -134,11 +250,20 @@
     <div class="container">
         <!-- Left Container for Workouts/Events -->
         <div class="left-container">
-            <h3>Workouts</h3>
-            <div id="workouts-container">
-                <!-- Workouts will be dynamically added here -->
+            <div class="workout-section">
+              <h4>Pending Workouts</h4>
+              <div id="pending-workouts" class="workout-list">
+                <!-- JS will inject pending workouts here -->
+              </div>
             </div>
-        </div>
+          
+            <div class="workout-section">
+              <h4>Completed Workouts</h4>
+              <div id="completed-workouts" class="workout-list">
+                <!-- JS will inject completed workouts here -->
+              </div>
+            </div>
+          </div>
 
         <!-- Calendar Section -->
         <div class="main-section">
@@ -149,86 +274,99 @@
 
     <!-- FullCalendar Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM fully loaded and parsed"); // Debugging
-
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+        document.addEventListener('DOMContentLoaded', function () {
+          const calendarEl = document.getElementById('calendar');
+          const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: "{% url 'workout_events' %}",
-            eventColor: '#007BFF', 
-            editable: true,
-            eventDisplay: 'block',
+            eventColor: '#007BFF',
             firstDay: 1,
-            dateClick: function(info) {
-                console.log("Date clicked:", info.dateStr); // Debugging
-                loadWorkouts(info.dateStr);
+        
+            dateClick: info => loadWorkouts(info.dateStr),
+        
+            eventClick: info => {
+              const ev = info.event;
+              const newStatus = !ev.extendedProps.completed;
+              if (!confirm(newStatus ? "Mark this done?" : "Undo completion?")) return;
+        
+              toggleCompletion(ev.id, ev.startStr, newStatus, () => {
+                calendar.refetchEvents();
+                loadWorkouts(ev.startStr);
+              });
             }
+          });
+        
+          calendar.render();
+          loadWorkouts(new Date().toISOString().split('T')[0]);
+        
+          function loadWorkouts(date) {
+            $.get("{% url 'workout_events' %}", { date })
+                .done(data => {
+                const pending = data.filter(w => !w.completed);
+                const done    = data.filter(w => w.completed);
+
+                const $pendingC   = $('#pending-workouts').empty();
+                const $completedC = $('#completed-workouts').empty();
+
+                // Pending
+                if (pending.length) {
+                    pending.forEach(w => {
+                    $pendingC.append(`
+                        <div class="workout-item">
+                        <input type="checkbox" class="workout-checkbox"
+                                data-id="${w.id}" data-date="${w.start}">
+                        <strong>${w.title}</strong> — ${w.start}
+                        </div>
+                    `);
+                    });
+                } else {
+                    $pendingC.html('<div class="empty-message">No pending workouts.</div>');
+                }
+
+                // Completed
+                if (done.length) {
+                    done.forEach(w => {
+                    $completedC.append(`
+                        <div class="workout-item completed">
+                        <input type="checkbox" class="workout-checkbox"
+                                data-id="${w.id}" data-date="${w.start}" checked>
+                        <strong>${w.title}</strong> — ${w.start}
+                        </div>
+                    `);
+                    });
+                } else {
+                    $completedC.html('<div class="empty-message">No completed workouts.</div>');
+                }
+
+                // Bind toggles
+                $('.workout-checkbox').off().on('change', function() {
+                    const id   = $(this).data('id');
+                    const date = $(this).data('date');
+                    const chk  = $(this).is(':checked');
+                    toggleCompletion(id, date, chk, () => {
+                    calendar.refetchEvents();
+                    loadWorkouts(date);
+                    });
+                });
+                })
+                .fail(err => console.error("Error fetching workouts:", err));
+            }
+            
+        
+          function toggleCompletion(workoutId, date, completed, cb) {
+            $.post("{% url 'calendar' %}", {
+              workout_id:      workoutId,
+              date_completed:  date,
+              completed:       completed,
+              csrfmiddlewaretoken: '{{ csrf_token }}'
+            })
+            .done(res => {
+              console.log("Toggled:", res);
+              if (cb) cb();
+            })
+            .fail(err => console.error("Toggle failed:", err));
+          }
         });
-
-        // Render the calendar
-        calendar.render();
-        console.log("Calendar rendered"); // Debugging
-
-        // Load today's workouts initially
-        loadWorkouts(new Date().toISOString().split('T')[0]);
-
-        function loadWorkouts(date) {
-            console.log("Loading workouts for date:", date); // Debugging
-            $.ajax({
-                url: "{% url 'workout_events' %}",
-                data: { date: date },
-                success: function(data) {
-                    console.log("Received workout data:", data); // Debugging
-                    let workoutsContainer = $('#workouts-container');
-                    workoutsContainer.empty();
-
-                    if (data && data.length > 0) {
-                        data.forEach(function(workout) {
-                            let workoutHtml = `
-                                <div class="workout-item">
-                                    <input type="checkbox" class="workout-checkbox" data-id="${workout.id}" ${workout.completed ? 'checked' : ''}>
-                                    <strong>${workout.title}</strong> - ${workout.start}
-                                </div>
-                            `;
-                            workoutsContainer.append(workoutHtml);
-                        });
-
-                        // Attach event listeners for checkboxes
-                        $('.workout-checkbox').on('change', function() {
-                            let workoutId = $(this).data('id');
-                            let completed = $(this).is(':checked');
-                            updateWorkoutCompletion(workoutId, completed);
-                        });
-
-                    } else {
-                        findNextAvailableDay();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching workouts:", error); // Debugging
-                }
-            });
-        }
-
-        function updateWorkoutCompletion(workoutId, completed) {
-            $.ajax({
-                url: "{% url 'mark_workout_complete' %}",
-                method: "POST",
-                data: {
-                    workout_id: workoutId,
-                    completed: completed,
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    console.log("Workout completion updated:", response);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error updating workout:", error);
-                }
-            });
-        }
-    });
     </script>
 </body>
 </html>

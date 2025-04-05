@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
-from goals.models import UserExercise, WorkoutLog
+from goals.models import UserExercise, WorkoutLog, Exercise, Goal
 from django.http import JsonResponse
 import datetime
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import timedelta
@@ -53,18 +54,37 @@ def index(request):
         goals = []
     return render(request, 'index.html', {'goals': goals})
 
+@login_required
 def calendar_view(request):
-    # Check if the user is authenticated
-    if request.user.is_authenticated:
-        # Filter exercises based on the logged-in user
-        exercises = UserExercise.objects.filter(user=request.user)  # Assuming a user field in UserExercise
-    else:
-        # If the user is not authenticated, you might want to handle that case (e.g., redirect to login)
-        exercises = []
+    # POST: toggle a workout occurrence
+    if request.method == 'POST':
+        workout_id    = request.POST.get('workout_id')
+        date_str      = request.POST.get('date_completed')  # "YYYY-MM-DD"
+        completed     = request.POST.get('completed') == 'true'
 
-    print(f"Fetched {exercises.count()} exercises for user {request.user.username}")
+        exercise = get_object_or_404(UserExercise, id=workout_id, user=request.user)
+
+        if completed:
+            # mark done (create if missing)
+            WorkoutLog.objects.get_or_create(
+                user=request.user,
+                exercise=exercise,
+                date_completed=date_str
+            )
+        else:
+            # unmark (delete the log for that date)
+            WorkoutLog.objects.filter(
+                user=request.user,
+                exercise=exercise,
+                date_completed=date_str
+            ).delete()
+
+        return JsonResponse({'status': 'success', 'workout_id': workout_id, 'date': date_str, 'completed': completed})
+
+    # GET: render calendar
+    exercises = UserExercise.objects.filter(user=request.user)
     return render(request, 'calendar.html', {'events': exercises})
-
+@login_required
 def workout_events(request):
     if not request.user.is_authenticated:
         return JsonResponse([], safe=False)
@@ -94,6 +114,7 @@ def workout_events(request):
             completed = (exercise.id, current_date) in completed_dict
 
             event = {
+                "id": exercise.id,  # Add id field for JS to use
                 "title": exercise.exercise.name,
                 "start": current_date.strftime('%Y-%m-%d'),
                 "color": "#28A745" if completed else "#007BFF",  # Green if completed, blue otherwise
@@ -115,6 +136,7 @@ def workout_events(request):
 
     return JsonResponse(sorted_events, safe=False)
 
+@login_required
 def completed_workouts(request):
     if not request.user.is_authenticated:
         return JsonResponse([], safe=False)
@@ -131,30 +153,3 @@ def completed_workouts(request):
 
     return JsonResponse(results, safe=False)
 
-@csrf_exempt 
-def mark_workout_complete(request):
-    if request.method == "POST" and request.user.is_authenticated:
-        data = json.loads(request.body)
-        exercise_id = data.get("exercise_id")
-        date_completed = data.get("date_completed")  # Expected format: "YYYY-MM-DD"
-
-        if not exercise_id or not date_completed:
-            return JsonResponse({"error": "Invalid data"}, status=400)
-
-        # Get the UserExercise instance
-        try:
-            exercise = UserExercise.objects.get(id=exercise_id, user=request.user)
-        except UserExercise.DoesNotExist:
-            return JsonResponse({"error": "Exercise not found"}, status=404)
-
-        # Check if the workout has already been logged
-        workout, created = WorkoutLog.objects.get_or_create(
-            user=request.user,
-            exercise=exercise,
-            date_completed=date_completed,
-            defaults={"completed": True}
-        )
-
-        return JsonResponse({"message": "Workout marked as complete" if created else "Workout already marked complete"})
-
-    return JsonResponse({"error": "Unauthorized"}, status=403)
