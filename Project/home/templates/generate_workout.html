@@ -2,66 +2,364 @@
 <html lang="en">
 
 <head>
-    <!-- Load static files -->
     {% load static %}
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Match the font reference from the second snippet -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-
-    <!-- Match the stylesheet link from the second snippet -->
     <link rel="stylesheet" href="{% static 'styles.css' %}">
-
     <title>Ask AI for a Fitness Plan</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003366;
+            padding: 20px 40px;
+        }
+        .logo {
+            color: white;
+            font-size: 32px;
+            text-decoration: none;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav li {
+            margin-left: 30px;
+        }
+        nav li a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        nav li a:hover {
+            background-color: #007BFF;
+            transform: scale(1.05);
+        }
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            min-height: calc(100vh - 4rem);
+        }
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 2rem;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+        }
+        .container.visible {
+            display: block;
+        }
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            justify-content: center;
+            padding: 1rem 0;
+        }
+        .day-card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+            position: relative;
+        }
+        .day-card h3 {
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+            font-size: 1.1rem;
+        }
+        .day-card p {
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+        .day-card button {
+            margin-top: 0.5rem;
+            padding: 0.6rem;
+            border-radius: 0.5rem;
+            width: 100%;
+        }
+        .day-card .checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            color: green;
+        }
+        select, button {
+            padding: 0.75rem 1rem;
+            margin: 1rem 0.5rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .back-btn {
+            background-color: #6b7280;
+        }
+        .back-btn:hover {
+            background-color: #4b5563;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        #workoutModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 100;
+            max-width: 400px;
+            width: 100%;
+        }
+    </style>
 </head>
 
 <body>
     <header>
-        <!-- Simplified nav structure to mirror second snippet -->
-        <a class="logo" href="{% url 'home' %}">Workout App</a>
+        <a class="logo" href="#home">Workout App</a>
         <nav>
             <ul>
                 <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a class="activate" href="{% url 'generate_workout' %}">Generate Workout</a></li>
-                <li><a href="#account">Account</a></li>
+                <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
                 <li><a href="#calendar">Calendar</a></li>
+                <li><a href="{% url 'user_data' %}">Account</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Container similar to the second snippet -->
-    <div class="container">
-        <!-- You can wrap your “AI for a Fitness Plan” content in a section or div -->
-        <div class="main-section">
-            <h1>Ask AI for a Fitness Plan!</h1>
-
-            <form method="post" action="" class="ai-form">
-                {% csrf_token %}
-                <input 
-                    type="text" 
-                    name="user_input" 
-                    placeholder="Enter your fitness goal..." 
-                    value="{{ user_input|default:'' }}" 
-                    required
-                >
-                <button type="submit">Submit</button>
-            </form>
-
-            {% if output %}
-            <div class="ai-response">
-                <h2>AI Response:</h2>
-                <p>{{ output }}</p>
-            </div>
-            {% endif %}
+    <main>
+        <div id="step1" class="container visible">
+            <h1>Would you like to import your data?</h1>
+            <button onclick="nextStep()">Yes</button>
+            <button onclick="nextStep()">No</button>
         </div>
-    </div>
 
-    <!-- Footer (optional; you could keep or style it to match the second snippet) -->
+        <div id="step2" class="container">
+            <h2>How many times a week do you want to work out?</h2>
+            <select id="weeklyFreq">
+                <option value="3">3 times</option>
+                <option value="4">4 times</option>
+                <option value="5">5 times</option>
+                <option value="6">6 times</option>
+            </select>
+            <div>
+                <button class="back-btn" onclick="prevStep()">Back</button>
+                <button onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <div id="step3" class="container">
+            <h2>What is your main goal?</h2>
+            <select id="mainGoal">
+                <option value="build_muscle">Build Muscle</option>
+                <option value="lose_weight">Lose Weight</option>
+                <option value="tone_up">Tone Up</option>
+                <option value="general_fitness">General Fitness</option>
+            </select>
+            <div>
+                <button class="back-btn" onclick="prevStep()">Back</button>
+                <button onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <div id="step4" class="container">
+             <h2>Do you have any injuries?</h2>
+             <div>
+                <label class="injury-checkbox"><input type="checkbox" value="Knee Injury"> Knee Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Lower Back Pain"> Lower Back Pain</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Shoulder Injury"> Shoulder Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Elbow Injury"> Elbow Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Wrist/Hand Injury"> Wrist/Hand Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Ankle Injury"> Ankle Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Hip Injury"> Hip Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Neck Injury"> Neck Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Foot Injury"> Foot Injury</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Post-Surgery Recovery"> Post-Surgery Recovery</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Chronic Joint Pain"> Chronic Joint Pain</label>
+                <label class="injury-checkbox"><input type="checkbox" value="Muscle Strain or Tear"> Muscle Strain or Tear</label>
+            </div>
+                <button class="back-btn" onclick="prevStep()">Back</button>
+                <button onclick=" collectInjuries()">Finish</button>
+            </div>
+        </div>
+
+        <div id="step5" class="container">
+            <h2>Your Weekly Plan</h2>
+            <p>
+                <span class="checkmark">✔</span>
+                You selected to work out <strong id="freqSummary"></strong> days a week focused on
+                <strong id="goalSummary"></strong>, with the following injury considerations:
+                <strong id="injurySummary"></strong>.
+            </p>
+            <p>Click any day to customize your workout.</p>
+            <div class="plan-grid" id="planList"></div>
+            <button class="back-btn" onclick="prevStep()">Back</button>
+
+            <div id="workoutModal">
+                <h2>Select a new workout</h2>
+                <select id="newWorkoutSelect">
+                    <option>Push Day</option>
+                    <option>Pull Day</option>
+                    <option>Legs + Core</option>
+                    <option>HIIT</option>
+                    <option>Stretch / Yoga</option>
+                    <option>Rest</option>
+                </select>
+                <div>
+                    <button onclick="confirmWorkoutChange()">Confirm</button>
+                    <button class="back-btn" onclick="closeWorkoutModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
     <footer>
         <p>© 2025 Workout App. All rights reserved.</p>
     </footer>
+
+    <script>
+        let step = 1;
+        let selectedFreq = "";
+        let selectedGoal = "";
+
+        function nextStep() {
+            document.getElementById(`step${step}`).classList.remove("visible");
+            step++;
+            document.getElementById(`step${step}`).classList.add("visible");
+
+            if (step === 5) {
+                selectedFreq = document.getElementById("weeklyFreq").value;
+                selectedGoal = document.getElementById("mainGoal").options[document.getElementById("mainGoal").selectedIndex].text;
+                document.getElementById("freqSummary").innerText = selectedFreq;
+                document.getElementById("goalSummary").innerText = selectedGoal;
+                renderPlan();
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function prevStep() {
+            document.getElementById(`step${step}`).classList.remove("visible");
+            step--;
+            document.getElementById(`step${step}`).classList.add("visible");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        const defaultPlan = {
+            Monday: "Chest & Triceps",
+            Tuesday: "Back & Biceps",
+            Wednesday: "Rest",
+            Thursday: "Legs",
+            Friday: "Shoulders & Core",
+            Saturday: "Cardio or Yoga",
+            Sunday: "Rest"
+        };
+
+        let selectedDay = null;
+
+        function collectInjuries() {
+            const checkboxes = document.querySelectorAll('#step4 input[type="checkbox"]');
+            const selected = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            const summaryElement = document.getElementById('injurySummary');
+            if (summaryElement) {
+                summaryElement.textContent = selected.length ? selected.join(', ') : 'None';
+            }
+
+          
+            nextStep();
+        }
+
+        function renderPlan() {
+            const list = document.getElementById("planList");
+            list.innerHTML = "";
+
+            for (const [day, workout] of Object.entries(defaultPlan)) {
+                const div = document.createElement("div");
+                div.className = "day-card";
+                div.innerHTML = `
+                    <span class="checkmark">✔</span>
+                    <h3>${day}</h3>
+                    <p>${workout}</p>
+                    <button onclick="openWorkoutModal('${day}')">Change</button>
+                    <button class="back-btn" onclick="deleteWorkout('${day}')">Delete</button>
+                `;
+                list.appendChild(div);
+            }
+        }
+
+        function openWorkoutModal(day) {
+            selectedDay = day;
+            document.getElementById("workoutModal").style.display = "block";
+        }
+
+        function closeWorkoutModal() {
+            document.getElementById("workoutModal").style.display = "none";
+            selectedDay = null;
+        }
+
+        function confirmWorkoutChange() {
+            const newWorkout = document.getElementById("newWorkoutSelect").value;
+            if (selectedDay) {
+                defaultPlan[selectedDay] = newWorkout;
+                renderPlan();
+                closeWorkoutModal();
+            }
+        }
+
+        function deleteWorkout(day) {
+            defaultPlan[day] = "(None)";
+            renderPlan();
+        }
+    </script>
 </body>
 
 </html>
