@@ -50,16 +50,13 @@ class Injury(models.Model):
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
     to_user = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
-    #timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.from_user.username} -> {self.to_user.username}"
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def create_or_save_userprofile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
+    else:
+        instance.userprofile.save()

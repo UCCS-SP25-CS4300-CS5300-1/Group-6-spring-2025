@@ -209,7 +209,6 @@
     </header>
 
     <div class="container">
-        <!-- Personal Details Section -->
         <h2>User Profile</h2>
         <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
         <p><strong>Height:</strong> {{ user_profile.height }} inches</p>
@@ -217,7 +216,6 @@
         <p><strong>BMI:</strong> {{ user_profile.bmi|floatformat:2 }}</p>
         <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>
         
-        <!-- Goals Section -->
         <div>
             <h3>🏆 Goals</h3>
             {% if user_profile.goals.all %}
@@ -231,7 +229,6 @@
             {% endif %}
         </div>
         
-        <!-- Injury History Section -->
         <div style="margin-bottom: 40px;">
             <h3>⚕️ Injury History</h3>
             {% if user_profile.injury_history.all %}
@@ -246,11 +243,8 @@
         </div>
         
         {% if user_profile.user == request.user %}
-            <!-- Friend Management Section -->
             <div class="main-section">
                 <h2>Friend Management</h2>
-                
-                <!-- Friend Search -->
                 <h3>Search for Friends</h3>
                 <form method="GET" action="">
                     <input type="text" name="q" placeholder="Enter username" value="{{ search_query }}">
@@ -270,7 +264,6 @@
                     </ul>
                 {% endif %}
 
-                <!-- Pending Friend Requests -->
                 <h3>Pending Friend Requests</h3>
                 <ul class="pending-requests">
                     {% for req in friend_requests %}
@@ -286,7 +279,6 @@
                     {% endfor %}
                 </ul>
 
-                <!-- Friends List -->
                 <h3>Your Friends</h3>
                 <ul class="friend-list">
                     {% for friend in user_profile.friends.all %}
@@ -303,7 +295,6 @@
                 </ul>
             </div>
             
-            <!-- Update Profile Button -->
             <div class="main-section">
                 <h2>Profile Actions</h2>
                 <a href="{% url 'update_profile' %}">
