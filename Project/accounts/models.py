@@ -20,6 +20,9 @@ class UserProfile(models.Model):
     fitness_level = models.CharField(max_length=20, choices=FITNESS_LEVEL_CHOICES, null=True, blank=True)
     goals = models.ManyToManyField('Goal', blank=True)
     injury_history = models.ManyToManyField('Injury', blank=True)
+    
+    friends = models.ManyToManyField('self', blank=True, symmetrical=True)
+    # is_working_out = models.BooleanField(default=False, help_text="Indicates if the user is working out today.")
 
     def __str__(self):
         return self.user.username
@@ -44,12 +47,19 @@ class Injury(models.Model):
     def __str__(self):
         return self.name
 
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
+    #timestamp = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.from_user.username} -> {self.to_user.username}"
+
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created: 
+def create_profile(sender, instance, created, **kwargs):
+    if created:
         UserProfile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
+def save_profile(sender, instance, **kwargs):
     instance.userprofile.save()
-
