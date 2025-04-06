@@ -8,7 +8,7 @@ from goals.models import UserExercise, WorkoutLog, Exercise
 from goals.forms import UserExerciseForm
 from decimal import Decimal
 from django.contrib.auth import get_user_model
-
+import requests
 
 class AIModelTests(TestCase):
 
@@ -178,7 +178,7 @@ class CalendarTests(TestCase):
 
         # It should fail and not return 200
         self.assertNotEqual(response.status_code, 200)
-        
+
     def tearDown(self):
         """Clean up after each test"""
         self.user.delete()
