@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* Global Styles */
         body {
             margin: 0;
             font-family: 'Roboto', sans-serif;
@@ -93,37 +94,98 @@
         th {
             background-color: #f2f2f2;
         }
-
-        /* New styles for the friends list */
-        .friend-list li {
-            font-size: 18px;
+        
+        /* Reset UL defaults for search results, friend list, and pending requests */
+        ul.search-results,
+        ul.friend-list,
+        ul.pending-requests {
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
+            max-width: 600px;
+        }
+        
+        /* Card styles for search results, pending requests, and friends list */
+        .search-card,
+        .pending-card,
+        .friend-card {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            margin: 15px auto;
+        }
+        
+        /* Increase and center the font for all name displays */
+        .search-card .username,
+        .friend-username,
+        .pending-card .request-info {
+            font-size: 20px;
             font-weight: bold;
             color: #333;
+            display: block;
             margin-bottom: 10px;
+            text-align: center;
         }
-
-        .friend-list li .friend-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #007BFF;
+        
+        /* Button styling: reduced size */
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 5px;
             text-decoration: none;
+            color: white;
+            transition: background-color 0.3s;
         }
-
-        .friend-list li .friend-name:hover {
-            text-decoration: underline;
+        .btn:hover {
+            opacity: 0.9;
         }
-
-        .friend-list li .remove-friend {
-            margin-left: 10px;
-            font-size: 16px;
-            color: #FF0000;
-            text-decoration: none;
+        
+        /* Specific button colors */
+        .add-friend-btn {
+            background-color: #28a745;
         }
-
-        .friend-list li .remove-friend:hover {
-            text-decoration: underline;
+        .add-friend-btn:hover {
+            background-color: #218838;
         }
-
+        .accept-btn {
+            background-color: #007BFF;
+        }
+        .accept-btn:hover {
+            background-color: #0056B3;
+        }
+        .reject-btn {
+            background-color: #FF0000;
+        }
+        .reject-btn:hover {
+            background-color: #CC0000;
+        }
+        .view-profile-btn {
+            background-color: #007BFF;
+        }
+        .view-profile-btn:hover {
+            background-color: #0056B3;
+        }
+        .remove-friend-btn {
+            background-color: #FF0000;
+        }
+        .remove-friend-btn:hover {
+            background-color: #CC0000;
+        }
+        
+        /* Center the button containers */
+        .friend-actions,
+        .request-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
     </style>
     <title>User Data</title>
 </head>
@@ -138,7 +200,6 @@
                     <li><a href="#">Calendar</a></li>
                     <li><a href="{% url 'goals:goals' %}">Goals</a></li>
                     <li><a href="{% url 'user_data' %}">Account</a></li>
-                    <li><a href="{% url 'profile' user.id %}">Profile</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
                     <li><a href="{% url 'login' %}">Login</a></li>
@@ -197,45 +258,49 @@
                 </form>
                 {% if search_query %}
                     <h4>Search Results for "{{ search_query }}"</h4>
-                    <ul>
+                    <ul class="search-results">
                         {% for user in search_results %}
-                            <li>
-                                {{ user.username }} -
-                                <a href="{% url 'send_friend_request' user.id %}">Add as Friend</a>
+                            <li class="search-card">
+                                <span class="username">{{ user.username }}</span>
+                                <a href="{% url 'send_friend_request' user.id %}" class="btn add-friend-btn">Add as Friend</a>
                             </li>
                         {% empty %}
                             <li>No users found.</li>
                         {% endfor %}
                     </ul>
                 {% endif %}
-                
+
                 <!-- Pending Friend Requests -->
                 <h3>Pending Friend Requests</h3>
-                <ul>
+                <ul class="pending-requests">
                     {% for req in friend_requests %}
-                        <li>
-                            Friend request from {{ req.from_user.username }}
-                            <a href="{% url 'accept_friend_request' req.id %}">Accept</a>
-                            <a href="{% url 'reject_friend_request' req.id %}">Reject</a>
+                        <li class="pending-card">
+                            <span class="request-info">Friend request from {{ req.from_user.username }}</span>
+                            <div class="request-actions">
+                                <a href="{% url 'accept_friend_request' req.id %}" class="btn accept-btn">Accept</a>
+                                <a href="{% url 'reject_friend_request' req.id %}" class="btn reject-btn">Reject</a>
+                            </div>
                         </li>
                     {% empty %}
                         <li>No pending requests.</li>
                     {% endfor %}
                 </ul>
-                
+
                 <!-- Friends List -->
                 <h3>Your Friends</h3>
                 <ul class="friend-list">
                     {% for friend in user_profile.friends.all %}
-                        <li>
-                            <a href="{% url 'friend_data' friend.user.id %}" class="friend-name">{{ friend.user.username }}</a>
-                            <a href="{% url 'remove_friend' friend.user.id %}" class="remove-friend">Remove Friend</a>
+                        <li class="friend-card">
+                            <span class="friend-username">{{ friend.user.username }}</span>
+                            <div class="friend-actions">
+                                <a href="{% url 'friend_data' friend.user.id %}" class="btn view-profile-btn">View Profile</a>
+                                <a href="{% url 'remove_friend' friend.user.id %}" class="btn remove-friend-btn">Remove Friend</a>
+                            </div>
                         </li>
                     {% empty %}
                         <li>No friends yet.</li>
                     {% endfor %}
                 </ul>
-
             </div>
             
             <!-- Update Profile Button -->
@@ -246,8 +311,6 @@
                 </a>
             </div>
         {% endif %}
-
-        
     </div>
 </body>
 </html>
