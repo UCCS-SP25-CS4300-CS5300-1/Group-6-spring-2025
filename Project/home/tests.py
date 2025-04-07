@@ -141,7 +141,7 @@ class CalendarTests(TestCase):
         
         self.assertEqual(workout_log.count(), 0)  # Should delete the log entry
         self.assertEqual(response.status_code, 200)
-
+    """ Warm up Tests  """
     def test_calendar_view_fetches_warmups_from_api(self):
         """Test that warm-up exercises are fetched from the external API and added to context"""
         response = self.client.get(reverse('calendar'))
@@ -153,8 +153,7 @@ class CalendarTests(TestCase):
     def test_warmup_api_returns_valid_data(self):
         """Test the API endpoint directly and confirm it returns at least one cardio exercise"""
         headers = {
-            "X-RapidAPI-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz",
-            "X-RapidAPI-Host": "exercises-by-api-ninjas.p.rapidapi.com"
+            "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
         }
         url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=cardio"
         api_response = requests.get(url, headers=headers)
@@ -166,11 +165,10 @@ class CalendarTests(TestCase):
         self.assertTrue(len(warmups) > 0)
         self.assertIn('name', warmups[0])  # At least check structure
 
-    def test_warmup_api_handles_errors_gracefully(self):
+    def test_warmup_api_handles_errors(self):
         """Simulate a bad request to check if error handling works (manually change endpoint)"""
         headers = {
-            "X-RapidAPI-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz",
-            "X-RapidAPI-Host": "exercises-by-api-ninjas.p.rapidapi.com"
+            "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
         }
         # Intentionally broken URL
         url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/invalid-endpoint"

@@ -263,27 +263,31 @@
                 <!-- JS will inject completed workouts here -->
               </div>
             </div>
+            <!--Warm up display section-->
+            <div class="workout-section">
+                <h4>Today's Warm-Ups</h4>
+                <div class="workout-list">
+                    {% if warm_ups %}
+                        {% for warmup in warm_ups %}
+                            <div class="workout-item">
+                                <div class="workout-title">{{ warmup.name|title }}</div>
+                                <div class="workout-date">
+                                    <small>Type: {{ warmup.type }}, Difficulty: {{ warmup.difficulty }}</small><br>
+                                    <small>Muscle: {{ warmup.muscle }}</small><br>
+                                    <small style="color: #777">{{ warmup.instructions }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-message">No warm-up exercises available.</div>
+                    {% endif %}
+                </div>
+            </div>
+
           </div>
 
-
-        <!--Warm up container subsection-->
-          <div class="warmup-section" style="margin-top: 30px;">
-            <h3>Warm-Up</h3>
-            {% if warm_ups %}
-                <ul style="padding-left: 20px;">
-                    {% for warmup in warm_ups %}
-                        <div class="warmup-item" style="margin-bottom: 15px;">
-                            <strong>{{ warmup.name|title }}</strong><br>
-                            <small>Type:{{ warmup.type }}, Difficulty: {{warmup.difficulty}}</small><br>
-                            <small>Muscle: {{ warmup.muscle }}</small>
-                            <small style="color: #777">{{ warmup.instructions }}</small>
-                        </div>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No warm-up exercises available.</p>
-            {% endif %}
-        </div>
+            
+        
 
         <!-- Calendar Section -->
         <div class="main-section">

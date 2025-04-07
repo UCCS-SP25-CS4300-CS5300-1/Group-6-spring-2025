@@ -88,9 +88,7 @@ def calendar_view(request):
         response = requests.get("https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=cardio",
             headers={ 
                 #input the API key for the project
-                "X-RapidAPI-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz",
-                # call the correct API through the API ninjas offerings 
-                "X-RapidAPI-Host": "exercises-by-api-ninjas.p.rapidapi.com"
+                "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
             }
         )
         if responses.status_code == 200: # if the response worked 
