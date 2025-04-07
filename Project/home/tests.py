@@ -155,7 +155,7 @@ class CalendarTests(TestCase):
         headers = {
             "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
         }
-        url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=cardio"
+        url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=stretching"
         api_response = requests.get(url, headers=headers)
 
         self.assertEqual(api_response.status_code, 200)

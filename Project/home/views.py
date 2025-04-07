@@ -85,7 +85,7 @@ def calendar_view(request):
     warm_ups = [] # create empty list to store warm ups 
     try: #use a try except for requests from the API
         # call the API to get a JSON response listing the exercises
-        response = requests.get("https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=cardio",
+        response = requests.get("https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=stretching",
             headers={ 
                 #input the API key for the project
                 "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
