@@ -32,7 +32,8 @@
 
         ul {
             list-style-type: none;
-            margin: 0;
+            justify-content: center;
+            margin: auto;
             padding: 0;
             display: flex;
         }
@@ -56,7 +57,7 @@
         .canvas-container {
             display: flex;
             width: 40%;
-            padding: 10px 25px;
+            padding: 10px;
         }
 
         .cv {
@@ -136,16 +137,16 @@
         </nav>
     </header>
 
-    <div class="container">
+    <div class="main-section">
         <h2>User Profile</h2>
         <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
         <p><strong>Height:</strong> {{ user_profile.height }} inches</p>
         <p><strong>Weight:</strong> {{ user_profile.weight }} lbs</p>
         <p><strong>BMI:</strong> {{ user_profile.bmi|floatformat:2 }}</p>
         <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>
-    
+    </div>
         <!-- Goals Section (Vertically Listed) -->
-        <div>
+        <div class="main-section">
             <h3>🏆 Goals</h3>
                 {% if user_profile.goals.all %}
                     <ul>
@@ -156,10 +157,7 @@
                 {% else %}
                     <p>• No goals set.</p>
                 {% endif %}
-            </div>
-
             <!-- Injury History Section (Vertically Listed) -->
-            <div style="margin-bottom: 40px;">
                 <h3>⚕️ Injury History</h3>
                 {% if user_profile.injury_history.all %}
                     <ul>
@@ -170,17 +168,17 @@
                 {% else %}
                     <p>• No injury history recorded.</p>
                 {% endif %}
-            </div>
+        </div>
         <!-- Section for charts and progression -->
-    </div>
+
     <div class="row">
         <div class="main-section">
             <h2>Progression</h2>
             <div class="row">
                 <div class="canvas-container">
-                    <canvas class="cv" id="myChartExercise" style="width:30%;max-width:600px"></canvas>
-                    <canvas class="cv" id="myCharttest" style="width:30%;max-width:600px"></canvas>
-                    <canvas class="cv" id="myChartWeight" style="width:30%;max-width:600px"></canvas>
+                    <canvas class="cv" id="myChartExercise" style="width:20%;max-width:450px;"></canvas>
+                    <canvas class="cv" id="myCharttest" style="width:20%;max-width:450px"></canvas>
+                    <canvas class="cv" id="myChartWeight" style="width:20%;max-width:450px"></canvas>
                 </div>
                 <script>
                     const xValues = [50,60,70,80,90,100,110,120,130,140,150];
@@ -197,6 +195,7 @@
                                 }]
                             },
                             options: {
+                                responsive:true,
                                 title: {
                                     display: true,
                                     text: "Exercise Progression",
@@ -216,9 +215,10 @@
                                 }]
                             },
                             options: {
+                                responsive:true,
                                 title: {
                                     display: true,
-                                    text: "Your Chart Title",
+                                    text: "Goal Progression",
                                     position: "bottom",
                                     align: "center"
                                 }
@@ -235,6 +235,7 @@
                                 }]
                             },
                             options: {
+                                responsive:true,
                                 title: {
                                     display: true,
                                     text: "Weight",
