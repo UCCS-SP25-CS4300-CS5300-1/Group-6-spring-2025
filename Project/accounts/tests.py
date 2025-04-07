@@ -190,9 +190,9 @@ class FriendViewsTestCase(TestCase):
         self.user2.userprofile.friends.clear()
 
     def test_profile_view_requires_login(self):
-        url = reverse('profile', args=[self.user2.id])
+        url = reverse('user_data')
         response = self.client.get(url)
-        # Expect a redirect to the login page
+        # Expect a redirect to the login page for an unauthenticated user.
         self.assertNotEqual(response.status_code, 200)
         self.assertRedirects(response, f'/accounts/login/?next={url}')
 
@@ -200,7 +200,7 @@ class FriendViewsTestCase(TestCase):
         self.client.login(username="user1", password="password1")
         # Create another user that should appear in search results.
         user3 = User.objects.create_user(username="searchuser", password="password3")
-        url = reverse('profile', args=[self.user2.id])
+        url = reverse('user_data')
         response = self.client.get(url, {'q': 'search'})
         self.assertEqual(response.status_code, 200)
         # Check that the context contains the search query and results.
@@ -211,6 +211,7 @@ class FriendViewsTestCase(TestCase):
         self.assertIn(user3, response.context['search_results'])
         # It should not include the logged-in user.
         self.assertNotIn(self.user1, response.context['search_results'])
+
 
     def test_send_friend_request(self):
         self.client.login(username="user1", password="password1")
