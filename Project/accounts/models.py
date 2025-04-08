@@ -46,7 +46,8 @@ class Injury(models.Model):
         return self.name
 
 class UserAccExercise(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     sets = models.IntegerField(default=0)
     reps = models.IntegerField(default=0)

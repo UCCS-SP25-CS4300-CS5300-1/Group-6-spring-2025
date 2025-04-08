@@ -185,60 +185,69 @@
                     <canvas class="cv" id="myCharttest" style="width:20%;max-width:450px"></canvas>
                     <canvas class="cv" id="myChartWeight" style="width:20%;max-width:450px"></canvas>
                 </div>
+                <!--Section for the charts -->
                 <script>
                     var yValues = JSON.parse("{{ user_profile.weight_history }}");
                     var xValues = new Array(yValues.length);
                     xValues = xValues.fill('');
-
-                        new Chart("myChartExercise", {
-                            type: "line",
-                            data: {
-                                labels: xValues,
-                                datasets: [{
+                    var test = JSON.parse('{{ user_exercises|safe }}');
+                    var yyValues = test['Bench Press']
+                    var listofexercises = [];
+                    for (const key in test) {
+                        console.log(key);
+                        listofexercises.push({
+                                label: key,
                                 backgroundColor:"rgba(0,0,255,1.0)",
                                 borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues,
-                                }]
-                            },
-                            options: {
-                                responsive:true,
-                                scales: {
-                                    ticks: {
-                                            display: false //this will remove only the label
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: "Exercise Progression",
-                                    position: "bottom",
-                                    align: "center"
-                                }
-                            }
-                        });
-                        new Chart("myChartWeight", {
-                            type: "line",
-                            data: {
-                                labels: xValues,
-                                datasets: [{
-                                backgroundColor:"rgba(0,0,255,1.0)",
-                                borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues,
+                                data: test[key],
                                 fill: false,
-                                }]
-                            },
-                            options: {
-                                responsive:true,
-                                title: {
-                                    display: true,
-                                    text: "Weight Tracker",
-                                    position: "bottom",
-                                    align: "center"
-                                },
-                                legend: {
-                                    display: false,
+                                });
+                    }
+                    new Chart("myChartExercise", {
+                        type: "line",
+                        data: {
+                            labels: xValues,
+                            datasets: listofexercises
+                        },
+                        options: {
+                            responsive:true,
+                            scales: {
+                                ticks: {
+                                        display: false //this will remove only the label
                                 }
+                            },
+                            title: {
+                                display: true,
+                                text: "Exercise Progression",
+                                position: "bottom",
+                                align: "center"
                             }
-                        });
+                        }
+                    });
+                    new Chart("myChartWeight", {
+                        type: "line",
+                        data: {
+                            labels: xValues,
+                            datasets: [{
+                            backgroundColor:"rgba(0,0,255,1.0)",
+                            borderColor: "rgba(0,0,255,0.1)",
+                            data: yValues,
+                            fill: false,
+                            }]
+                        },
+                        options: {
+                            responsive:true,
+                            title: {
+                                display: true,
+                                text: "Weight Tracker",
+                                position: "bottom",
+                                align: "center"
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    });
                 </script>
             </div>
         </div>

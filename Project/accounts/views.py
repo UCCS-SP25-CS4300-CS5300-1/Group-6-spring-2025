@@ -42,15 +42,23 @@ def user_data(request):
     exercises = UserAccExercise.objects.filter(user=request.user)
     exerciseDict = {}
     for x in exercises:
+        print(x.name, x.weight)
         if x.name in exerciseDict:
             temp = exerciseDict.get(x.name)
-            exerciseDict[x.name] = temp.append(x.weight)
+            print(temp)
+            print(type(temp), type(temp[0]), type(x.weight))
+            temp.append(x.weight)
+            print(temp)
+            exerciseDict[x.name] = temp
         else:
             exerciseDict[x.name] = [x.weight]
     print(exerciseDict)
+    exerciseDict =  json.dumps(exerciseDict)
+    print(exerciseDict, type(exerciseDict))
     return render(request, 'accounts/user_data.html', {
         'user_profile': user_profile,
         'user_data_entries': user_data_entries,
+        'user_exercises': exerciseDict,
     })
 
 def custom_logout(request):
@@ -112,7 +120,6 @@ def log_data(request):
     profile = request.user.userprofile
     exercisesdone = UserAccExercise.objects.filter(user=request.user)
     print(profile)
-    print(exercisesdone[0].name)
     if request.method == 'POST':
         #This will update the weight_history attribute as a json object so i can be used in the charts.
         if( len(request.POST) < 5 ): #This is a weight update
