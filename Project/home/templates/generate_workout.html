@@ -16,23 +16,25 @@
     injuries: "{{ injuries|escapejs }}"
   };
 </script>
-
 <body>
-    <!-- Top Navigation Bar -->
-    <header>
-        <a class="logo" href="#home">Workout App</a>
-        <nav>
-            <ul>
-                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
-                <li><a href="{% url 'calendar' %}">Calendar</a></li>
-                <li><a href="{% url 'goals:goals' %}">Goals</a></li>
-                <li><a href="{% url 'user_data' %}">Account</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Add logout link -->
-            </ul>
-        </nav>
-    </header>
-
+  <header>
+    <a class="logo" href="#home">Workout App</a>
+    <nav>
+      <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+        <li><a href="#calendar">Calendar</a></li>
+        <li><a href="{% url 'user_data' %}">Account</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <!-- Step 1: Import Data Prompt -->
+    <div id="step1" class="container visible">
+      <h1>Would you like to import your data?</h1>
+      <button onclick="importUserData()">Yes</button>
+      <button onclick="nextStep()">No</button>
+    </div>
     <!-- Step 2: Main Goal -->
     <div id="step2" class="container">
       <h2>What is your main goal?</h2>
@@ -55,7 +57,6 @@
         <button onclick="nextStep()">Next</button>
       </div>
     </div>
-
     <!-- Step 3: Fitness Level -->
     <div id="step3" class="container">
       <h2>What is your current level of fitness?</h2>
@@ -82,7 +83,6 @@
         <button onclick="nextStep()">Next</button>
       </div>
     </div>
-
     <!-- Step 4: Injuries -->
     <div id="step4" class="container">
       <h2>Do you have any injuries?</h2>
@@ -105,7 +105,6 @@
         <button onclick="nextStep()">Next</button>
       </div>
     </div>
-
     <!-- Step 5: Select Days of the Week -->
     <div id="step5" class="container">
       <h2>What days out of the week would you like to work out?</h2>
@@ -151,7 +150,6 @@
         <button onclick="nextStep()">Generate My Workout</button>
       </div>
     </div>
-
     <!-- Step 6: Weekly Plan Summary -->
     <div id="step6" class="container">
       <h2>Your Weekly Plan</h2>
@@ -189,12 +187,10 @@
       document.getElementById(`step${step}`).classList.add("visible");
       if (step === 6) {
         // Gather selected days from Step 5
-
             const days = Array.from(document.querySelectorAll('#step5 input[type="checkbox"]:checked'))
                         .map(cb => cb.value);
             window.selectedDays = days.length ? days : Object.keys(defaultPlan);
             console.log("Selected days:", window.selectedDays);
-
         // Gather other selections
             const selectedGoal = document.getElementById("mainGoal").options[
              document.getElementById("mainGoal").selectedIndex
@@ -205,14 +201,12 @@
             const selectedFitness = document.getElementById("fitnessLevel").options[
                 document.getElementById("fitnessLevel").selectedIndex
                 ].text;
-
             // Update summary fields
             document.getElementById("freqSummary").innerText = selectedDays.join(', ');
             document.getElementById("goalSummary").innerText = selectedGoal;
             document.getElementById("injurySummary").innerText = selectedInjuries;
             document.getElementById("fitnessSummary").innerText = selectedFitness;
             submitWorkoutForm();
-
         }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -228,7 +222,6 @@
       const summaryGoal = document.getElementById("goalSummary").innerText;
       const summaryInjuries = document.getElementById("injurySummary").innerText;
       const summaryDays = document.getElementById("freqSummary").innerText;
-
       // Combine them into one string to send to the server
       const userDataText = `Fitness Level: ${summaryFitness}; Goals: ${summaryGoal}; Injuries: ${summaryInjuries}; Selected Days: ${summaryDays}`;
       // Log for debugging
@@ -253,14 +246,19 @@
       })
       .catch(error => console.error("Error:", error));
     }
+
     function renderPlan() {
+
       const list = document.getElementById("planList");
       list.innerHTML = "";
+
       // Get the raw AI response from the element with id "rawResponse"
       const rawOutput = document.getElementById("rawResponse").innerText;
       // Simply output the entire AI response (wrapped in a <pre> for formatting)
       list.innerHTML = `<pre style="white-space: pre-wrap;">${rawOutput}</pre>`;
     }
+
+
     function importUserData() {
       if (userData.goals) {
         const goalSelect = document.getElementById("mainGoal");
