@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=9999">
   <title>Ask AI for a Fitness Plan</title>
 </head>
 <script>
@@ -178,29 +178,43 @@
   <footer>
     <p>© 2025 Workout App. All rights reserved.</p>
   </footer>
+
+
+
   <script>
+
     let step = 1;
     window.selectedDays = [];
+
+    //Goes to the next step, if on final page gather user's selections and render the plan
     function nextStep() {
+
       document.getElementById(`step${step}`).classList.remove("visible");
       step++;
       document.getElementById(`step${step}`).classList.add("visible");
+
+      //If the user is on the final page, gather the information
       if (step === 6) {
-        // Gather selected days from Step 5
+
+          // Gather selected days from Step 5
             const days = Array.from(document.querySelectorAll('#step5 input[type="checkbox"]:checked'))
                         .map(cb => cb.value);
             window.selectedDays = days.length ? days : Object.keys(defaultPlan);
             console.log("Selected days:", window.selectedDays);
-        // Gather other selections
+
+            // Gather the goal
             const selectedGoal = document.getElementById("mainGoal").options[
              document.getElementById("mainGoal").selectedIndex
             ].text;
+
+            //Gather the fitness level
             const selectedInjuries = Array.from(document.querySelectorAll('#step4 input[type="checkbox"]:checked'))
                                     .map(cb => cb.value)
                                     .join(', ') || 'None';
             const selectedFitness = document.getElementById("fitnessLevel").options[
                 document.getElementById("fitnessLevel").selectedIndex
                 ].text;
+
             // Update summary fields
             document.getElementById("freqSummary").innerText = selectedDays.join(', ');
             document.getElementById("goalSummary").innerText = selectedGoal;
@@ -208,24 +222,35 @@
             document.getElementById("fitnessSummary").innerText = selectedFitness;
             submitWorkoutForm();
         }
+
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    }//nextStep()
+
+
+    //Goes to the previous step if the user hits back
     function prevStep() {
       document.getElementById(`step${step}`).classList.remove("visible");
       step--;
       document.getElementById(`step${step}`).classList.add("visible");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+
+
+    //Gets user's selections, formats into a string, sends to server and receives AI response.
     function submitWorkoutForm() {
+      
       // Retrieve the summary fields' inner text
       const summaryFitness = document.getElementById("fitnessSummary").innerText;
       const summaryGoal = document.getElementById("goalSummary").innerText;
       const summaryInjuries = document.getElementById("injurySummary").innerText;
       const summaryDays = document.getElementById("freqSummary").innerText;
+
       // Combine them into one string to send to the server
       const userDataText = `Fitness Level: ${summaryFitness}; Goals: ${summaryGoal}; Injuries: ${summaryInjuries}; Selected Days: ${summaryDays}`;
+
       // Log for debugging
       console.log("Submitting user data (from summary fields):", userDataText);
+
       // Send the POST request using fetch
       fetch("{% url 'generate_workout' %}", {
           method: "POST",
@@ -236,7 +261,9 @@
           },
           body: new URLSearchParams({ 'user_input': userDataText })
       })
+
       .then(response => response.text())
+
       .then(data => {
         console.log("Response from server:", data);
         const rawEl = document.getElementById("rawResponse");
@@ -244,21 +271,13 @@
             rawEl.innerText = data;
         }
       })
+
       .catch(error => console.error("Error:", error));
-    }
 
-    function renderPlan() {
-
-      const list = document.getElementById("planList");
-      list.innerHTML = "";
-
-      // Get the raw AI response from the element with id "rawResponse"
-      const rawOutput = document.getElementById("rawResponse").innerText;
-      // Simply output the entire AI response (wrapped in a <pre> for formatting)
-      list.innerHTML = `<pre style="white-space: pre-wrap;">${rawOutput}</pre>`;
-    }
+    }//submitWorkoutForm()
 
 
+    //Autofills userfunction data via the account and then skips appropriate steps
     function importUserData() {
       if (userData.goals) {
         const goalSelect = document.getElementById("mainGoal");
