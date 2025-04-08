@@ -172,7 +172,7 @@ class CalendarTests(TestCase):
         # make sure that the response code is 200, the exercise it correct and the template is correct
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Quad Pulls")
-        self.assertTemplateUsed(response, "home/calendar.html")
+        self.assertTemplateUsed(response, "calendar.html")
 
     def test_warmup_api_handles_errors(self):
         """Simulate a bad request to check if error handling works (manually change endpoint)"""
