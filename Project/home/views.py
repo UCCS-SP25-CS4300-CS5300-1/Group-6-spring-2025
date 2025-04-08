@@ -91,14 +91,14 @@ def calendar_view(request):
                 "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
             }
         )
-        if responses.status_code == 200: # if the response worked 
+        if response.status_code == 200: # if the response worked 
             warm_ups = response.json()[:3] # update the list (holds three exercises for now)
     except Exception as e: # if the try did not work 
         print(f"Error fetching warm-up excercises: {e}") #print an error message on the webpage
 
     # GET: render calendar
     exercises = UserExercise.objects.filter(user=request.user)
-    return render(request, 'calendar.html', {'events': exercises})
+    return render(request, 'calendar.html', {'events': exercises, 'warm_ups': warm_ups})
 @login_required
 def workout_events(request):
     if not request.user.is_authenticated:
