@@ -12,6 +12,7 @@ from .views import (
     friend_list,
     friend_search,
     friend_data,
+    log_data,
 )
 
 urlpatterns = [
@@ -27,4 +28,5 @@ urlpatterns = [
     path('friends/', friend_list, name='friend_list'),
     path('friend-search/', friend_search, name='friend_search'),
     path('user_data/<int:user_id>/', friend_data, name='friend_data'),
+    path('log_data/', log_data, name='log_data'),
 ]

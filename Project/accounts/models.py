@@ -22,6 +22,7 @@ class UserProfile(models.Model):
     injury_history = models.ManyToManyField('Injury', blank=True)
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     # is_working_out = models.BooleanField(default=False, help_text="Indicates if the user is working out today.")
+    weight_history = models.CharField(max_length=200, choices=FITNESS_LEVEL_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -52,6 +53,13 @@ class FriendRequest(models.Model):
 
     def __str__(self):
         return f"{self.from_user.username} -> {self.to_user.username}"
+class UserAccExercise(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    sets = models.IntegerField(default=0)
+    reps = models.IntegerField(default=0)
+    weight = models.IntegerField(default=0)
 
 @receiver(post_save, sender=User)
 def create_or_save_userprofile(sender, instance, created, **kwargs):

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"> </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -28,7 +29,8 @@
         }
         ul {
             list-style-type: none;
-            margin: 0;
+            justify-content: center;
+            margin: auto;
             padding: 0;
             display: flex;
         }
@@ -45,6 +47,19 @@
         li a:hover {
             background-color: #007BFF;
             transform: scale(1.05);
+        }
+        .canvas-container {
+            display: flex;
+            margin: 0 auto;
+        }
+        canvas{
+            margin: 0 auto;
+        }
+        .cv {
+            width: 100%;
+            height: 100%;
+            padding: 10px 25px;
+            margin: 0 auto;
         }
         .container {
             padding: 20px;
@@ -185,7 +200,7 @@
 </head>
 <body>
     <header>
-        <a class="logo" href="#home">Workout App</a>
+        <a class="logo" href="{% url 'home' %}">Workout App</a>
         <nav>
             <ul>
                 <li><a class="activate" href="{% url 'home' %}">Home</a></li>
@@ -201,24 +216,125 @@
             </ul>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="main-section">
         <h2>User Profile</h2>
         <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
         <p><strong>Height:</strong> {{ user_profile.height }} inches</p>
         <p><strong>Weight:</strong> {{ user_profile.weight }} lbs</p>
         <p><strong>BMI:</strong> {{ user_profile.bmi|floatformat:2 }}</p>
         <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>
-        <div>
+    </div>
+        <!-- Goals Section (Vertically Listed) -->
+        <div class="main-section">
             <h3>🏆 Goals</h3>
-            {% if user_profile.goals.all %}
-                <ul>
-                    {% for goal in user_profile.goals.all %}
-                        <li>✅ {{ goal.name }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>• No goals set.</p>
-            {% endif %}
+                {% if user_profile.goals.all %}
+                    <ul>
+                        {% for goal in user_profile.goals.all %}
+                            <li>✅ {{ goal.name }}</li>  <!-- Adjust 'name' based on your Goal model -->
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>• No goals set.</p>
+                {% endif %}
+            <!-- Injury History Section (Vertically Listed) -->
+                <h3>⚕️ Injury History</h3>
+                {% if user_profile.injury_history.all %}
+                    <ul>
+                        {% for injury in user_profile.injury_history.all %}
+                            <li>⚠️ {{ injury.name }}</li>  <!-- Adjust 'name' based on your Injury model -->
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>• No injury history recorded.</p>
+                {% endif %}
+        </div>
+        <!-- Section for charts and progression -->
+
+    <div class="row">
+        <div class="main-section">
+            <h2>Progression</h2>
+            <form action="{% url 'log_data' %}" method="get">
+                <button type="submit">Log Data</button>
+            </form>
+            <div class="row">
+                <div class="canvas-container">
+                    <canvas class="cv" id="myChartExercise" style="width:20%;max-width:450px;"></canvas>
+                    <canvas class="cv" id="myCharttest" style="width:20%;max-width:450px"></canvas>
+                    <canvas class="cv" id="myChartWeight" style="width:20%;max-width:450px"></canvas>
+                </div>
+                <!--Section for the charts -->
+                <script>
+                    var yValues = JSON.parse("{{ user_profile.weight_history }}");
+                    var xValues = new Array(yValues.length);
+                    xValues = xValues.fill('');
+                    var test = JSON.parse('{{ user_exercises|safe }}');
+                    var yyValues = test['Bench Press']
+                    var listofexercises = [];
+                    for (const key in test) {
+                        console.log(key);
+                        listofexercises.push({
+                                label: key,
+                                backgroundColor:"rgba(0,0,255,1.0)",
+                                borderColor: "rgba(0,0,255,0.1)",
+                                data: test[key],
+                                fill: false,
+                                });
+                    }
+                    new Chart("myChartExercise", {
+                        type: "line",
+                        data: {
+                            labels: xValues,
+                            datasets: listofexercises
+                        },
+                        options: {
+                            responsive:true,
+                            scales: {
+                                ticks: {
+                                        display: false //this will remove only the label
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "Exercise Progression",
+                                position: "bottom",
+                                align: "center"
+                            }
+                        }
+                    });
+                    new Chart("myChartWeight", {
+                        type: "line",
+                        data: {
+                            labels: xValues,
+                            datasets: [{
+                            backgroundColor:"rgba(0,0,255,1.0)",
+                            borderColor: "rgba(0,0,255,0.1)",
+                            data: yValues,
+                            fill: false,
+                            }]
+                        },
+                        options: {
+                            responsive:true,
+                            title: {
+                                display: true,
+                                text: "Weight Tracker",
+                                position: "bottom",
+                                align: "center"
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+        <!-- Button to Update Profile -->
+        <div class="main-section">
+            <h2>Profile Actions</h2>
+            <a href="{% url 'update_profile' %}">
+                <button>Update Profile</button>
+            </a>
         </div>
         <div style="margin-bottom: 40px;">
             <h3>⚕️ Injury History</h3>

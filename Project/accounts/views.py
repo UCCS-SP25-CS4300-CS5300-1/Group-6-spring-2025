@@ -4,8 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserProfileUpdateForm
-from .models import UserProfile, FriendRequest
+from .forms import UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight, UserLogDataFormExercise
+import json
+from .models import UserProfile, FriendRequest, UserAccExercise
 
 def register(request):
     if request.method == 'POST':
@@ -35,21 +36,13 @@ def user_login(request):
 @login_required
 def user_data(request):
     user_profile = request.user.userprofile
-    friend_requests = FriendRequest.objects.filter(to_user=request.user)
-    search_query = request.GET.get('q', '')
-    search_results = []
-    if search_query:
-        friends_ids = request.user.userprofile.friends.all().values_list('user__id', flat=True)
-        search_results = User.objects.filter(username__icontains=search_query)\
-            .exclude(id=request.user.id)\
-            .exclude(id__in=friends_ids)
-    context = {
+    # Retrieve all user data entries for the logged-in user
+    user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')  # Prefetch related goals for efficiency
+
+    return render(request, 'accounts/user_data.html', {
         'user_profile': user_profile,
-        'friend_requests': friend_requests,
-        'search_query': search_query,
-        'search_results': search_results,
-    }
-    return render(request, 'accounts/user_data.html', context)
+        'user_data_entries': user_data_entries,
+    })
 
 def custom_logout(request):
     logout(request)
@@ -64,15 +57,25 @@ def update_profile(request):
             profile = form.save(commit=False)
             profile.height = float(request.POST.get('height', 0)) if request.POST.get('height') else None
             profile.weight = float(request.POST.get('weight', 0)) if request.POST.get('weight') else None
-            height_m = profile.height * 0.0254 if profile.height else 0
-            weight_kg = profile.weight * 0.453592 if profile.weight else 0
-            profile.bmi = weight_kg / (height_m ** 2) if height_m > 0 else None
+
+            # Calculate BMI
+            height_m = profile.height * 0.0254 if profile.height else 0  # Convert height from inches to meters
+            weight_kg = profile.weight * 0.453592 if profile.weight else 0  # Convert weight from pounds to kg
+            if height_m > 0:  # Prevent division by zero
+                profile.bmi = weight_kg / (height_m ** 2)
+            else:
+                profile.bmi = None  # Handle case where height is zero
+            # Save the updated profile
             profile.save()
-            goals = request.POST.getlist('goals')
-            injuries = request.POST.getlist('injury_history')
-            profile.goals.set(goals)
-            profile.injury_history.set(injuries)
-            return redirect('user_data')
+            # Handle goals and injuries
+            goals = request.POST.getlist('goals')  # Get selected goals from the form
+            injuries = request.POST.getlist('injury_history')  # Get selected injuries from the form
+            # Update the ManyToMany fields
+            profile.goals.set(goals)  # Update the user's goals
+            profile.injury_history.set(injuries)  # Update the user's injury history
+            return redirect('/accounts/user_data/')  # Redirect to home or another page after saving
+        else:
+            print(form.errors)  # Print any validation errors
     else:
         form = UserProfileUpdateForm(instance=profile)
     selected_goals = profile.goals.values_list('id', flat=True)
@@ -136,3 +139,27 @@ def friend_data(request, user_id):
         messages.error(request, "You are not allowed to view this profile.")
         return redirect('user_data')
     return render(request, 'accounts/user_data.html', {'user_profile': friend.userprofile})
+
+def log_data(request):
+
+    profile = request.user.userprofile
+    exercisesdone = UserAccExercise.objects.filter(user=request.user)
+    print(profile)
+    if request.method == 'POST':
+        #This will update the weight_history attribute as a json object so i can be used in the charts.
+        if( len(request.POST) < 5 ): #This is a weight update
+            newweight = int(request.POST.get('weight', 0))
+            oldweight = json.loads(profile.weight_history)
+            oldweight.append(newweight)
+            toupdate = json.dumps(oldweight)
+            UserProfile.objects.filter(user=request.user).update(weight_history=toupdate)
+        else: #This is a exercise update
+            print(len(request.POST))
+            UserAccExercise.objects.create(user=request.user,name=request.POST.get('name'),sets=request.POST.get('sets', 0),reps=request.POST.get('reps', 0),weight=request.POST.get('weight', 0))
+        formweight = UserLogDataFormWeight()
+        formexercise = UserLogDataFormExercise()
+        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'exercises':exercisesdone})
+    else:
+        formweight = UserLogDataFormWeight()
+        formexercise = UserLogDataFormExercise()
+        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'exercises':exercisesdone})
