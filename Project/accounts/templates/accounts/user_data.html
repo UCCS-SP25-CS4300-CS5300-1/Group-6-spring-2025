@@ -266,10 +266,12 @@
                 <!--Section for the charts -->
                 <script>
                     var yValues = JSON.parse("{{ user_profile.weight_history }}");
+                    console.log(yValues)
                     var xValues = new Array(yValues.length);
                     xValues = xValues.fill('');
                     var test = JSON.parse('{{ user_exercises|safe }}');
                     var yyValues = test['Bench Press']
+                    console.log(yyValues)
                     var listofexercises = [];
                     for (const key in test) {
                         console.log(key);
@@ -328,25 +330,6 @@
                     });
                 </script>
             </div>
-        </div>
-        <!-- Button to Update Profile -->
-        <div class="main-section">
-            <h2>Profile Actions</h2>
-            <a href="{% url 'update_profile' %}">
-                <button>Update Profile</button>
-            </a>
-        </div>
-        <div style="margin-bottom: 40px;">
-            <h3>⚕️ Injury History</h3>
-            {% if user_profile.injury_history.all %}
-                <ul>
-                    {% for injury in user_profile.injury_history.all %}
-                        <li>⚠️ {{ injury.name }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>• No injury history recorded.</p>
-            {% endif %}
         </div>
         {% if user_profile.user == request.user %}
             <div class="main-section">

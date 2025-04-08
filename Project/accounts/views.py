@@ -35,13 +35,30 @@ def user_login(request):
 
 @login_required
 def user_data(request):
+    # Retrieve the user's profile
     user_profile = request.user.userprofile
     # Retrieve all user data entries for the logged-in user
     user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')  # Prefetch related goals for efficiency
-
+    exercises = UserAccExercise.objects.filter(user=request.user)
+    exerciseDict = {}
+    for x in exercises:
+        print(x.name, x.weight)
+        if x.name in exerciseDict:
+            temp = exerciseDict.get(x.name)
+            print(temp)
+            print(type(temp), type(temp[0]), type(x.weight))
+            temp.append(x.weight)
+            print(temp)
+            exerciseDict[x.name] = temp
+        else:
+            exerciseDict[x.name] = [x.weight]
+    print(exerciseDict)
+    exerciseDict =  json.dumps(exerciseDict)
+    print(exerciseDict, type(exerciseDict))
     return render(request, 'accounts/user_data.html', {
         'user_profile': user_profile,
         'user_data_entries': user_data_entries,
+        'user_exercises': exerciseDict,
     })
 
 def custom_logout(request):
@@ -57,7 +74,8 @@ def update_profile(request):
             profile = form.save(commit=False)
             profile.height = float(request.POST.get('height', 0)) if request.POST.get('height') else None
             profile.weight = float(request.POST.get('weight', 0)) if request.POST.get('weight') else None
-
+            profile.weight_history = request.POST.get('weight', 0) if request.POST.get('weight') else None
+            profile.weight_history = json.dumps([int(profile.weight_history)])
             # Calculate BMI
             height_m = profile.height * 0.0254 if profile.height else 0  # Convert height from inches to meters
             weight_kg = profile.weight * 0.453592 if profile.weight else 0  # Convert weight from pounds to kg
@@ -152,6 +170,7 @@ def log_data(request):
             oldweight = json.loads(profile.weight_history)
             oldweight.append(newweight)
             toupdate = json.dumps(oldweight)
+            print(toupdate)
             UserProfile.objects.filter(user=request.user).update(weight_history=toupdate)
         else: #This is a exercise update
             print(len(request.POST))
