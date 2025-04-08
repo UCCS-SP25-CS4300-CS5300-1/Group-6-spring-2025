@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect
 from .forms import UserRegistrationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from .models import UserProfile
+from .models import UserProfile, UserAccExercise
 from django.contrib.auth.decorators import login_required
-from .forms import UserProfileUpdateForm
-
+from .forms import UserProfileUpdateForm, UserLogDataFormWeight, UserLogDataFormExercise
+import json
 
 
 def register(request):
@@ -39,7 +39,15 @@ def user_data(request):
     user_profile = request.user.userprofile
     # Retrieve all user data entries for the logged-in user
     user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')  # Prefetch related goals for efficiency
-
+    exercises = UserAccExercise.objects.filter(user=request.user)
+    exerciseDict = {}
+    for x in exercises:
+        if x.name in exerciseDict:
+            temp = exerciseDict.get(x.name)
+            exerciseDict[x.name] = temp.append(x.weight)
+        else:
+            exerciseDict[x.name] = [x.weight]
+    print(exerciseDict)
     return render(request, 'accounts/user_data.html', {
         'user_profile': user_profile,
         'user_data_entries': user_data_entries,
@@ -60,7 +68,9 @@ def update_profile(request):
             
             profile.height = float(request.POST.get('height', 0)) if request.POST.get('height') else None
             profile.weight = float(request.POST.get('weight', 0)) if request.POST.get('weight') else None
-
+            profile.weight_history = request.POST.get('weight', 0) if request.POST.get('weight') else None
+            profile.weight_history = json.dumps([int(profile.weight_history)])
+            print(profile.weight_history)
             # Calculate BMI
             height_m = profile.height * 0.0254 if profile.height else 0  # Convert height from inches to meters
             weight_kg = profile.weight * 0.453592 if profile.weight else 0  # Convert weight from pounds to kg
@@ -96,3 +106,28 @@ def update_profile(request):
         'selected_goals': selected_goals,
         'selected_injuries': selected_injuries,
     })
+
+def log_data(request):
+
+    profile = request.user.userprofile
+    exercisesdone = UserAccExercise.objects.filter(user=request.user)
+    print(profile)
+    print(exercisesdone[0].name)
+    if request.method == 'POST':
+        #This will update the weight_history attribute as a json object so i can be used in the charts.
+        if( len(request.POST) < 5 ): #This is a weight update
+            newweight = int(request.POST.get('weight', 0))
+            oldweight = json.loads(profile.weight_history)
+            oldweight.append(newweight)
+            toupdate = json.dumps(oldweight)
+            UserProfile.objects.filter(user=request.user).update(weight_history=toupdate)
+        else: #This is a exercise update
+            print(len(request.POST))
+            UserAccExercise.objects.create(user=request.user,name=request.POST.get('name'),sets=request.POST.get('sets', 0),reps=request.POST.get('reps', 0),weight=request.POST.get('weight', 0))
+        formweight = UserLogDataFormWeight()
+        formexercise = UserLogDataFormExercise()
+        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'exercises':exercisesdone})
+    else:
+        formweight = UserLogDataFormWeight()
+        formexercise = UserLogDataFormExercise()
+        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'exercises':exercisesdone})

@@ -56,14 +56,16 @@
         }
         .canvas-container {
             display: flex;
-            width: 40%;
-            padding: 10px;
+            margin: 0 auto;
         }
-
+        canvas{
+            margin: 0 auto;
+        }
         .cv {
             width: 100%;
             height: 100%;
             padding: 10px 25px;
+            margin: 0 auto;
         }
         .container {
             padding: 20px;
@@ -120,7 +122,7 @@
 </head>
 <body>
     <header>
-        <a class="logo" href="#home">Workout App</a>
+        <a class="logo" href="{% url 'home' %}">Workout App</a>
         <nav>
             <ul>
                 <li><a class="activate" href="{% url 'home' %}">Home</a></li>
@@ -174,6 +176,9 @@
     <div class="row">
         <div class="main-section">
             <h2>Progression</h2>
+            <form action="{% url 'log_data' %}" method="get">
+                <button type="submit">Log Data</button>
+            </form>
             <div class="row">
                 <div class="canvas-container">
                     <canvas class="cv" id="myChartExercise" style="width:20%;max-width:450px;"></canvas>
@@ -181,8 +186,9 @@
                     <canvas class="cv" id="myChartWeight" style="width:20%;max-width:450px"></canvas>
                 </div>
                 <script>
-                    const xValues = [50,60,70,80,90,100,110,120,130,140,150];
-                    const yValues = [7,8,8,9,9,9,10,11,14,14,15];
+                    var yValues = JSON.parse("{{ user_profile.weight_history }}");
+                    var xValues = new Array(yValues.length);
+                    xValues = xValues.fill('');
 
                         new Chart("myChartExercise", {
                             type: "line",
@@ -191,34 +197,19 @@
                                 datasets: [{
                                 backgroundColor:"rgba(0,0,255,1.0)",
                                 borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues
+                                data: yValues,
                                 }]
                             },
                             options: {
                                 responsive:true,
+                                scales: {
+                                    ticks: {
+                                            display: false //this will remove only the label
+                                    }
+                                },
                                 title: {
                                     display: true,
                                     text: "Exercise Progression",
-                                    position: "bottom",
-                                    align: "center"
-                                }
-                            }
-                        });
-                        new Chart("myCharttest", {
-                            type: "line",
-                            data: {
-                                labels: xValues,
-                                datasets: [{
-                                backgroundColor:"rgba(0,0,255,1.0)",
-                                borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues
-                                }]
-                            },
-                            options: {
-                                responsive:true,
-                                title: {
-                                    display: true,
-                                    text: "Goal Progression",
                                     position: "bottom",
                                     align: "center"
                                 }
@@ -231,16 +222,20 @@
                                 datasets: [{
                                 backgroundColor:"rgba(0,0,255,1.0)",
                                 borderColor: "rgba(0,0,255,0.1)",
-                                data: yValues
+                                data: yValues,
+                                fill: false,
                                 }]
                             },
                             options: {
                                 responsive:true,
                                 title: {
                                     display: true,
-                                    text: "Weight",
+                                    text: "Weight Tracker",
                                     position: "bottom",
                                     align: "center"
+                                },
+                                legend: {
+                                    display: false,
                                 }
                             }
                         });

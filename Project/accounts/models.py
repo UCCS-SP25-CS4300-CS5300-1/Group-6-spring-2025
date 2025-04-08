@@ -20,6 +20,7 @@ class UserProfile(models.Model):
     fitness_level = models.CharField(max_length=20, choices=FITNESS_LEVEL_CHOICES, null=True, blank=True)
     goals = models.ManyToManyField('Goal', blank=True)
     injury_history = models.ManyToManyField('Injury', blank=True)
+    weight_history = models.CharField(max_length=200, choices=FITNESS_LEVEL_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -43,6 +44,13 @@ class Injury(models.Model):
 
     def __str__(self):
         return self.name
+
+class UserAccExercise(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    sets = models.IntegerField(default=0)
+    reps = models.IntegerField(default=0)
+    weight = models.IntegerField(default=0)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
