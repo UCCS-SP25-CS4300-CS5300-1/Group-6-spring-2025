@@ -9,6 +9,7 @@ from goals.forms import UserExerciseForm
 from decimal import Decimal
 from django.contrib.auth import get_user_model
 import requests
+from unittest.mock import patch
 
 class AIModelTests(TestCase):
 
@@ -150,20 +151,28 @@ class CalendarTests(TestCase):
         # Check that the 'calendar.html' template was used
         self.assertTemplateUsed(response, 'calendar.html')
 
-    def test_warmup_api_returns_valid_data(self):
-        """Test the API endpoint directly and confirm it returns at least one cardio exercise"""
-        headers = {
-            "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
-        }
-        url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/exercises?type=stretching"
-        api_response = requests.get(url, headers=headers)
+    def test_mock_valid_data_response(self, mock_get):
+         # Mocked API data
+        mock_data = [
+            {
+                "name": "Quad Pulls",
+                "type": "stretch",
+                "muscle": "legs",
+                "difficulty": "beginner",
+                "instructions": "While standing, pull your foot towards your back."
+            }
+        ]
 
-        self.assertEqual(api_response.status_code, 200)
+        # Configure the mock response
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = mock_data
 
-        warmups = api_response.json()
-        self.assertIsInstance(warmups, list)
-        self.assertTrue(len(warmups) > 0)
-        self.assertIn('name', warmups[0])  # At least check structure
+        client = Client()
+        response = client.get(reverse("calendar"))
+        # make sure that the response code is 200, the exercise it correct and the template is correct
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Quad Pulls")
+        self.assertTemplateUsed(response, "home/calendar.html")
 
     def test_warmup_api_handles_errors(self):
         """Simulate a bad request to check if error handling works (manually change endpoint)"""
