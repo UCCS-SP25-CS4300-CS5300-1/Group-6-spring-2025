@@ -151,6 +151,7 @@ LOGOUT_REDIRECT_URL = '/'
 CSRF_TRUSTED_ORIGINS = [
     'https://editor-mhymercontainer-5.devedu.io',
     'https://app-matth-5.devedu.io',
-    'https://app-djfowler-5.devedu.io'
+    'https://app-djfowler-5.devedu.io',
     # Add other trusted origins as needed
+    'https://app-cs4300-5.devedu.io'
 ]

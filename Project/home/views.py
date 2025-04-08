@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from accounts.models import UserProfile
 from .ai import ai_model  # Import the AI model instance
 from goals.models import UserExercise, WorkoutLog, Exercise, Goal
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import datetime
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -10,39 +10,53 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import timedelta
 import requests
+import os
+from django.conf import settings
+from .ai import ai_model
 
 
-def index(request):
-    return render(request, 'index.html')
-
-#Recieves a request object from django
 def generate_workout(request):
-
-    #Creating dictionary to pass HTML to
     context = {}
-    
-    #Check if user clicked a button
-    if request.method == 'POST':
 
-        #Obtain the user input that was submitted.
-        user_input = request.POST.get('user_input', '')
+    if request.user.is_authenticated:
+        try:
+            profile = request.user.userprofile
+            context['fitness_level'] = profile.fitness_level or ""
+            context['goals'] = ", ".join(goal.name for goal in profile.goals.all())
+            context['injuries'] = ", ".join(injury.name for injury in profile.injury_history.all())
+        except UserProfile.DoesNotExist:
+            context['fitness_level'] = ""
+            context['goals'] = ""
+            context['injuries'] = ""
 
-        #Check is user input is empty
-        if user_input:
-            try:
-                #if not empty- get a response from the ai model with user input as prompt
-                response = ai_model.get_response(user_input)
-            except Exception as e:
-                response = f"Error generating response: {str(e)}"
+    if request.method == "POST":
+        user_info_text = request.POST.get("user_input", "").strip()
+        print("User Info Text submitted:", user_info_text)
+        template_path = os.path.join(settings.BASE_DIR, 'home', 'workout_template.txt')
+        try:
+            with open(template_path, "r", encoding="utf-8") as file:
+                prompt_template = file.read()
+        except Exception as e:
+            return HttpResponse(f"Error reading prompt template: {e}", status=500)
 
-            #Adding both output and response to context diary
-            context['output'] = response
-            context['user_input'] = user_input
+        prompt = prompt_template.format(user_info=user_info_text)
 
-    #Rendering the html while passing the context diary
-    return render(request, 'generate_workout.html', context)
+        try:
+            ai_response = ai_model.get_response(prompt)
+        except Exception as e:
+            ai_response = f"Error generating response: {e}"
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return HttpResponse(ai_response, content_type="text/plain")
+        context["output"] = ai_response
+
+    return render(request, "generate_workout.html", context)
 
 def index(request):
+    """
+    Simple view to render the index page.
+    Also logs the number of goals found in the user's profile for debugging.
+    """
+    goals = []
     if request.user.is_authenticated:
         try:
             user_profile = request.user.userprofile
@@ -50,9 +64,6 @@ def index(request):
             print("Goals found:", goals.count())
         except UserProfile.DoesNotExist:
             print("UserProfile does not exist for:", request.user)
-            goals = []
-    else:
-        goals = []
     return render(request, 'index.html', {'goals': goals})
 
 @login_required

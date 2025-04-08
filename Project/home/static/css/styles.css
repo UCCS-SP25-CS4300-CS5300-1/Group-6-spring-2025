@@ -159,3 +159,159 @@ li a:hover {
 .dropdown:hover .dropdown-content {
     display: block; /* Show the dropdown on hover */
 }
+
+* { box-sizing: border-box; }
+html, body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #003366;
+    padding: 20px 40px;
+}
+.logo {
+    color: white;
+    font-size: 32px;
+    text-decoration: none;
+    }
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+nav li { margin-left: 30px; }
+nav li a {
+    color: white;
+    text-decoration: none;
+    padding: 15px;
+    font-size: 18px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+nav li a:hover {
+    background-color: #007BFF;
+    transform: scale(1.05);
+}
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    min-height: calc(100vh - 4rem);
+    }
+.container {
+    width: 100%;
+    max-width: 700px;
+    padding: 2rem;
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    text-align: center;
+    display: none;
+}
+.container.visible { display: block; }
+select, button {
+    padding: 0.75rem 1rem;
+    margin: 1rem 0.5rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+}
+button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+    }
+    .back-btn {
+      background-color: #6b7280;
+    }
+.back-btn:hover { background-color: #4b5563; }
+footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+    /* Tooltip styles */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    margin-left: 5px;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 250px;
+    background-color: #f9f9f9;
+    color: #333;
+    text-align: left;
+    border-radius: 4px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    top: 125%; /* Below the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 14px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+    /* Step 5: Day Boxes */
+.weekdays-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+.day-box {
+    width: 120px;
+    height: 100px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+    transition: box-shadow 0.3s;
+}
+.day-box input[type="checkbox"] {
+    display: none;
+}
+.day-label {
+    font-size: 1rem;
+    font-weight: 600;
+    pointer-events: none;
+}
+.day-box .checkmark {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: green;
+    font-size: 1.2rem;
+    display: none;
+}
+.day-box input[type="checkbox"]:checked ~ .checkmark {
+    display: block;
+}
+.day-box:hover {
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}

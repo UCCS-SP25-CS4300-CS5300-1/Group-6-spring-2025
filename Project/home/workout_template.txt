@@ -1,0 +1,11 @@
+AI, I want you to create a workout plan for the following user.
+Please structure the plan using day labels (e.g., "Monday:" "Tuesday:" … "Friday:"), and end each day’s workout with a semicolon.
+ please give specific workouts tailored to the input
+
+Give specific exercises, reps and sets in this format for each day, organize by muscle groups per day or if less days try to incorporate all muscle groups:
+DO NOT ADD ANY OTHER TEXT
+give AT LEAST 6 workouts per day!
+
+Day of week:
+exercise name: ______ sets of _____ reps
+Here is the user information: {user_info}
