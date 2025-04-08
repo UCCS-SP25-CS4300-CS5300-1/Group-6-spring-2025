@@ -168,8 +168,7 @@ class CalendarTests(TestCase):
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = mock_data
 
-        client = Client()
-        response = client.get(reverse("calendar"))
+        response = self.client.get(reverse("calendar"))
         # make sure that the response code is 200, the exercise it correct and the template is correct
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Quad Pulls")
