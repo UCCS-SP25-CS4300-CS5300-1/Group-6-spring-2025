@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* Global Styles */
         body {
             margin: 0;
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
         }
-
         header {
             display: flex;
             justify-content: space-between;
@@ -18,28 +18,23 @@
             background-color: #003366;
             padding: 20px 40px;
         }
-
         .logo {
             color: white;
             font-size: 32px;
             text-decoration: none;
         }
-
         nav {
             display: flex;
         }
-
         ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
             display: flex;
         }
-
         li {
             margin-left: 30px;
         }
-
         li a {
             color: white;
             text-decoration: none;
@@ -47,16 +42,13 @@
             font-size: 18px;
             transition: background-color 0.3s, transform 0.3s;
         }
-
         li a:hover {
             background-color: #007BFF;
             transform: scale(1.05);
         }
-
         .container {
             padding: 20px;
         }
-
         .main-section {
             background-color: white;
             padding: 20px;
@@ -65,12 +57,10 @@
             text-align: center;
             margin-bottom: 20px;
         }
-
         .main-section h2 {
             margin-top: 0;
         }
-
-        button {
+        button, input[type="submit"] {
             padding: 10px 20px;
             background-color: #007BFF;
             color: white;
@@ -79,29 +69,116 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
-        button:hover {
+        button:hover, input[type="submit"]:hover {
             background-color: #0056B3;
         }
-
+        input[type="text"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 200px;
+        }
         p {
             margin-top: 15px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
         th {
             background-color: #f2f2f2;
+        }
+        /* Reset UL defaults for search results, friend list, and pending requests */
+        ul.search-results,
+        ul.friend-list,
+        ul.pending-requests {
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
+            max-width: 600px;
+        }
+        /* Card styles for search results, pending requests, and friends list */
+        .search-card,
+        .pending-card,
+        .friend-card {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            margin: 15px auto;
+        }
+        /* Increase and center the font for all name displays */
+        .search-card .username,
+        .friend-username,
+        .pending-card .request-info {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        /* Button styling: reduced size */
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        /* Specific button colors */
+        .add-friend-btn {
+            background-color: #28a745;
+        }
+        .add-friend-btn:hover {
+            background-color: #218838;
+        }
+        .accept-btn {
+            background-color: #007BFF;
+        }
+        .accept-btn:hover {
+            background-color: #0056B3;
+        }
+        .reject-btn {
+            background-color: #FF0000;
+        }
+        .reject-btn:hover {
+            background-color: #CC0000;
+        }
+        .view-profile-btn {
+            background-color: #007BFF;
+        }
+        .view-profile-btn:hover {
+            background-color: #0056B3;
+        }
+        .remove-friend-btn {
+            background-color: #FF0000;
+        }
+        .remove-friend-btn:hover {
+            background-color: #CC0000;
+        }
+        /* Center the button containers */
+        .friend-actions,
+        .request-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
         }
     </style>
     <title>User Data</title>
@@ -124,7 +201,6 @@
             </ul>
         </nav>
     </header>
-
     <div class="container">
         <h2>User Profile</h2>
         <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
@@ -132,42 +208,87 @@
         <p><strong>Weight:</strong> {{ user_profile.weight }} lbs</p>
         <p><strong>BMI:</strong> {{ user_profile.bmi|floatformat:2 }}</p>
         <p><strong>Fitness Level:</strong> {{ user_profile.get_fitness_level_display }}</p>
-    
-        <!-- Goals Section (Vertically Listed) -->
         <div>
             <h3>🏆 Goals</h3>
-                {% if user_profile.goals.all %}
-                    <ul>
-                        {% for goal in user_profile.goals.all %}
-                            <li>✅ {{ goal.name }}</li>  <!-- Adjust 'name' based on your Goal model -->
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>• No goals set.</p>
-                {% endif %}
-            </div>
-
-            <!-- Injury History Section (Vertically Listed) -->
-            <div style="margin-bottom: 40px;">
-                <h3>⚕️ Injury History</h3>
-                {% if user_profile.injury_history.all %}
-                    <ul>
-                        {% for injury in user_profile.injury_history.all %}
-                            <li>⚠️ {{ injury.name }}</li>  <!-- Adjust 'name' based on your Injury model -->
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>• No injury history recorded.</p>
-                {% endif %}
-            </div>
-    
-        <!-- Button to Update Profile -->
-        <div class="main-section">
-            <h2>Profile Actions</h2>
-            <a href="{% url 'update_profile' %}">
-                <button>Update Profile</button>
-            </a>
+            {% if user_profile.goals.all %}
+                <ul>
+                    {% for goal in user_profile.goals.all %}
+                        <li>✅ {{ goal.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>• No goals set.</p>
+            {% endif %}
         </div>
+        <div style="margin-bottom: 40px;">
+            <h3>⚕️ Injury History</h3>
+            {% if user_profile.injury_history.all %}
+                <ul>
+                    {% for injury in user_profile.injury_history.all %}
+                        <li>⚠️ {{ injury.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>• No injury history recorded.</p>
+            {% endif %}
+        </div>
+        {% if user_profile.user == request.user %}
+            <div class="main-section">
+                <h2>Friend Management</h2>
+                <h3>Search for Friends</h3>
+                <form method="GET" action="">
+                    <input type="text" name="q" placeholder="Enter username" value="{{ search_query }}">
+                    <input type="submit" value="Search">
+                </form>
+                {% if search_query %}
+                    <h4>Search Results for "{{ search_query }}"</h4>
+                    <ul class="search-results">
+                        {% for user in search_results %}
+                            <li class="search-card">
+                                <span class="username">{{ user.username }}</span>
+                                <a href="{% url 'send_friend_request' user.id %}" class="btn add-friend-btn">Add as Friend</a>
+                            </li>
+                        {% empty %}
+                            <li>No users found.</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <h3>Pending Friend Requests</h3>
+                <ul class="pending-requests">
+                    {% for req in friend_requests %}
+                        <li class="pending-card">
+                            <span class="request-info">Friend request from {{ req.from_user.username }}</span>
+                            <div class="request-actions">
+                                <a href="{% url 'accept_friend_request' req.id %}" class="btn accept-btn">Accept</a>
+                                <a href="{% url 'reject_friend_request' req.id %}" class="btn reject-btn">Reject</a>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li>No pending requests.</li>
+                    {% endfor %}
+                </ul>
+                <h3>Your Friends</h3>
+                <ul class="friend-list">
+                    {% for friend in user_profile.friends.all %}
+                        <li class="friend-card">
+                            <span class="friend-username">{{ friend.user.username }}</span>
+                            <div class="friend-actions">
+                                <a href="{% url 'friend_data' friend.user.id %}" class="btn view-profile-btn">View Profile</a>
+                                <a href="{% url 'remove_friend' friend.user.id %}" class="btn remove-friend-btn">Remove Friend</a>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li>No friends yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="main-section">
+                <h2>Profile Actions</h2>
+                <a href="{% url 'update_profile' %}">
+                    <button>Update Profile</button>
+                </a>
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>
