@@ -151,6 +151,7 @@ class CalendarTests(TestCase):
         # Check that the 'calendar.html' template was used
         self.assertTemplateUsed(response, 'calendar.html')
 
+    @patch("home.views.requests.get") # must include where the function is used not where the function is defined
     def test_mock_valid_data_response(self, mock_get):
          # Mocked API data
         mock_data = [
