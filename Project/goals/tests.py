@@ -3,9 +3,10 @@ from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.models import User
 from .models import UserExercise, Exercise
 from .forms import UserExerciseForm
+import datetime
 
 User = get_user_model()
 
@@ -23,7 +24,10 @@ class ModelsTests(TestCase):
             exercise=self.exercise,
             current_weight=Decimal('100.00'),
             reps=10,
-            percent_increase=5
+            percent_increase=5,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+            recurring_day=0
         )
         expected = Decimal('100.00') * (Decimal('1') + Decimal('5') / Decimal('100'))
         self.assertEqual(user_exercise.goal_weight, expected)
@@ -41,7 +45,10 @@ class FormsTests(TestCase):
             'exercise': self.exercise.id,
             'current_weight': '150.00',
             'reps': 8,
-            'percent_increase': 10
+            'percent_increase': 10,
+            'start_date': str(datetime.date.today()),
+            'end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
+            'recurring_day': '0',
         }
         form = UserExerciseForm(data=form_data)
         self.assertTrue(form.is_valid())
@@ -54,7 +61,10 @@ class FormsTests(TestCase):
             'exercise': self.exercise.id,
             'current_weight': '-50.00',
             'reps': 8,
-            'percent_increase': 10
+            'percent_increase': 10,
+            'start_date': str(datetime.date.today()),
+            'end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
+            'recurring_day': '0',
         }
         form = UserExerciseForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -68,11 +78,69 @@ class FormsTests(TestCase):
             # 'exercise' omitted to trigger clean_exercise validation
             'current_weight': '150.00',
             'reps': 8,
-            'percent_increase': 10
+            'percent_increase': 10,
+            'start_date': str(datetime.date.today()),
+            'end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
+            'recurring_day': '0',
         }
         form = UserExerciseForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('exercise', form.errors)
+
+    def test_start_date_after_end_date(self):
+        """
+        Ensure form validation fails when start_date is after end_date.
+        """
+        form_data = {
+            'exercise': self.exercise.id,
+            'current_weight': '150.00',
+            'reps': 8,
+            'percent_increase': 10,
+            'start_date': str(datetime.date.today() + datetime.timedelta(days=10)),
+            'end_date': str(datetime.date.today()),
+            'recurring_day': '1',
+        }
+        form = UserExerciseForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        # The cross‑field clean() puts this message into non_field_errors()
+        self.assertIn(
+            "Start date cannot be after end date.",
+            form.non_field_errors()
+        )
+
+    def test_invalid_recurring_day(self):
+        """
+        Ensure form validation fails for out-of-range recurring_day values.
+        """
+        form_data = {
+            'exercise': self.exercise.id,
+            'current_weight': '150.00',
+            'reps': 8,
+            'percent_increase': 10,
+            'start_date': str(datetime.date.today()),
+            'end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
+            'recurring_day': '7',  # Invalid; assuming 0 (Mon) to 6 (Sun)
+        }
+        form = UserExerciseForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('recurring_day', form.errors)
+
+    def test_model_accepts_valid_date_range(self):
+        """
+        Ensure the model can store valid date ranges and recurring days.
+        """
+        user_ex = UserExercise.objects.create(
+            user=self.user,
+            exercise=self.exercise,
+            current_weight=Decimal('120.00'),
+            reps=6,
+            percent_increase=5,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=45),
+            recurring_day=3  # Thursday
+        )
+        self.assertEqual(user_ex.recurring_day, 3)
+        self.assertLess(user_ex.start_date, user_ex.end_date)
 
 class ViewsTests(TestCase):
     def setUp(self):
@@ -85,7 +153,10 @@ class ViewsTests(TestCase):
             exercise=self.exercise,
             current_weight=Decimal('200.00'),
             reps=5,
-            percent_increase=10
+            percent_increase=10,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+            recurring_day=0
         )
 
     def test_goals_view_requires_login(self):
@@ -198,6 +269,9 @@ class ViewsTests(TestCase):
             'form-0-current_weight': '75.00',
             'form-0-reps': '8',
             'form-0-percent_increase': '5',
+            'form-0-start_date': str(datetime.date.today()),
+            'form-0-end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
+            'form-0-recurring_day': '1',
         }
         response = self.client.post(url, data)
         self.assertRedirects(response, reverse('goals:my_exercises'))
@@ -216,6 +290,9 @@ class ViewsTests(TestCase):
             'form-0-current_weight': '-100.00',  # invalid: negative weight
             'form-0-reps': '10',
             'form-0-percent_increase': '5',
+            'form-0-start_date': str(datetime.date.today()),
+            'form-0-end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
+            'form-0-recurring_day': '1',
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 200)
@@ -236,7 +313,10 @@ class GoalsViewNoProfileTests(TestCase):
             exercise=exercise,
             current_weight=Decimal('120.00'),
             reps=10,
-            percent_increase=5
+            percent_increase=5,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+            recurring_day=0
         )
 
     def test_goals_view_without_profile(self):
@@ -259,12 +339,19 @@ class ModelStrTests(TestCase):
             exercise=self.exercise,
             current_weight=Decimal('100.00'),
             reps=10,
-            percent_increase=5
+            percent_increase=5,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=30),
+            recurring_day=0
         )
 
     def test_exercise_str(self):
         self.assertEqual(str(self.exercise), 'Bench Press')
 
     def test_user_exercise_str(self):
-        expected_str = f"{self.user.username} - {self.exercise.name}"
+        expected_str = (
+            f"{self.user.username} - {self.exercise.name} "
+            f"(Every {self.user_exercise.get_recurring_day_display()} "
+            f"from {self.user_exercise.start_date} to {self.user_exercise.end_date})"
+        )
         self.assertEqual(str(self.user_exercise), expected_str)

@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -134,8 +134,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# 
-#FORCE_SCRIPT_NAME = "/proxy/3000"  
+#
+#FORCE_SCRIPT_NAME = "/proxy/3000"
 
 # Use x fowarded host header to determine original host
 USE_X_FORWARDED_HOST = True
@@ -151,6 +151,7 @@ LOGOUT_REDIRECT_URL = '/'
 CSRF_TRUSTED_ORIGINS = [
     'https://editor-mhymercontainer-5.devedu.io',
     'https://app-matth-5.devedu.io',
-    'https://app-djfowler-5.devedu.io'
+    'https://app-djfowler-5.devedu.io',
     # Add other trusted origins as needed
+    'https://app-cs4300-5.devedu.io'
 ]

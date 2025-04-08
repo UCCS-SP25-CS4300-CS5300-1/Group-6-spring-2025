@@ -3,7 +3,18 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
+from django.utils.timezone import now
+import datetime
 
+RECURRENCE_CHOICES = [
+    (0, 'Monday'),
+    (1, 'Tuesday'),
+    (2, 'Wednesday'),
+    (3, 'Thursday'),
+    (4, 'Friday'),
+    (5, 'Saturday'),
+    (6, 'Sunday'),
+]
 
 class Goal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='goals')
@@ -28,10 +39,25 @@ class UserExercise(models.Model):
     reps = models.PositiveIntegerField()
     percent_increase = models.IntegerField(choices=PERCENT_CHOICES, default=0)
 
+    # Recurring workout fields
+    start_date = models.DateField(default=now)  # When recurrence starts
+    end_date = models.DateField(null=True, blank=True)  # Optional end date
+    recurring_day = models.IntegerField(choices=RECURRENCE_CHOICES, default=0)  # Default to Monday
+
     @property
     def goal_weight(self):
         # Calculate goal weight using Decimal arithmetic for precision.
         return self.current_weight * (Decimal('1') + Decimal(self.percent_increase) / Decimal('100'))
 
     def __str__(self):
-        return f"{self.user.username} - {self.exercise.name}"
+        return f"{self.user.username} - {self.exercise.name} (Every {self.get_recurring_day_display()} from {self.start_date} to {self.end_date})"
+
+# Class to track if a user completed a workout or not
+class WorkoutLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    exercise = models.ForeignKey(UserExercise, on_delete=models.CASCADE)
+    date_completed = models.DateField(default=datetime.date.today)
+    completed = models.BooleanField(default=True)  # Mark workout as completed
+
+    class Meta:
+        unique_together = ("user", "exercise", "date_completed")  # Prevent duplicate completions on the same day

@@ -55,7 +55,7 @@
     }
     /* Container & Card Layout */
     .container {
-      max-width: 900px;
+      max-width: 1500px;
       margin: 0 auto;
       background-color: #fff;
       border-radius: 8px;
@@ -125,7 +125,7 @@
         <li><a href="{% url 'home' %}">Home</a></li>
         {% if user.is_authenticated %}
           <li><a href="{{ base_url }}#generate">Generate Workout</a></li>
-          <li><a href="{{ base_url }}#calendar">Calendar</a></li>
+          <li><a href="{% url 'calendar' %}">Calendar</a></li>
           <li><a href="{% url 'goals:goals' %}">Goals</a></li>
           <li><a href="{% url 'user_data' %}">Account</a></li>
           <li><a href="{% url 'logout' %}">Logout</a></li>
@@ -148,6 +148,9 @@
             <th>Current Weight</th>
             <th>Reps</th>
             <th>% Increase Goal</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Recurrence</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -195,6 +198,36 @@
                 {% endif %}
               </td>
               <td>
+                {{ form.start_date.label_tag }} {{ form.start_date }}
+                {% if form.start_date.errors %}
+                  <div class="error">
+                    {% for error in form.start_date.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {{ form.end_date.label_tag }} {{ form.end_date }}
+                {% if form.end_date.errors %}
+                  <div class="error">
+                    {% for error in form.end_date.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
+                {{ form.recurring_day.label_tag }} {{ form.recurring_day }}
+                {% if form.recurring_day.errors %}
+                  <div class="error">
+                    {% for error in form.recurring_day.errors %}
+                      <p>{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </td>
+              <td>
                 <button type="button" class="remove-form">Remove</button>
               </td>
             </tr>
@@ -230,6 +263,25 @@
           <td>
             {{ formset.empty_form.percent_increase }}
             <div class="error"></div>
+          </td>
+          <td>
+            {{ formset.empty_form.start_date }}
+            <div class="error"></div>
+          </td>
+          <td>
+            {{ formset.empty_form.end_date }}
+            <div class="error"></div>
+          </td>
+          <td>
+            {{ formset.empty_form.recurring_day.label_tag }}
+            {{ formset.empty_form.recurring_day }}
+            {% if formset.empty_form.recurring_day.errors %}
+              <div class="error">
+                {% for error in formset.empty_form.recurring_day.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
           </td>
           <td>
             <button type="button" class="remove-form">Remove</button>

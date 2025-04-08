@@ -67,7 +67,7 @@ def set_exercises(request):
                 user_exercise = form.save(commit=False)
                 user_exercise.user = request.user
                 user_exercise.save()
-            return redirect('goals:my_exercises')
+            return redirect('/goals/my-exercises/')
         else:
             print("Formset errors:", formset.errors)
     else:
