@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import timedelta
+import requests
 
 
 def index(request):
@@ -80,10 +81,24 @@ def calendar_view(request):
             ).delete()
 
         return JsonResponse({'status': 'success', 'workout_id': workout_id, 'date': date_str, 'completed': completed})
+    
+    warm_ups = [] # create empty list to store warm ups 
+    try: #use a try except for requests from the API
+        # call the API to get a JSON response listing the exercises
+        response = requests.get("https://api.api-ninjas.com/v1/exercises?type=stretching",
+            headers={ 
+                #input the API key for the project
+                "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
+            }
+        )
+        if response.status_code == 200: # if the response worked 
+            warm_ups = response.json()[:3] # update the list (holds three exercises for now)
+    except Exception as e: # if the try did not work 
+        print(f"Error fetching warm-up excercises: {e}") #print an error message on the webpage
 
     # GET: render calendar
     exercises = UserExercise.objects.filter(user=request.user)
-    return render(request, 'calendar.html', {'events': exercises})
+    return render(request, 'calendar.html', {'events': exercises, 'warm_ups': warm_ups})
 @login_required
 def workout_events(request):
     if not request.user.is_authenticated:

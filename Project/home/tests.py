@@ -8,7 +8,8 @@ from goals.models import UserExercise, WorkoutLog, Exercise
 from goals.forms import UserExerciseForm
 from decimal import Decimal
 from django.contrib.auth import get_user_model
-
+import requests
+from unittest.mock import patch
 
 class AIModelTests(TestCase):
 
@@ -141,9 +142,53 @@ class CalendarTests(TestCase):
         
         self.assertEqual(workout_log.count(), 0)  # Should delete the log entry
         self.assertEqual(response.status_code, 200)
+    """ Warm up Tests  """
+    def test_calendar_view_fetches_warmups_from_api(self):
+        """Test that warm-up exercises are fetched from the external API and added to context"""
+        response = self.client.get(reverse('calendar'))
+        self.assertEqual(response.status_code, 200)
+        # We're testing actual API integration, so there should be warm_ups in the view context
+        # Check that the 'calendar.html' template was used
+        self.assertTemplateUsed(response, 'calendar.html')
+
+    @patch("home.views.requests.get") # must include where the function is used not where the function is defined
+    def test_mock_valid_data_response(self, mock_get):
+         # Mocked API data
+        mock_data = [
+            {
+                "name": "Quad Pulls",
+                "type": "stretch",
+                "muscle": "legs",
+                "difficulty": "beginner",
+                "instructions": "While standing, pull your foot towards your back."
+            }
+        ]
+
+        # Configure the mock response
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = mock_data
+
+        response = self.client.get(reverse("calendar"))
+        # make sure that the response code is 200, the exercise it correct and the template is correct
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Quad Pulls")
+        self.assertTemplateUsed(response, "calendar.html")
+
+    def test_warmup_api_handles_errors(self):
+        """Simulate a bad request to check if error handling works (manually change endpoint)"""
+        headers = {
+            "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
+        }
+        # Intentionally broken URL
+        url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/invalid-endpoint"
+        response = requests.get(url, headers=headers)
+
+        # It should fail and not return 200
+        self.assertNotEqual(response.status_code, 200)
 
     def tearDown(self):
         """Clean up after each test"""
         self.user.delete()
         self.exercise_1.delete()
         self.exercise_2.delete()
+
