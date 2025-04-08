@@ -1,517 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    {% load static %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <title>Ask AI for a Fitness Plan</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        html, body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #003366;
-            padding: 20px 40px;
-        }
-        .logo {
-            color: white;
-            font-size: 32px;
-            text-decoration: none;
-        }
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-        nav li {
-            margin-left: 30px;
-        }
-        nav li a {
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            font-size: 18px;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        nav li a:hover {
-            background-color: #007BFF;
-            transform: scale(1.05);
-        }
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem 1rem;
-            min-height: calc(100vh - 4rem);
-        }
-        .container {
-            width: 100%;
-            max-width: 700px;
-            padding: 2rem;
-            background: white;
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            display: none;
-        }
-        .container.visible {
-            display: block;
-        }
-        .plan-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            justify-content: center;
-            padding: 1rem 0;
-        }
-        .day-card {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 1rem;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 200px;
-            position: relative;
-        }
-        .day-card h3 {
-            margin-bottom: 0.5rem;
-            color: #1f2937;
-            font-size: 1.1rem;
-        }
-        .day-card p {
-            color: #374151;
-            margin-bottom: 1rem;
-        }
-        .day-card button {
-            margin-top: 0.5rem;
-            padding: 0.6rem;
-            border-radius: 0.5rem;
-            width: 100%;
-        }
-        .day-card .checkmark {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-            color: green;
-        }
-        select, button {
-            padding: 0.75rem 1rem;
-            margin: 1rem 0.5rem;
-            font-size: 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db;
-        }
-        button {
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        button:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
-        .back-btn {
-            background-color: #6b7280;
-        }
-        .back-btn:hover {
-            background-color: #4b5563;
-        }
-        footer {
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-        #workoutModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            z-index: 100;
-            max-width: 400px;
-            width: 100%;
-        }
-
-
-
-          /* Tooltip container */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-            margin-left: 5px;
-        }
-
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 250px;
-            background-color: #f9f9f9;
-            color: #333;
-            text-align: left;
-            border-radius: 4px;
-            padding: 8px;
-            position: absolute;
-            z-index: 1;
-            top: 125%; /* Position the tooltip above the icon */
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 14px;
-            box-shadow: 0px 0px 6px rgba(0,0,0,0.1);
-        }
-
+  {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2">
+  <title>Ask AI for a Fitness Plan</title>
   
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-    </style>
-</head>
 
+
+</head>
 <script>
-    const userData = {
-        fitnessLevel: "{{ fitness_level|escapejs }}",
-        goals: "{{ goals|escapejs }}",
-        //workoutDays: "{{ workout_days|escapejs }}",
-        injuries: "{{ injuries|escapejs }}"
-    };
+  // Global user data pulled from Django
+  const userData = {
+    fitnessLevel: "{{ fitness_level|escapejs }}",
+    goals: "{{ goals|escapejs }}",
+    injuries: "{{ injuries|escapejs }}"
+  };
 </script>
 
-
 <body>
-    <header>
-        <a class="logo" href="#home">Workout App</a>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
-                <li><a href="#calendar">Calendar</a></li>
-                <li><a href="{% url 'user_data' %}">Account</a></li>
-            </ul>
-        </nav>
-    </header>
+    
+  <header>
+    <a class="logo" href="#home">Workout App</a>
+    <nav>
+      <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+        <li><a href="#calendar">Calendar</a></li>
+        <li><a href="{% url 'user_data' %}">Account</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <!-- Step 1: Import Data Prompt -->
+    <div id="step1" class="container visible">
+      <h1>Would you like to import your data?</h1>
+      <button onclick="importUserData()">Yes</button>
+      <button onclick="nextStep()">No</button>
+    </div>
 
-    <main>
-          
-        <div id="step1" class="container visible">
-            <h1>Would you like to import your data?</h1>
-            <button onclick="importUserData()">Yes</button>
-            <button onclick="nextStep()">No</button>
-        </div>
+    <!-- Step 2: Main Goal -->
+    <div id="step2" class="container">
+      <h2>What is your main goal?</h2>
+      <select id="mainGoal" name = "goal">
+        <option value="build_muscle">Build Muscle</option>
+        <option value="lose_weight">Lose Weight</option>
+        <option value="increase_strength">Increase Strength</option>
+        <option value="improve_endurance">Improve Endurance</option>
+        <option value="increase_flexibility">Increase Flexibility & Mobility</option>
+        <option value="general_fitness">General Fitness & Health</option>
+        <option value="improve_athletic_performance">Improve Athletic Performance</option>
+        <option value="rehabilitation_recovery">Rehabilitation & Recovery</option>
+        <option value="reduce_stress">Reduce Stress & Improve Mental Health</option>
+        <option value="increase_balance">Increase Balance & Coordination</option>
+        <option value="gain_muscle">Gain Weight & Muscle Mass</option>
+        <option value="prep_for_event">Prepare for an Event</option>
+      </select>
+      <div>
+        <button class="back-btn" onclick="prevStep()">Back</button>
+        <button onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Fitness Level -->
+    <div id="step3" class="container">
+      <h2>What is your current level of fitness?</h2>
+      <select id="fitnessLevel" name = "fitness_level">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+        <option value="athlete">Athlete</option>
+        <option value="rehab">Rehabilitation/Recovery</option>
+        <option value="senior">Senior/Low Impact</option>
+      </select>
+      <span class="tooltip">?
+        <span class="tooltiptext">
+          <strong>Beginner:</strong> New to exercise or returning after a long break. Low endurance, strength, and flexibility.<br><br>
+          <strong>Intermediate:</strong> Engages in regular physical activity (1-3 times/week). Moderate endurance and strength.<br><br>
+          <strong>Advanced:</strong> High fitness level with consistent training (3+ times/week). Strong endurance, strength, and flexibility.<br><br>
+          <strong>Athlete:</strong> Trains for specific performance goals (e.g., competitive sports).<br><br>
+          <strong>Rehabilitation/Recovery:</strong> Focused on regaining fitness after injury or surgery.<br><br>
+          <strong>Senior/Low Impact:</strong> Prioritizes joint-friendly, lower-intensity movements.
+        </span>
+      </span>
+      <div>
+        <button class="back-btn" onclick="prevStep()">Back</button>
+        <button onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Injuries -->
+    <div id="step4" class="container">
+      <h2>Do you have any injuries?</h2>
+      <div>
+        <label class="injury-checkbox"><input type="checkbox" value="Knee Injury"> Knee Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Lower Back Pain"> Lower Back Pain</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Shoulder Injury"> Shoulder Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Elbow Injury"> Elbow Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Wrist/Hand Injury"> Wrist/Hand Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Ankle Injury"> Ankle Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Hip Injury"> Hip Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Neck Injury"> Neck Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Foot Injury"> Foot Injury</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Post-Surgery Recovery"> Post-Surgery Recovery</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Chronic Joint Pain"> Chronic Joint Pain</label>
+        <label class="injury-checkbox"><input type="checkbox" value="Muscle Strain or Tear"> Muscle Strain or Tear</label>
+      </div>
+      <div>
+        <button class="back-btn" onclick="prevStep()">Back</button>
+        <button onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Select Days of the Week -->
+    <div id="step5" class="container">
+      <h2>What days out of the week would you like to work out?</h2>
+      <div class="weekdays-container">
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Monday" />
+          <span class="day-label">Monday</span>
+          <span class="checkmark">✔</span>
+        </label>
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Tuesday" />
+          <span class="day-label">Tuesday</span>
+          <span class="checkmark">✔</span>
+        </label>
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Wednesday" />
+          <span class="day-label">Wednesday</span>
+          <span class="checkmark">✔</span>
+        </label>
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Thursday" />
+          <span class="day-label">Thursday</span>
+          <span class="checkmark">✔</span>
+        </label>
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Friday" />
+          <span class="day-label">Friday</span>
+          <span class="checkmark">✔</span>
+        </label>
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Saturday" />
+          <span class="day-label">Saturday</span>
+          <span class="checkmark">✔</span>
+        </label>
+        <label class="day-box">
+          <input type="checkbox" name="selected_days" value="Sunday" />
+          <span class="day-label">Sunday</span>
+          <span class="checkmark">✔</span>
+        </label>
+      </div>
+      <div>
+        <button class="back-btn" onclick="prevStep()">Back</button>
+        <button onclick="nextStep()">Generate My Workout</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Weekly Plan Summary -->
+    <div id="step6" class="container">
+     
+      <h2>Your Weekly Plan</h2>
+      <p>
+        
+        You selected to work out on <strong id="freqSummary"></strong>
+        <span class="checkmark">✔</span>
+      </p>
+
+      <p>
+        
+        Injury considerations:<strong id="injurySummary"></strong>.
+        <span class="checkmark">✔</span>
+      </p>
+
+      <p>
+        
+        Goal: <strong id="goalSummary"></strong>
+        <span class="checkmark">✔</span>
+      </p>
+
+      <p>
+        
+        Current fitness level: <strong id="fitnessSummary"></strong>
+        <span class="checkmark">✔</span>
+      </p>
+      <p>Here is your plan for the week:</p>
+      <pre id="rawResponse">{{ output }}</pre>
+      <div id="planList"></div>
+      <button class="back-btn" onclick="prevStep()">Back</button>
+    </div>
+
+  </main>
+  <footer>
+    <p>© 2025 Workout App. All rights reserved.</p>
+  </footer>
+  
 
 
-        <div id="step2" class="container">
-            <h2>What is your main goal?</h2>
-            <select id="mainGoal">
-                <option value="build_muscle">Build Muscle</option>
-                <option value="lose_weight">Lose Weight</option>
-                <option value="increase_strength">Increase Strength</option>
-                <option value="improve_endurance">Improve Endurance</option>
-                <option value="build_muscle">Build Muscle</option>
-                <option value="lose_weight">Lose Weight</option>
-                <option value="increase_flexibility">Increase Flexibility & Mobility</option>
-                <option value="general_fitness">General Fitness & Health</option>
-                <option value="improve_athletic_performance">Improve Athletic Performance</option>
-                <option value="rehabilitation_recovery">Rehabilitation & Recovery</option>
-                <option value="reduce_stress">Reduce Stress & Improve Mental Health</option>
-                <option value="increase_balance">Increase Balance & Coordination</option>
-                <option value="gain_muscle"> Gain Weight & Muscle Mass</option>
-                <option value="prep_for_event">Prepare for an Event</option>
+  
+  
+  <script>
+    
+    let step = 1;
+    window.selectedDays = [];
 
-            </select>
-            <div>
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button onclick="nextStep()">Next</button>
-            </div>
-        </div>
+    function nextStep() {
+      document.getElementById(`step${step}`).classList.remove("visible");
+      step++;
+      document.getElementById(`step${step}`).classList.add("visible");
 
+      if (step === 6) {
+        // Gather selected days from Step 5
 
-        <div id="step3" class="container">
-            <h2>What is your current level of fitness?</h2>
-            <select id="fitnessLevel">
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced </option>
-                <option value="athlete">Athlete </option>
-                <option value="rehab">Rehabilitation/Recovery </option>
-                <option value="senior">Senior/Low Impact </option>
-            </select>
+            const days = Array.from(document.querySelectorAll('#step5 input[type="checkbox"]:checked'))
+                        .map(cb => cb.value);
+            window.selectedDays = days.length ? days : Object.keys(defaultPlan);
+            console.log("Selected days:", window.selectedDays);
 
-            <span class="tooltip">?
-                <span class="tooltiptext">
-                  <strong>Beginner:</strong> New to exercise or returning after a long break. Low endurance, strength, and flexibility.<br><br>
-                  <strong>Intermediate:</strong> Engages in regular physical activity (1-3 times/week). Moderate endurance and strength.<br><br>
-                  <strong>Advanced:</strong> High fitness level with consistent training (3+ times/week). Strong endurance, strength, and flexibility.<br><br>
-                  <strong>Athlete:</strong> Trains for specific performance goals (e.g., competitive sports).<br><br>
-                  <strong>Rehabilitation/Recovery:</strong> Focused on regaining fitness after injury or surgery.<br><br>
-                  <strong>Senior/Low Impact:</strong> Prioritizes joint-friendly, lower-intensity movements.
-                </span>
-            </span>
+        // Gather other selections
+            const selectedGoal = document.getElementById("mainGoal").options[
+             document.getElementById("mainGoal").selectedIndex
+            ].text;
+            const selectedInjuries = Array.from(document.querySelectorAll('#step4 input[type="checkbox"]:checked'))
+                                    .map(cb => cb.value)
+                                    .join(', ') || 'None';
+            const selectedFitness = document.getElementById("fitnessLevel").options[
+                document.getElementById("fitnessLevel").selectedIndex
+                ].text;
 
-            <div>
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button onclick="nextStep()">Next</button>
-            </div>
-        </div>
+            // Update summary fields
+            document.getElementById("freqSummary").innerText = selectedDays.join(', ');
+            document.getElementById("goalSummary").innerText = selectedGoal;
+            document.getElementById("injurySummary").innerText = selectedInjuries;
+            document.getElementById("fitnessSummary").innerText = selectedFitness;
+
+            submitWorkoutForm();
+
+             
+        }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function prevStep() {
+      document.getElementById(`step${step}`).classList.remove("visible");
+      step--;
+      document.getElementById(`step${step}`).classList.add("visible");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
 
+    function submitWorkoutForm() {
+      // Retrieve the summary fields' inner text
+      const summaryFitness = document.getElementById("fitnessSummary").innerText;
+      const summaryGoal = document.getElementById("goalSummary").innerText;
+      const summaryInjuries = document.getElementById("injurySummary").innerText;
+      const summaryDays = document.getElementById("freqSummary").innerText;
 
+      // Combine them into one string to send to the server
+      const userDataText = `Fitness Level: ${summaryFitness}; Goals: ${summaryGoal}; Injuries: ${summaryInjuries}; Selected Days: ${summaryDays}`;
+  
+      // Log for debugging
+      console.log("Submitting user data (from summary fields):", userDataText);
+  
+      // Send the POST request using fetch
+      fetch("{% url 'generate_workout' %}", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "X-CSRFToken": "{{ csrf_token }}",
+              "X-Requested-With": "XMLHttpRequest" 
+          },
+          body: new URLSearchParams({ 'user_input': userDataText })
+      })
+      .then(response => response.text())
+      .then(data => {
+        console.log("Response from server:", data);
 
-
-        <div id="step4" class="container">
-             <h2>Do you have any injuries?</h2>
-             <div>
-                <label class="injury-checkbox"><input type="checkbox" value="Knee Injury"> Knee Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Lower Back Pain"> Lower Back Pain</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Shoulder Injury"> Shoulder Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Elbow Injury"> Elbow Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Wrist/Hand Injury"> Wrist/Hand Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Ankle Injury"> Ankle Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Hip Injury"> Hip Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Neck Injury"> Neck Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Foot Injury"> Foot Injury</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Post-Surgery Recovery"> Post-Surgery Recovery</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Chronic Joint Pain"> Chronic Joint Pain</label>
-                <label class="injury-checkbox"><input type="checkbox" value="Muscle Strain or Tear"> Muscle Strain or Tear</label>
-            </div>
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button onclick=" collectInjuries()">Finish</button>
-            </div>
-        </div>
-
-        <div id="step5" class="container">
-            <h2>How many times a week do you want to work out?</h2>
-            <select id="weeklyFreq">
-                <option value="3">3 times</option>
-                <option value="4">4 times</option>
-                <option value="5">5 times</option>
-                <option value="6">6 times</option>
-            </select>
-            <div>
-                <button class="back-btn" onclick="prevStep()">Back</button>
-                <button onclick="nextStep()">Next</button>
-            </div>
-        </div>
-
-        <div id="step6" class="container">
-            <h2>Your Weekly Plan</h2>
-            <p>
-                <span class="checkmark">✔</span>
-                You selected to work out <strong id="freqSummary"></strong> days a week with a focus on:
-                <strong id="goalSummary"></strong>, with the following injury considerations:
-                <strong id="injurySummary"></strong>.
-            </p>
-            <p>
-                Current fitness level: <strong id="fitnessSummary"></strong>
-            </p>
-            <p>Click any day to customize your workout.</p>
-            <div class="plan-grid" id="planList"></div>
-            <button class="back-btn" onclick="prevStep()">Back</button>
-
-            <div id="workoutModal">
-                <h2>Select a new workout</h2>
-                <select id="newWorkoutSelect">
-                    <option>Push Day</option>
-                    <option>Pull Day</option>
-                    <option>Legs + Core</option>
-                    <option>HIIT</option>
-                    <option>Stretch / Yoga</option>
-                    <option>Rest</option>
-                </select>
-                <div>
-                    <button onclick="confirmWorkoutChange()">Confirm</button>
-                    <button class="back-btn" onclick="closeWorkoutModal()">Cancel</button>
-                </div>
-            </div>
-        </div>
+ 
+        const rawEl = document.getElementById("rawResponse");
+        if (rawEl) {
+            rawEl.innerText = data;
+        }
 
         
-
-    </main>
-
-    <footer>
-        <p>© 2025 Workout App. All rights reserved.</p>
-    </footer>
-
-    <script>
-        let step = 1;
-        let selectedFreq = "";
-        let selectedGoal = "";
-
-        function nextStep() {
-            document.getElementById(`step${step}`).classList.remove("visible");
-            step++;
-            document.getElementById(`step${step}`).classList.add("visible");
-
-            if (step === 6) {
-
-                const selectedFreq = document.getElementById("weeklyFreq").value;
-                const selectedGoal = document.getElementById("mainGoal").options[document.getElementById("mainGoal").selectedIndex].text;
-
-                const selectedInjuries = Array.from(document.querySelectorAll('#step4 input[type="checkbox"]:checked'))
-                    .map(cb => cb.value)
-                    .join(', ') || 'None';
+      })
+      .catch(error => console.error("Error:", error));
+    }
 
 
-                const selectedFitness = document.getElementById("fitnessLevel").options[
-                    document.getElementById("fitnessLevel").selectedIndex
-                ].text;
-                document.getElementById("fitnessSummary").innerText = selectedFitness;
 
-                document.getElementById("freqSummary").innerText = selectedFreq;
-                document.getElementById("goalSummary").innerText = selectedGoal;
-                document.getElementById("injurySummary").innerText = selectedInjuries;
+    
+    function renderPlan() {
 
-                renderPlan();
-            }
+      const list = document.getElementById("planList");
+      
+      list.innerHTML = "";
+
+      // Get the raw AI response from the element with id "rawResponse"
+      const rawOutput = document.getElementById("rawResponse").innerText;
+      // Simply output the entire AI response (wrapped in a <pre> for formatting)
+      list.innerHTML = `<pre style="white-space: pre-wrap;">${rawOutput}</pre>`;
+    }
 
 
-            window.scrollTo({ top: 0, behavior: "smooth" });
+    function importUserData() {
+      if (userData.goals) {
+        const goalSelect = document.getElementById("mainGoal");
+        const primaryGoal = userData.goals.split(",")[0].trim();
+        for (let i = 0; i < goalSelect.options.length; i++) {
+          if (goalSelect.options[i].text === primaryGoal) {
+            goalSelect.selectedIndex = i;
+            break;
+          }
         }
-
-        function prevStep() {
-            document.getElementById(`step${step}`).classList.remove("visible");
-            step--;
-            document.getElementById(`step${step}`).classList.add("visible");
-            window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      if (userData.injuries) {
+        const injuries = userData.injuries.split(", ");
+        document.querySelectorAll('#step4 input[type="checkbox"]').forEach(box => {
+          if (injuries.includes(box.value)) {
+            box.checked = true;
+          }
+        });
+      }
+      if (userData.fitnessLevel) {
+        const fitnessSelect = document.getElementById("fitnessLevel");
+        if (fitnessSelect) {
+          fitnessSelect.value = userData.fitnessLevel;
         }
-
-        const defaultPlan = {
-            Monday: "Chest & Triceps",
-            Tuesday: "Back & Biceps",
-            Wednesday: "Rest",
-            Thursday: "Legs",
-            Friday: "Shoulders & Core",
-            Saturday: "Cardio or Yoga",
-            Sunday: "Rest"
-        };
-
-        let selectedDay = null;
-
-        function collectInjuries() {
-            const checkboxes = document.querySelectorAll('#step4 input[type="checkbox"]');
-            const selected = Array.from(checkboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.value);
-
-            const summaryElement = document.getElementById('injurySummary');
-            if (summaryElement) {
-                summaryElement.textContent = selected.length ? selected.join(', ') : 'None';
-            }
-
-          
-            nextStep();
-        }
-
-        function renderPlan() {
-            const list = document.getElementById("planList");
-            list.innerHTML = "";
-
-            for (const [day, workout] of Object.entries(defaultPlan)) {
-                const div = document.createElement("div");
-                div.className = "day-card";
-                div.innerHTML = `
-                    <span class="checkmark">✔</span>
-                    <h3>${day}</h3>
-                    <p>${workout}</p>
-                    <button onclick="openWorkoutModal('${day}')">Change</button>
-                    <button class="back-btn" onclick="deleteWorkout('${day}')">Delete</button>
-                `;
-                list.appendChild(div);
-            }
-        }
+      }
+      // Advance through steps (import fills Steps 2–5)
+      nextStep();
+      nextStep();
+      nextStep();
+      nextStep();
+    }
 
 
-        function importUserData() {
-            if (userData.goals) {
-                const goalSelect = document.getElementById("mainGoal");
-                // Assuming goals is a comma-separated string, take the first one:
-                const primaryGoal = userData.goals.split(",")[0].trim();
-                for (let i = 0; i < goalSelect.options.length; i++) {
-                    if (goalSelect.options[i].text === primaryGoal) {
-                        goalSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
-
-            if (userData.injuries) {
-                const injuries = userData.injuries.split(", ");
-                document.querySelectorAll('#step4 input[type="checkbox"]').forEach(box => {
-                    if (injuries.includes(box.value)) {
-                        box.checked = true;
-                    }
-                 });
-            }
-
-            
-            if (userData.fitness_level) {
-                const fitnessSelect = document.getElementById("fitnessLevel");
-                if (fitnessSelect) {
-                    fitnessSelect.value = userData.fitness_level;
-                }
-            }
-
-
-            nextStep();
-            nextStep();
-            nextStep();
-            nextStep();
-        }
-
-
-        function openWorkoutModal(day) {
-            selectedDay = day;
-            document.getElementById("workoutModal").style.display = "block";
-        }
-
-        function closeWorkoutModal() {
-            document.getElementById("workoutModal").style.display = "none";
-            selectedDay = null;
-        }
-
-        function confirmWorkoutChange() {
-            const newWorkout = document.getElementById("newWorkoutSelect").value;
-            if (selectedDay) {
-                defaultPlan[selectedDay] = newWorkout;
-                renderPlan();
-                closeWorkoutModal();
-            }
-        }
-
-        function deleteWorkout(day) {
-            defaultPlan[day] = "(None)";
-            renderPlan();
-        }
-    </script>
+    
+  </script>
 </body>
-
 </html>

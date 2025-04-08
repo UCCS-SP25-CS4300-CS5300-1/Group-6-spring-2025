@@ -1,46 +1,41 @@
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+import os
+import openai
 
-#AI model class, gets responses and returns it
+# Set your OpenAI API key here or via an environment variable named "OPENAI_API_KEY"
+openai.api_key = os.getenv("OPENAI_API_KEY", "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")
+
 class AIModel:
     def __init__(self):
+        # Additional initialization can be added here if needed.
+        pass
 
-        #Tokenizer to split the text
-        self.tokenizer = GPT2Tokenizer.from_pretrained("Lukamac/PlayPart-AI-Personal-Trainer")
-
-        #Model takes tokenized pieces and responds accordingly
-        self.model = GPT2LMHeadModel.from_pretrained("Lukamac/PlayPart-AI-Personal-Trainer")
-
-        #  Add a pad_token if missing: fill extra spaces if different length sentences
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-            self.model.config.pad_token_id = self.tokenizer.eos_token_id
-
-    #Takes input and responds accordingly
     def get_response(self, input_text):
+        """
+        Given an input prompt, calls the ChatGPT API using the gpt-3.5-turbo model and returns the generated response.
+        """
         print(f"Generating response for: {input_text}")
-    
-        #Gives input to tokenizer, turns the input into numbers
-        inputs = self.tokenizer(
-            input_text,
-            #Creating pytorch sensors, which is data structure for AI model
-            return_tensors='pt',
-            padding=True,
-            truncation=False
-        )
+        
+        messages = [
+            {"role": "system", "content": "You are a helpful personal trainer."},
+            {"role": "user", "content": input_text}
+        ]
+        
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                max_tokens=300,
+                n=1,
+                stop=None,
+                temperature=0.7
+            )
+            answer = response.choices[0].message.content.strip()
+        except Exception as e:
+            answer = f"Error generating response: {str(e)}"
+        
+        return answer
 
-
-        #Generate new text based on
-        output_ids = self.model.generate(
-            inputs['input_ids'],
-            attention_mask=inputs['attention_mask'],
-            max_length=50,
-            pad_token_id=self.tokenizer.pad_token_id  
-        )
-
-        #Convert the id's back into normal text!
-        response = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
-        return response
-
-
-# Instantiate and ready for use globally
+# Instantiate the AI model for use globally
 ai_model = AIModel()
+
+
