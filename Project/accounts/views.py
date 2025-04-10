@@ -37,6 +37,17 @@ def user_login(request):
 def user_data(request):
     # Retrieve the user's profile
     user_profile = request.user.userprofile
+    
+    # Friend management
+    friend_requests = FriendRequest.objects.filter(to_user=request.user)
+    search_query = request.GET.get('q', '')
+    search_results = []
+    if search_query:
+        friends_ids = request.user.userprofile.friends.all().values_list('user__id', flat=True)
+        search_results = User.objects.filter(username__icontains=search_query) \
+            .exclude(id=request.user.id) \
+            .exclude(id__in=friends_ids)
+    
     # Retrieve all user data entries for the logged-in user
     user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')  # Prefetch related goals for efficiency
     exercises = UserAccExercise.objects.filter(user=request.user)
@@ -59,6 +70,9 @@ def user_data(request):
         'user_profile': user_profile,
         'user_data_entries': user_data_entries,
         'user_exercises': exerciseDict,
+        'friend_requests': friend_requests,
+        'search_query': search_query,
+        'search_results': search_results,
     })
 
 def custom_logout(request):
