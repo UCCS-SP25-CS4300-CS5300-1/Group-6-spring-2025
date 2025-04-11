@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
-from django.utils.timezone import now 
+from django.utils.timezone import now
 import datetime
 
 RECURRENCE_CHOICES = [
@@ -38,7 +38,7 @@ class UserExercise(models.Model):
     current_weight = models.DecimalField(max_digits=6, decimal_places=2)
     reps = models.PositiveIntegerField()
     percent_increase = models.IntegerField(choices=PERCENT_CHOICES, default=0)
-    
+
     # Recurring workout fields
     start_date = models.DateField(default=now)  # When recurrence starts
     end_date = models.DateField(null=True, blank=True)  # Optional end date

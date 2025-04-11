@@ -23,7 +23,6 @@ class NewAIModelTests(TestCase):
 
     #Check AI can still respond when injury limitations are given
     def test_response_handles_injuries_gracefully(self):
-        """Check AI can still respond when injury limitations are given."""
         prompt = "Workout plan for someone with knee injury and lower back pain"
         response = ai_model.get_response(prompt)
         self.assertIsInstance(response, str)
@@ -36,18 +35,25 @@ class NewViewTests(TestCase):
 
     #Check if home view loads correctly
     def test_get_home_view(self):
+        #Simulates going to home view
         response = self.client.get(reverse('home'))
+        #The http status code is 200 (successful)
         self.assertEqual(response.status_code, 200)
+        #Decode response content to string, checks if workout app is there
         self.assertIn("Workout App", response.content.decode())
 
     #Make sure plan generates when multiple days are specified.
     def test_post_generates_plan_with_multiple_days(self):
         input_text = "Fitness Level: Intermediate; Goals: Build Muscle; Injuries: None; Selected Days: Monday, Wednesday, Friday"
+
+        #Simulates AJAX request, 
         response = self.client.post(
             reverse('generate_workout'),
             {'user_input': input_text},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
+
+        #Ensure successful response (200), then ensures days are in workout plan
         self.assertEqual(response.status_code, 200)
         self.assertIn("Monday", response.content.decode())
         self.assertIn("Wednesday", response.content.decode())
@@ -104,7 +110,7 @@ class CalendarTests(TestCase):
         csrf_token = response.cookies['csrftoken'].value  # Get csrf token
 
         date_completed = date.today().strftime('%Y-%m-%d')
-        
+
         # Make POST request to mark workout as completed
         response = self.client.post(reverse('calendar'), {
             'workout_id': self.user_exercise_1.id,
@@ -112,14 +118,14 @@ class CalendarTests(TestCase):
             'completed': 'true',
             'csrfmiddlewaretoken': csrf_token,
         })
-        
+
         # Create WorkoutLog entry with UserExercise instance
         workout_log = WorkoutLog.objects.filter(
             user=self.user,
             exercise=self.user_exercise_1,
             date_completed=date_completed
         )
-        
+
         self.assertEqual(workout_log.count(), 1)  # Should create 1 log entry
         self.assertEqual(response.status_code, 200)
 
@@ -133,25 +139,25 @@ class CalendarTests(TestCase):
             exercise=self.user_exercise_1,
             date_completed=date_completed
         )
-        
+
         # Now make a POST request to unmark it as completed
         response = self.client.get(reverse('calendar'))  # Make GET request to get csrf token
         csrf_token = response.cookies['csrftoken'].value  # Get csrf token
-        
+
         response = self.client.post(reverse('calendar'), {
             'workout_id': self.user_exercise_1.id,
             'date_completed': date_completed,
             'completed': 'false',
             'csrfmiddlewaretoken': csrf_token,
         })
-        
+
         # Ensure the WorkoutLog entry is deleted
         workout_log = WorkoutLog.objects.filter(
             user=self.user,
             exercise=self.user_exercise_1,
             date_completed=date_completed
         )
-        
+
         self.assertEqual(workout_log.count(), 0)  # Should delete the log entry
         self.assertEqual(response.status_code, 200)
     """ Warm up Tests  """

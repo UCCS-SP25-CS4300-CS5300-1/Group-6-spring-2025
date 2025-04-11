@@ -9,7 +9,6 @@
     <!-- Fonts and Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
 
@@ -19,7 +18,7 @@
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
         }
-    
+
         header {
             display: flex;
             justify-content: space-between;
@@ -27,24 +26,24 @@
             background-color: #003366;
             padding: 20px 40px;
         }
-    
+
         .logo {
             color: white;
             font-size: 32px;
             text-decoration: none;
         }
-    
+
         nav ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
             display: flex;
         }
-    
+
         nav ul li {
             margin-left: 30px;
         }
-    
+
         nav ul li a {
             color: white;
             text-decoration: none;
@@ -52,12 +51,12 @@
             font-size: 18px;
             transition: background-color 0.3s, transform 0.3s;
         }
-    
+
         nav ul li a:hover {
             background-color: #007BFF;
             transform: scale(1.05);
         }
-    
+
         .container {
             display: flex;
             padding: 20px;
@@ -66,7 +65,7 @@
             justify-content: space-between;
             gap: 20px; /* Adds space between the left and calendar sections */
         }
-    
+
         .left-container {
             width: 26%;
             display: flex;
@@ -76,7 +75,7 @@
             height: 91vh; /* This will keep the left container a fixed height */
             justify-content: space-between; /* Distribute space evenly */
         }
-    
+
         .workout-section, .completed-workout-section {
             width: 100%;
             background-color: white;
@@ -91,7 +90,7 @@
             overflow-y: auto; /* Makes the content scrollable */
             height: 50%; /* Ensures equal height for both sections */
         }
-    
+
         .workout-list h4 {
             margin-top: 15px;
             margin-bottom: 10px;
@@ -100,7 +99,7 @@
             border-bottom: 1px solid #ccc;
             padding-bottom: 5px;
         }
-    
+
         .empty-message {
             text-align: center;
             color: gray;
@@ -110,7 +109,7 @@
             align-items: center;
             height: 100%; /* Makes sure it fills the container */
         }
-    
+
         .workout-item {
             display: flex;
             justify-content: space-between;
@@ -121,34 +120,34 @@
             border-radius: 8px;
             transition: background-color 0.3s;
         }
-    
+
         .workout-item:hover {
             background-color: #f1f1f1;
         }
-    
+
         .workout-title {
             font-weight: 600;
             font-size: 16px;
             color: #333;
         }
-    
+
         .workout-date {
             font-size: 14px;
             color: #777;
         }
-    
+
         .workout-checkbox {
             margin-right: 10px;
             transform: scale(1.2);  /* Larger checkbox for easier interaction */
         }
-    
+
         /* Completed workout styles */
         .workout-item.completed {
             background-color: #e0e0e0;
             text-decoration: line-through;
             color: #bbb;
         }
-    
+
         .main-section {
             flex-grow: 1;
             background-color: white;
@@ -157,14 +156,14 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-    
+
         #calendar {
             margin-top: 20px;
             width: 100%; /* Make the calendar container expand fully */
             max-height: 82vh; /* Was 82vh — reduced to avoid bottom scroll */
             overflow-y: auto;
         }
-    
+
         .left-container h3 {
             text-align: center;
             background: #003366;
@@ -177,7 +176,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);  /* A bit more pronounced shadow */
             margin-bottom: 0px;        /* More space below to separate from content */
         }
-    
+
         .workout-section > h4 {
             text-align: center;
             background: #003366;
@@ -199,7 +198,7 @@
             flex-grow: 1; /* Ensures both workout lists grow equally */
             overflow-y: auto; /* Makes content scrollable when overflowing */
         }
-    
+
         /* Tweak the empty message to match */
         .empty-message {
             padding: 12px;
@@ -207,7 +206,7 @@
             border: 1px solid #ffeeba;
             margin-top: 16px;
         }
-    
+
         .active {
             background-color: #007BFF !important;
             transform: scale(1.05);
@@ -267,11 +266,11 @@
             .container {
                 flex-direction: column;
             }
-    
+
             .left-container {
                 width: 100%;
             }
-    
+
             /* Ensure the calendar still occupies full width in smaller screens */
             .main-section {
                 width: 100%;
@@ -315,7 +314,7 @@
                 <!-- JS will inject pending workouts here -->
               </div>
             </div>
-          
+
             <div class="workout-section">
               <h4>Completed Workouts</h4>
               <div id="completed-workouts" class="workout-list">
@@ -345,9 +344,6 @@
 
           </div>
 
-            
-        
-
         <!-- Calendar Section -->
         <div class="main-section">
             <h2>Workout Calendar</h2>
@@ -364,24 +360,24 @@
             events: "{% url 'workout_events' %}",
             eventColor: '#007BFF',
             firstDay: 1,
-        
+
             dateClick: info => loadWorkouts(info.dateStr),
-        
+
             eventClick: info => {
               const ev = info.event;
               const newStatus = !ev.extendedProps.completed;
               if (!confirm(newStatus ? "Mark this done?" : "Undo completion?")) return;
-        
+
               toggleCompletion(ev.id, ev.startStr, newStatus, () => {
                 calendar.refetchEvents();
                 loadWorkouts(ev.startStr);
               });
             }
           });
-        
+
           calendar.render();
           loadWorkouts(new Date().toISOString().split('T')[0]);
-        
+
           function loadWorkouts(date) {
             $.get("{% url 'workout_events' %}", { date })
                 .done(data => {
@@ -445,8 +441,7 @@
                 })
                 .fail(err => console.error("Error fetching workouts:", err));
             }
-            
-        
+
           function toggleCompletion(workoutId, date, completed, cb) {
             $.post("{% url 'calendar' %}", {
               workout_id:      workoutId,
