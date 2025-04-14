@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight, UserLogDataFormExercise
+from .forms import UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight, UserLogDataFormExercise, UserLogDataFormFood
 import json
 from .models import UserProfile, FriendRequest, UserAccExercise
 
@@ -195,4 +195,5 @@ def log_data(request):
     else:
         formweight = UserLogDataFormWeight()
         formexercise = UserLogDataFormExercise()
-        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'exercises':exercisesdone})
+        formfood = UserLogDataFormFood()
+        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone})

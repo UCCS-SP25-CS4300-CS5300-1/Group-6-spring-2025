@@ -143,26 +143,29 @@
             <h2>Log your workout data!</h2>
         </div>
     </div>
-    <h2>Update weight</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Update</button>
-        </form>
-    <h2>Update Exercises</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ formtwo.as_p }}
-            <button type="submit">Update</button>
-        </form>
     <div class="main-section">
-        <ul class="list-group">
-            {% for x in exercisesdone %}
-                <li >
-                    <p> {{ x }} </p>
-                </li>
-            {% endfor %}
-        </ul>
+        <h2>Update weight</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Update</button>
+            </form>
+    </div>
+    <div class="main-section">
+        <h2>Update Exercises</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ formtwo.as_p }}
+                <button type="submit">Update</button>
+            </form>
+    </div>
+    <div class="main-section">
+        <h2>Update Food Log</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ formthree.as_p }}
+                <button type="submit">Update</button>
+            </form>
     </div>
 </body>
 </html>

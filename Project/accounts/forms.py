@@ -78,3 +78,12 @@ class UserLogDataFormExercise(forms.ModelForm):
         sets = models.IntegerField(default=0)
         reps = models.IntegerField(default=0)
         fields = ['name', 'weight', 'sets', 'reps']
+
+class UserLogDataFormFood(forms.ModelForm):
+    class Meta:
+        model = UserAccExercise
+        name = forms.TextInput(attrs={'placeholder': 'Enter Username'})
+        weight = models.IntegerField(default=0)
+        sets = models.IntegerField(default=0)
+        reps = models.IntegerField(default=0)
+        fields = ['name', 'weight', 'sets', 'reps']
