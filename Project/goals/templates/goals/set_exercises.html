@@ -150,7 +150,7 @@
             <th>% Increase Goal</th>
             <th>Start Date</th>
             <th>End Date</th>
-            <th>Recurrence</th>
+            <th>Recurring Day</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -273,7 +273,6 @@
             <div class="error"></div>
           </td>
           <td>
-            {{ formset.empty_form.recurring_day.label_tag }}
             {{ formset.empty_form.recurring_day }}
             {% if formset.empty_form.recurring_day.errors %}
               <div class="error">

@@ -110,6 +110,7 @@ def calendar_view(request):
     # GET: render calendar
     exercises = UserExercise.objects.filter(user=request.user)
     return render(request, 'calendar.html', {'events': exercises, 'warm_ups': warm_ups})
+
 @login_required
 def workout_events(request):
     if not request.user.is_authenticated:
@@ -142,6 +143,7 @@ def workout_events(request):
             event = {
                 "id": exercise.id,  # Add id field for JS to use
                 "title": exercise.exercise.name,
+                "gif-url": exercise.exercise.gif_url,
                 "start": current_date.strftime('%Y-%m-%d'),
                 "color": "#28A745" if completed else "#007BFF",  # Green if completed, blue otherwise
                 "completed": completed,

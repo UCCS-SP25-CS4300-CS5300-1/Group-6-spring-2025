@@ -25,6 +25,12 @@ class Goal(models.Model):
 class Exercise(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True)
+    body_part = models.CharField(max_length=100)
+    target = models.CharField(max_length=100)
+    equipment = models.CharField(max_length=100)
+    gif_url = models.URLField(blank=True)
+    secondary_muscles = models.JSONField(blank=True, default=list)
+    instructions = models.JSONField(blank=True, default=list)
 
     def __str__(self):
         return self.name
