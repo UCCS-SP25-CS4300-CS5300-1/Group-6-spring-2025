@@ -61,6 +61,11 @@ class UserAccExercise(models.Model):
     reps = models.IntegerField(default=0)
     weight = models.IntegerField(default=0)
 
+class FoodDatabase(models.Model):
+    id = models.AutoField(primary_key=True)
+    barcode = models.IntegerField(default=0)
+    info = models.CharField(max_length=2000)
+
 @receiver(post_save, sender=User)
 def create_or_save_userprofile(sender, instance, created, **kwargs):
     if created:

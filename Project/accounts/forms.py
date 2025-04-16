@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.db import models
-from .models import UserProfile, Goal, Injury, FitnessLevel, UserAccExercise
+from .models import UserProfile, Goal, Injury, FitnessLevel, UserAccExercise, FoodDatabase
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -81,9 +81,6 @@ class UserLogDataFormExercise(forms.ModelForm):
 
 class UserLogDataFormFood(forms.ModelForm):
     class Meta:
-        model = UserAccExercise
-        name = forms.TextInput(attrs={'placeholder': 'Enter Username'})
-        weight = models.IntegerField(default=0)
-        sets = models.IntegerField(default=0)
-        reps = models.IntegerField(default=0)
-        fields = ['name', 'weight', 'sets', 'reps']
+        model = FoodDatabase
+        barcode = models.IntegerField(default=0)
+        fields = ['barcode']

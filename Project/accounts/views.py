@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight, UserLogDataFormExercise, UserLogDataFormFood
 import json
+import requests
 from .models import UserProfile, FriendRequest, UserAccExercise
 
 def register(request):
@@ -179,19 +180,32 @@ def log_data(request):
     print(profile)
     if request.method == 'POST':
         #This will update the weight_history attribute as a json object so i can be used in the charts.
-        if( len(request.POST) < 5 ): #This is a weight update
+        if('barcode' in request.POST): #This is a foodlog update
+            print(True)
+            tosend = 'https://cs4300-group2.tech/api/product/' + request.POST.get('barcode')
+            print(tosend)
+            response = requests.get(tosend)
+            response = response.content
+            response = response.decode('utf-8')
+            response = json.loads(response)
+            print(response['barcode'], response['name'])
+            data = json.loads(response['nutrition_data'])
+            print(data['carbohydrates'], data['proteins'], data['fat'])
+            #need to making database and new modal to display food data and allow user to update their food log
+        elif ('sets' in request.POST): #This is a exercise update
+            print(len(request.POST))
+            UserAccExercise.objects.create(user=request.user,name=request.POST.get('name'),sets=request.POST.get('sets', 0),reps=request.POST.get('reps', 0),weight=request.POST.get('weight', 0))
+        else: #This is a weight update
             newweight = int(request.POST.get('weight', 0))
             oldweight = json.loads(profile.weight_history)
             oldweight.append(newweight)
             toupdate = json.dumps(oldweight)
             print(toupdate)
             UserProfile.objects.filter(user=request.user).update(weight_history=toupdate)
-        else: #This is a exercise update
-            print(len(request.POST))
-            UserAccExercise.objects.create(user=request.user,name=request.POST.get('name'),sets=request.POST.get('sets', 0),reps=request.POST.get('reps', 0),weight=request.POST.get('weight', 0))
         formweight = UserLogDataFormWeight()
         formexercise = UserLogDataFormExercise()
-        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'exercises':exercisesdone})
+        formfood = UserLogDataFormFood()
+        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone})
     else:
         formweight = UserLogDataFormWeight()
         formexercise = UserLogDataFormExercise()
