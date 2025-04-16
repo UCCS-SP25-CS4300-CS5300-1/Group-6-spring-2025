@@ -84,3 +84,14 @@ class UserLogDataFormFood(forms.ModelForm):
         model = FoodDatabase
         barcode = models.IntegerField(default=0)
         fields = ['barcode']
+
+class UserLogDataFormFoodData(forms.ModelForm):
+    class Meta:
+        model = FoodDatabase
+        barcode = models.IntegerField(default=0)
+        name = models.IntegerField(default=0)
+        carbs = models.IntegerField(default=0)
+        protein = models.IntegerField(default=0)
+        fat = models.IntegerField(default=0)
+        servings = models.IntegerField(default=0)
+        fields = ['barcode', 'name', 'carbs', 'protein', 'fat','servings']
