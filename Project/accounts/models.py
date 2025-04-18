@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import date
 
 class UserProfile(models.Model):
     FITNESS_LEVEL_CHOICES = [
@@ -60,6 +61,18 @@ class UserAccExercise(models.Model):
     sets = models.IntegerField(default=0)
     reps = models.IntegerField(default=0)
     weight = models.IntegerField(default=0)
+
+class FoodDatabase(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    datelog = models.DateField(default=date.today)
+    barcode = models.IntegerField(default=0)
+    name = models.CharField(max_length=100)
+    carbs = models.FloatField(default=0)
+    protein = models.FloatField(default=0)
+    fat = models.FloatField(default=0)
+    servings = models.FloatField(default=0)
+
 
 @receiver(post_save, sender=User)
 def create_or_save_userprofile(sender, instance, created, **kwargs):

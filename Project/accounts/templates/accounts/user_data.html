@@ -58,7 +58,7 @@
         .cv {
             width: 100%;
             height: 100%;
-            padding: 10px 25px;
+            padding: 10px;
             margin: 0 auto;
         }
         .container {
@@ -260,18 +260,38 @@
             <div class="row">
                 <div class="canvas-container">
                     <canvas class="cv" id="myChartExercise" style="width:20%;max-width:450px;"></canvas>
-                    <canvas class="cv" id="myCharttest" style="width:20%;max-width:450px"></canvas>
+                    <canvas class="cv" id="myChartFood" style="width:20%;max-width:450px"></canvas>
                     <canvas class="cv" id="myChartWeight" style="width:20%;max-width:450px"></canvas>
                 </div>
+                <h3>Total Calories Today: {{ caltotal }}</h3>
+                <table>
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        <th>Carbohydrates</th>
+                        <th>Protein</th>
+                        <th>Fat</th>
+                    </tr>
+                    {% for x in foodlist %}
+                    <tr>
+                        <th>{{ x.barcode }}</th>
+                        <th>{{ x.name }}</th>
+                        <th>{{ x.carbs }}</th>
+                        <th>{{ x.protein }}</th>
+                        <th>{{ x.fat }}</th>
+                    </tr>
+                    {% endfor %}
+                </table>
+
                 <!--Section for the charts -->
                 <script>
                     var yValues = JSON.parse("{{ user_profile.weight_history }}");
-                    console.log(yValues)
+                    console.log(yValues);
                     var xValues = new Array(yValues.length);
                     xValues = xValues.fill('');
                     var test = JSON.parse('{{ user_exercises|safe }}');
-                    var yyValues = test['Bench Press']
-                    console.log(yyValues)
+                    var foodlabel = JSON.parse('{{ foodlabels|safe }}');
+                    var foodlabelvalues = JSON.parse('{{ foodlabelvalues }}');
                     var listofexercises = [];
                     for (const key in test) {
                         console.log(key);
@@ -320,6 +340,35 @@
                             title: {
                                 display: true,
                                 text: "Weight Tracker",
+                                position: "bottom",
+                                align: "center"
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    });
+                    new Chart("myChartFood", {
+                        type: "doughnut",
+                        data: {
+                            labels: foodlabel,
+                            datasets: [{
+                                label: 'My First Dataset',
+                                data: foodlabelvalues,
+                                backgroundColor: [
+                                'rgb(255, 99, 132)',
+                                'rgb(54, 162, 235)',
+                                'rgb(255, 205, 86)',
+                                'rgb(0, 0, 0)'
+                                ],
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive:true,
+                            title: {
+                                display: true,
+                                text: "Nutritional Macro Tracker",
                                 position: "bottom",
                                 align: "center"
                             },

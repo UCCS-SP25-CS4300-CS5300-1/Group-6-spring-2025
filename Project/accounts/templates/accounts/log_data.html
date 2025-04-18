@@ -117,6 +117,43 @@
         th {
             background-color: #f2f2f2;
         }
+        /* The Modal (background) */
+        .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        /* The Close Button */
+        .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+        }
     </style>
     <title>User Data</title>
 </head>
@@ -143,26 +180,72 @@
             <h2>Log your workout data!</h2>
         </div>
     </div>
-    <h2>Update weight</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Update</button>
-        </form>
-    <h2>Update Exercises</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ formtwo.as_p }}
-            <button type="submit">Update</button>
-        </form>
     <div class="main-section">
-        <ul class="list-group">
-            {% for x in exercisesdone %}
-                <li >
-                    <p> {{ x }} </p>
-                </li>
-            {% endfor %}
-        </ul>
+        <h2>Update weight</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Update</button>
+            </form>
+    </div>
+    <div class="main-section">
+        <h2>Update Exercises</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ formtwo.as_p }}
+                <button type="submit">Update</button>
+            </form>
+    </div>
+    <div class="main-section">
+        <h2>Update Food Log</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ formthree.as_p }}
+                <button type="submit">Update</button>
+            </form>
     </div>
 </body>
 </html>
+<!-- This code executes only when barcode was submitted -->
+{% if flag %}
+    <!-- The Modal -->
+    <div id="myModal" class="modal show">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+        <span class="close">&times;</span>
+            <form method="post">
+                {% csrf_token %}
+                {{ formfour.as_p }}
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+    <script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("mybtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on the button, open the modal
+
+    modal.style.display = "block";
+
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+    modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    }
+    </script>
+{% endif %}
