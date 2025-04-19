@@ -2,207 +2,133 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--<link rel="stylesheet" href="{% static 'css/styles.css' %}">-->
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f4f4;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet"/>
+  <title>Workout App</title>
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #003366;
-            padding: 20px 40px;
-        }
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f4f4;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #003366;
+      padding: 20px 40px;
+    }
+    .logo {
+      color: white;
+      font-size: 32px;
+      text-decoration: none;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    nav li {
+      margin-left: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 15px;
+      font-size: 18px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    nav a:hover {
+      background-color: #007BFF;
+      transform: scale(1.05);
+    }
 
-        .logo {
-            color: white;
-            font-size: 32px;
-            text-decoration: none;
-        }
+    .container {
+      padding: 20px;
+    }
+    .main-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .main-section img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .workout-today,
+    .progress {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .workout-today h2,
+    .progress h2 {
+      margin-top: 0;
+    }
+    .cta-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #007BFF;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+    .cta-button:hover {
+      background: #0056B3;
+    }
 
-        nav {
-            display: flex;
-        }
-
-        ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        li {
-            margin-left: 30px;
-        }
-
-        li a {
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            font-size: 18px;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-
-        li a:hover {
-            background-color: #007BFF;
-            transform: scale(1.05);
-        }
-
-        .container {
-            padding: 20px;
-        }
-
-        .welcome {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .main-section {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .main-section img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .workout-today, .progress, .upcoming-workouts, .calendar {
-            background-color: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .workout-today h2, .progress h2, .upcoming-workouts h2, .calendar h2 {
-            margin-top: 0;
-        }
-
-        .cta-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .cta-button:hover {
-            background-color: #0056B3;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr); /* 7 columns for the days of the week */
-            gap: 10px;
-        }
-
-        .day {
-            background-color: #e0e0e0;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .day h3 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        .workout {
-            margin-top: 5px;
-            font-size: 14px;
-        }
-
-        .day-header {
-            font-weight: bold;
-            background-color: #003366;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none; /* Hide the dropdown content by default */
-            position: absolute;
-            background-color: #f9f9f9; /* Background color of the dropdown */
-            min-width: 150px; /* Set a minimum width for the dropdown */
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow effect */
-            z-index: 1; /* Ensure it appears above other elements */
-            padding: 10px; /* Add some padding */
-            right: 0; /* Align to the right */
-        }
-
-        .dropdown-content a {
-            color: black; /* Link color */
-            padding: 10px 15px; /* Padding for links */
-            text-decoration: none; /* Remove underline */
-            display: block; /* Make links block elements */
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f1f1f1; /* Change background on hover */
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block; /* Show the dropdown on hover */
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none; /* Hide the dropdown content by default */
-            position: absolute;
-            background-color: #f9f9f9; /* Background color of the dropdown */
-            min-width: 150px; /* Set a minimum width for the dropdown */
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow effect */
-            z-index: 1; /* Ensure it appears above other elements */
-            padding: 10px; /* Add some padding */
-            right: 0; /* Align to the right */
-        }
-
-        .dropdown-content a {
-            color: black; /* Link color */
-            padding: 10px 15px; /* Padding for links */
-            text-decoration: none; /* Remove underline */
-            display: block; /* Make links block elements */
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f1f1f1; /* Change background on hover */
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block; /* Show the dropdown on hover */
-        }
-
-    </style>
+    /* Calendar grid */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .calendar h2 {
+      grid-column: span 7;
+      text-align: center;
+      margin-top: 0;
+    }
+    .day-header {
+      font-weight: bold;
+      background: #003366;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      border-radius: 5px;
+    }
+    .day {
+      border: 1px solid #ddd;
+      min-height: 100px;
+      padding: 5px;
+      border-radius: 5px;
+    }
+    .workout {
+      margin: 5px 0;
+      padding: 3px 6px;
+      border-radius: 4px;
+      background: #007BFF;
+      color: white;
+    }
+    .workout.completed {
+      background: #28A745;
+    }
+  </style>
 </head>
 
 <body>
@@ -217,13 +143,8 @@
                     <li><a href="{% url 'user_data' %}">Account</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
-                <li class="dropdown">
-                    <a href="#">Login/Register</a>
-                    <div class="dropdown-content">
-                        <a href="{% url 'login' %}">Login</a>
-                        <a href="{% url 'register' %}">Register</a>
-                    </div>
-                </li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
                 {% endif %}
             </ul>
         </nav>
@@ -237,116 +158,156 @@
         </div>
 
         {% if user.is_authenticated %}
-            <div class="welcome">Welcome back, {{ user.username }}!</div>  <!-- Personalized welcome message -->
-            <div class="workout-today">
-                <h2>Today's Workout</h2>
-                <p>Exercise: <strong>Full Body Strength Training</strong></p>
-                <p>Duration: <strong>45 minutes</strong></p>
-                <a href="#start-workout" class="cta-button">Start Workout</a>
-            </div>
-        </head>
-        <body>
+        <div class="welcome">Welcome back, {{ user.username }}!</div>
+        <div class="workout-today">
+          <h2>Today's Workout</h2>
+          <p>Exercise: <strong>Full Body Strength Training</strong></p>
+          <p>Duration: <strong>45 minutes</strong></p>
+          <a href="#start-workout" class="cta-button">Start Workout</a>
+        </div>
+  
+        <div class="progress">
+          <h2>Current Goals</h2>
+          <ul>
+            {% for goal in goals %}
+              <li>{{ goal.name }}</li>
+            {% empty %}
+              <li>No goals found.</li>
+            {% endfor %}
+          </ul>
+        </div>
+  
+        <div class="progress">
+          <h2>Your Progress</h2>
+          <p>
+            You've completed
+            <strong id="percent-text">0%</strong>
+            of your sets this month!
+          </p>
+          <div style="background:#e0e0e0; border-radius:5px; overflow:hidden;">
+            <div
+              id="progress-bar-fill"
+              style="width:0%; height:20px; background:#007BFF;"
+            ></div>
+          </div>
+        </div>
+        
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date();
+          
+            // 1. Compute the window for THIS month:
+            const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            console.log("This‑month window:", startOfThisMonth, "→", startOfNextMonth);
+          
+            // 2. Fetch your workout_events JSON
+            fetch("{% url 'workout_events' %}")
+              .then(res => res.json())
+              .then(events => {
+                console.log("All events:", events);
+          
+                // 3. Keep only events in [startOfThisMonth, startOfNextMonth)
+                const thisMonthEvents = events.filter(ev => {
+                  const ts = new Date(ev.start).getTime();
+                  return ts >= startOfThisMonth.getTime() && ts < startOfNextMonth.getTime();
+                });
+                console.log("This‑month events:", thisMonthEvents);
+          
+                // 4. Count total vs. completed
+                const total = thisMonthEvents.length;
+                const done  = thisMonthEvents.filter(ev => ev.completed).length;
+                console.log(`Total: ${total}, Completed: ${done}`);
+          
+                // 5. Compute percentage and clamp at 100%
+                const pct = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
+                console.log("Computed percent:", pct);
+          
+                // 6. Render into your DOM
+                document.getElementById("percent-text").textContent = pct + "%";
+                document.getElementById("progress-bar-fill").style.width = pct + "%";
+              })
+              .catch(err => console.error("Error loading events:", err));
+          });
+          </script>
+          
 
-        </body>
-            <div class="progress">
-                <h2>Current Goals</h2>
-                <p><strong>
-                    {% for goal in goals %}
-                      <li>{{ goal.name }}</li> 
-                    {% empty %}
-                      <li>No goals found.</li>
-                    {% endfor %}
-                </p>            
-            </div>
-    
-            <div class="progress">
-                <h2>Your Progress</h2>
-                <p>You've completed <strong>85%</strong> of your workouts this month!</p>
-                <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
-                    <div style="width: 85%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
-                </div>
-            </div>
-    
-            <div class="calendar">
-                <h2 style="grid-column: span 7; text-align: center;">Workout Calendar</h2>
-                <div class="day-header">Mon</div>
-                <div class="day-header">Tue</div>
-                <div class="day-header">Wed</div>
-                <div class="day-header">Thu</div>
-                <div class="day-header">Fri</div>
-                <div class="day-header">Sat</div>
-                <div class="day-header">Sun</div>
-                <div class="day">
-                    <div class="workout">Cardio - 30 min</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Strength - Upper Body</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Yoga - 60 min</div>
-                </div>
-                <div class="day">
-                    <div class="workout">HIIT - 20 min</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Strength - Lower Body</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Rest Day</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Long Run - 45 min</div>
-                </div>
-            </div>
-        {% else %}
-            <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
-            <div class="workout-today">
-                <h2>Daily Workouts Tailored to You</h2>
-                <p>Exercise: <strong>Squats</strong></p>
-                <p>Duration: <strong>45 minutes</strong></p>
-            </div>
-    
-            <div class="progress">
-                <h2>Your Plan Progress Visualized For You!</h2>
-                <p>You've completed <strong>75%</strong> of your workouts this month!</p>
-                <div style="width: 100%; background-color: #e0e0e0; border-radius: 5px;">
-                    <div style="width: 75%; height: 20px; background-color: #007BFF; border-radius: 5px;"></div>
-                </div>
-            </div>
-    
-            <div class="calendar">
-                <h2 style="grid-column: span 7; text-align: center;">Viewable Via a Calendar</h2>
-                <div class="day-header">Mon</div>
-                <div class="day-header">Tue</div>
-                <div class="day-header">Wed</div>
-                <div class="day-header">Thu</div>
-                <div class="day-header">Fri</div>
-                <div class="day-header">Sat</div>
-                <div class="day-header">Sun</div>
-                <div class="day">
-                    <div class="workout">Cardio - 30 min</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Rest Day</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Yoga - 60 min</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Stretching - 20 min</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Rest Day</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Rest Day</div>
-                </div>
-                <div class="day">
-                    <div class="workout">Long Run - 45 min</div>
-                </div>
-            </div>
-        {% endif %}
+
+        <!-- Dynamic Workout Calendar -->
+        <div class="calendar" id="calendar">
+          <h2>Upcoming Week</h2>
+          <div class="day-header">Mon</div>
+          <div class="day-header">Tue</div>
+          <div class="day-header">Wed</div>
+          <div class="day-header">Thu</div>
+          <div class="day-header">Fri</div>
+          <div class="day-header">Sat</div>
+          <div class="day-header">Sun</div>
+          <!-- 7 .day cells injected via JS -->
+        </div>
+      {% else %}
+        <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
+        <!-- You can include a guest calendar here if you like -->
+      {% endif %}
     </div>
+  
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+  
+        fetch("{% url 'workout_events' %}")
+          .then(r => r.json())
+          .then(events => {
+            // group by date
+            const eventsByDate = {};
+            events.forEach(e => {
+              eventsByDate[e.start] = eventsByDate[e.start] || [];
+              eventsByDate[e.start].push(e);
+            });
+  
+                        /// compute this week’s Monday
+            const today = new Date();
+            const dow   = today.getDay();            // 0=Sun … 6=Sat
+            const daysSinceMon = (dow + 6) % 7;      // Sun→6, Mon→0, Tue→1, …, Sat→5
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - daysSinceMon);
+  
+  
+            const cal = document.getElementById('calendar');
+            for (let i = 0; i < 7; i++) {
+              const dt = new Date(weekStart);
+              dt.setDate(weekStart.getDate() + i);
+              const iso = dt.toISOString().slice(0,10);
+  
+              const dayCell = document.createElement('div');
+              dayCell.className = 'day';
+  
+              if (eventsByDate[iso]) {
+                eventsByDate[iso].forEach(e => {
+                  const w = document.createElement('div');
+                  w.className = 'workout' + (e.completed ? ' completed' : '');
+                  w.textContent = e.title + (e.completed ? ' ✔️' : '');
+                  dayCell.appendChild(w);
+                });
+              } else {
+                const rest = document.createElement('div');
+                rest.className = 'workout';
+                rest.textContent = 'Rest Day';
+                dayCell.appendChild(rest);
+              }
+  
+              cal.appendChild(dayCell);
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            const cal = document.getElementById('calendar');
+            cal.insertAdjacentHTML('beforeend', 
+              '<div class="day" style="grid-column: span 7; text-align:center;">Could not load workouts.</div>'
+            );
+          });
+      });
+    </script>
+  
 </body>
 
 </html>

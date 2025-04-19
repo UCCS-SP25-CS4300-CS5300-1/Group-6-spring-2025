@@ -110,6 +110,7 @@ def calendar_view(request):
     # GET: render calendar
     exercises = UserExercise.objects.filter(user=request.user)
     return render(request, 'calendar.html', {'events': exercises, 'warm_ups': warm_ups})
+
 @login_required
 def workout_events(request):
     if not request.user.is_authenticated:
@@ -158,6 +159,8 @@ def workout_events(request):
     sorted_events = []
     for date in sorted(events_by_date.keys()):
         sorted_events.extend(events_by_date[date])
+
+    print(sorted_events[1])
 
     return JsonResponse(sorted_events, safe=False)
 
