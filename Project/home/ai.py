@@ -2,7 +2,7 @@ import os
 import openai
 
 # Set your OpenAI API key here or via an environment variable named "OPENAI_API_KEY"
-
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class AIModel:
     def __init__(self):
