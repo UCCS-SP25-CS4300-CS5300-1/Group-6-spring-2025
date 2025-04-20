@@ -357,7 +357,7 @@
             <!-- Warm-up Exercises Section -->
             <div class="workout-section">
                 <h4>Today's Warm-Ups</h4>
-                <div class="workout-list">
+                <div id="warm-up-list" class="workout-list">
                     {% if warm_ups %}
                         {% for warmup in warm_ups %}
                             <div class="workout-item">
@@ -427,6 +427,7 @@
                   
                   const $pendingC   = $('#pending-workouts').empty();
                   const $completedC = $('#completed-workouts').empty();
+                  const $warmUpList = $('#warm-up-list');
 
                   // Pending Workouts
                   if (pending.length) {
@@ -469,7 +470,14 @@
                       $('#overlay').hide();
                       $('#no-workouts-message').hide();
                   }
-
+                
+                  //update warmup section 
+                  const today = new Date().toISOString().split('T')[0];
+                  if (date === today && hasWorkouts){
+                    $warmUpList.show()
+                  } else{
+                    $warmUpList.empty().html('<div class="empty-message">Warm-ups only available for today.</div>');
+                  }
                   // Bind checkbox toggles
                   $('.workout-checkbox').off().on('change', function() {
                       const id   = $(this).data('id');

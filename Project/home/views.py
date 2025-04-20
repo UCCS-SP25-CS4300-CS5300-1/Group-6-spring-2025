@@ -96,14 +96,17 @@ def calendar_view(request):
     warm_ups = []# create empty list to store warm ups
     try: #use a try except for requests from the API
         # call the API to get a JSON response listing the exercises
-        response = requests.get("https://api.api-ninjas.com/v1/exercises?type=stretching",
-            headers={
-                #input the API key for the project
-                "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
-            }
-        )
-        if response.status_code == 200:# if the response worked
-            warm_ups = response.json()[:3] # update the list (holds three exercises for now)
+        today = timezone.now().date()
+        has_workout_today = UserExercise.objects.filter(user = request.user, start_date_lte = today).filter(end_date_gte = today).filter(recurring_day = today.weekday()).exists()
+        if has_workout_today:     
+            response = requests.get("https://api.api-ninjas.com/v1/exercises?type=stretching",
+                headers={
+                    #input the API key for the project
+                    "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
+                }
+            )
+            if response.status_code == 200:# if the response worked
+                warm_ups = response.json()[:3] # update the list (holds three exercises for now)
     except Exception as e: # if the try did not work
         print(f"Error fetching warm-up excercises: {e}")#print an error message on the webpage
 
