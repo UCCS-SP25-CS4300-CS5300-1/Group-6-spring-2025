@@ -27,7 +27,7 @@
     <nav>
       <ul>
         <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+        <li><a href="{% url 'generate_workout' %}">Generate Weekly Workout</a></li>
         <li><a href="#calendar">Calendar</a></li>
         <li><a href="{% url 'user_data' %}">Account</a></li>
       </ul>
@@ -114,8 +114,34 @@
       </div>
     </div>
 
-    <!-- Step 5: Select Days of the Week -->
+    <!-- Step 5: Select Week -->
     <div id="step5" class="container">
+      <h2>Which week is this workout for?</h2>
+      <div id="weekOptions" class="week-option-container">
+        <!-- Buttons injected by JS -->
+      </div>
+      <p>Selected Week: <strong id="selectedWeekDisplay">None</strong></p>
+      <input type="hidden" id="selectedWeekStart" name="week_start">
+      <input type="hidden" id="selectedWeekEnd" name="week_end">
+      <div>
+        <button class="back-btn" onclick="prevStep()">Back</button>
+        <button onclick="nextStep()">Next</button>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Step 6: Select Days of the Week -->
+    <div id="step6" class="container">
       <h2>What days out of the week would you like to work out?</h2>
       <div class="weekdays-container">
         <label class="day-box">
@@ -160,8 +186,8 @@
       </div>
     </div>
 
-    <!-- Step 6: Weekly Plan Summary -->
-    <div id="step6" class="container">
+    <!-- Step 7: Weekly Plan Summary -->
+    <div id="step7" class="container">
      
       <h2>Your Weekly Plan</h2>
       <p>
@@ -190,7 +216,7 @@
       <p>Here is your plan for the week:</p>
       <pre id="rawResponse">{{ output }}</pre>
       <div id="planList"></div>
-      <button class="back-btn" onclick="prevStep()">Back</button>
+      <button class="back-btn" onclick="resetToStart()">Generate Another Workout</button>
     </div>
 
   </main>
@@ -204,6 +230,13 @@
   
   <script>
     
+
+    function resetToStart() {
+      document.getElementById(`step${step}`).classList.remove("visible");
+      step = 1;
+      document.getElementById("step1").classList.add("visible");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+  }
     let step = 1;
     window.selectedDays = [];
 
@@ -212,10 +245,10 @@
       step++;
       document.getElementById(`step${step}`).classList.add("visible");
 
-      if (step === 6) {
-        // Gather selected days from Step 5
+      if (step === 7) {
+        // Gather selected days from Step 6
 
-            const days = Array.from(document.querySelectorAll('#step5 input[type="checkbox"]:checked'))
+            const days = Array.from(document.querySelectorAll('#step6 input[type="checkbox"]:checked'))
                         .map(cb => cb.value);
             window.selectedDays = days.length ? days : Object.keys(defaultPlan);
             console.log("Selected days:", window.selectedDays);
@@ -338,7 +371,52 @@
       nextStep();
     }
 
+      document.addEventListener("DOMContentLoaded", function () {
+      generateSimpleWeekOptions();
+    });
 
+    function generateSimpleWeekOptions() {
+      const container = document.getElementById("weekOptions");
+      const today = new Date();
+      const startOfWeek = getStartOfWeek(today);
+
+      for (let i = 0; i < 3; i++) {
+        const weekStart = new Date(startOfWeek);
+        weekStart.setDate(weekStart.getDate() + i * 7);
+
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+
+        const btn = document.createElement("button");
+        btn.classList.add("week-option");
+        btn.innerText = getWeekLabel(i) + ` (${formatDate(weekStart)} - ${formatDate(weekEnd)})`;
+
+        btn.onclick = () => {
+          document.querySelectorAll(".week-option").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+
+          document.getElementById("selectedWeekStart").value = weekStart.toISOString().split('T')[0];
+          document.getElementById("selectedWeekEnd").value = weekEnd.toISOString().split('T')[0];
+          document.getElementById("selectedWeekDisplay").innerText = btn.innerText;
+        };
+
+        container.appendChild(btn);
+      }
+    }
+
+    function getStartOfWeek(date) {
+      const day = date.getDay(); // Sunday = 0
+      const diff = date.getDate() - day;
+      return new Date(date.getFullYear(), date.getMonth(), diff);
+    }
+
+    function formatDate(date) {
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    }
+
+    function getWeekLabel(index) {
+      return ["This Week", "Next Week", "Week After"][index];
+    }
     
   </script>
 </body>
