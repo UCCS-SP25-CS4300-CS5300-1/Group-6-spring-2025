@@ -94,6 +94,30 @@ class CalendarTests(TestCase):
             reps=8,
             percent_increase=10
         )
+          # Mock API response for warm-ups
+        self.mock_warmup_data = [
+            {
+                "name": "Hamstring Stretch",
+                "type": "stretching",
+                "muscle": "Hamstrings",
+                "difficulty": "beginner",
+                "instructions": "Sit and extend legs."
+            },
+            {
+                "name": "Shoulder Stretch",
+                "type": "stretching",
+                "muscle": "Shoulders",
+                "difficulty": "beginner",
+                "instructions": "Pull arm across body."
+            },
+            {
+                "name": "Calf Stretch",
+                "type": "stretching",
+                "muscle": "Calves",
+                "difficulty": "beginner",
+                "instructions": "Lean against wall."
+            }
+        ]
 
     def test_calendar_view_get(self):
         """Test that the calendar page is accessible and renders with the right context"""
@@ -160,49 +184,66 @@ class CalendarTests(TestCase):
 
         self.assertEqual(workout_log.count(), 0)  # Should delete the log entry
         self.assertEqual(response.status_code, 200)
+    
+    
     """ Warm up Tests  """
-    def test_calendar_view_fetches_warmups_from_api(self):
-        """Test that warm-up exercises are fetched from the external API and added to context"""
+    @patch('home.views.requests.get')
+    def test_calendar_view_fetches_warmups_with_workout(self, mock_get):
+        """Test that warm-up exercises are fetched when a workout exists for today"""
+        today = timezone.now().date()
+        UserExercise.objects.create(
+            user=self.user,
+            exercise=self.exercise_1,
+            start_date=today - datetime.timedelta(days=1),
+            end_date=today + datetime.timedelta(days=1),
+            recurring_day=today.weekday()
+        )
+
+        # Configure mock response
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = self.mock_warmup_data
+
         response = self.client.get(reverse('calendar'))
         self.assertEqual(response.status_code, 200)
-        # We're testing actual API integration, so there should be warm_ups in the view context
-        # Check that the 'calendar.html' template was used
         self.assertTemplateUsed(response, 'calendar.html')
+        self.assertEqual(len(response.context['warm_ups']), 3)
+        self.assertContains(response, 'Hamstring Stretch')
+        self.assertContains(response, 'Shoulder Stretch')
+        self.assertContains(response, 'Calf Stretch')
+        mock_get.assert_called_with(
+            "https://api.api-ninjas.com/v1/exercises?type=stretching",
+            headers={"X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"}
+        )
 
-    @patch("home.views.requests.get") # must include where the function is used not where the function is defined
-    def test_mock_valid_data_response(self, mock_get):
-         # Mocked API data
-        mock_data = [
-            {
-                "name": "Quad Pulls",
-                "type": "stretch",
-                "muscle": "legs",
-                "difficulty": "beginner",
-                "instructions": "While standing, pull your foot towards your back."
-            }
-        ]
-
-        # Configure the mock response
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = mock_data
-
-        response = self.client.get(reverse("calendar"))
-        # make sure that the response code is 200, the exercise it correct and the template is correct
+    def test_calendar_view_no_warmups_without_workout(self):
+        """Test that no warm-ups are fetched when no workout exists for today"""
+        # No UserExercise for today
+        response = self.client.get(reverse('calendar'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Quad Pulls")
-        self.assertTemplateUsed(response, "calendar.html")
+        self.assertTemplateUsed(response, 'calendar.html')
+        self.assertEqual(response.context['warm_ups'], [])
+        self.assertContains(response, 'No warm-up exercises available')
 
-    def test_warmup_api_handles_errors(self):
-        """Simulate a bad request to check if error handling works (manually change endpoint)"""
-        headers = {
-            "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
-        }
-        # Intentionally broken URL
-        url = "https://exercises-by-api-ninjas.p.rapidapi.com/v1/invalid-endpoint"
-        response = requests.get(url, headers=headers)
+    @patch('home.views.requests.get')
+    def test_calendar_view_handles_api_error(self, mock_get):
+        """Test that warm-up section handles API errors gracefully"""
+        today = timezone.now().date()
+        UserExercise.objects.create(
+            user=self.user,
+            exercise=self.exercise_1,
+            start_date=today - datetime.timedelta(days=1),
+            end_date=today + datetime.timedelta(days=1),
+            recurring_day=today.weekday()
+        )
 
-        # It should fail and not return 200
-        self.assertNotEqual(response.status_code, 200)
+        # Simulate API failure
+        mock_get.side_effect = Exception('API Error')
+
+        response = self.client.get(reverse('calendar'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'calendar.html')
+        self.assertEqual(response.context['warm_ups'], [])
+        self.assertContains(response, 'No warm-up exercises available')
 
     def tearDown(self):
         """Clean up after each test"""
