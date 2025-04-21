@@ -273,7 +273,8 @@ footer {
     visibility: visible;
     opacity: 1;
 }
-    /* Step 5: Day Boxes */
+
+/* Step 5: Day Boxes */
 .weekdays-container {
     display: flex;
     flex-wrap: wrap;
