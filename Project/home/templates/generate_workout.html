@@ -5,34 +5,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=9999">
   <title>Ask AI for a Fitness Plan</title>
-  
-
-
 </head>
 <script>
-  // Global user data pulled from Django
+
+
+  // Grabbing user data
   const userData = {
     fitnessLevel: "{{ fitness_level|escapejs }}",
     goals: "{{ goals|escapejs }}",
     injuries: "{{ injuries|escapejs }}"
   };
-</script>
 
+
+</script>
 <body>
-    
   <header>
     <a class="logo" href="#home">Workout App</a>
     <nav>
       <ul>
         <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'generate_workout' %}">Generate Weekly Workout</a></li>
-        <li><a href="#calendar">Calendar</a></li>
+        <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+        <li><a href="{% url 'calendar' %}">Calendar</a></li>
         <li><a href="{% url 'user_data' %}">Account</a></li>
       </ul>
     </nav>
   </header>
+
   <main>
     <!-- Step 1: Import Data Prompt -->
     <div id="step1" class="container visible">
@@ -114,11 +114,10 @@
       </div>
     </div>
 
-    <!-- Step 5: Select Week -->
+    <!-- Step 5: Select Days of the Week -->
     <div id="step5" class="container">
       <h2>Which week is this workout for?</h2>
       <div id="weekOptions" class="week-option-container">
-        <!-- Buttons injected by JS -->
       </div>
       <p>Selected Week: <strong id="selectedWeekDisplay">None</strong></p>
       <input type="hidden" id="selectedWeekStart" name="week_start">
@@ -128,17 +127,6 @@
         <button onclick="nextStep()">Next</button>
       </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
 
     <!-- Step 6: Select Days of the Week -->
     <div id="step6" class="container">
@@ -191,92 +179,93 @@
      
       <h2>Your Weekly Plan</h2>
       <p>
-        
         You selected to work out on <strong id="freqSummary"></strong>
         <span class="checkmark">✔</span>
       </p>
-
       <p>
-        
         Injury considerations:<strong id="injurySummary"></strong>.
         <span class="checkmark">✔</span>
       </p>
-
       <p>
-        
         Goal: <strong id="goalSummary"></strong>
         <span class="checkmark">✔</span>
       </p>
-
       <p>
-        
         Current fitness level: <strong id="fitnessSummary"></strong>
         <span class="checkmark">✔</span>
       </p>
-      <p>Here is your plan for the week:</p>
+      <p>Here is your plan for the week: <strong id="weekSummary">Not selected</strong> </p>
       <pre id="rawResponse">{{ output }}</pre>
       <div id="planList"></div>
+      <button id="addToCalendarBtn" onclick="saveToCalendar()"> Add to Calendar</button>
+      <p id="calendarSaveStatus" style="font-weight: bold; color: green;"></p>
       <button class="back-btn" onclick="resetToStart()">Generate Another Workout</button>
     </div>
-
   </main>
   <footer>
     <p>© 2025 Workout App. All rights reserved.</p>
   </footer>
-  
 
 
-  
-  
+  <!-- ===================== JavaScript ===================== -->
+
   <script>
     
-
-    function resetToStart() {
-      document.getElementById(`step${step}`).classList.remove("visible");
-      step = 1;
-      document.getElementById("step1").classList.add("visible");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-  }
     let step = 1;
     window.selectedDays = [];
 
+    //Goes to the next step, if on final page gather user's selections and render the plan
     function nextStep() {
+
       document.getElementById(`step${step}`).classList.remove("visible");
       step++;
       document.getElementById(`step${step}`).classList.add("visible");
 
       if (step === 7) {
-        // Gather selected days from Step 6
 
-            const days = Array.from(document.querySelectorAll('#step6 input[type="checkbox"]:checked'))
-                        .map(cb => cb.value);
-            window.selectedDays = days.length ? days : Object.keys(defaultPlan);
-            console.log("Selected days:", window.selectedDays);
+        // Fill summary data for importing: Week selected
+        const weekStart = document.getElementById("selectedWeekStart").value;
+        const weekEnd = document.getElementById("selectedWeekEnd").value;
 
-        // Gather other selections
-            const selectedGoal = document.getElementById("mainGoal").options[
-             document.getElementById("mainGoal").selectedIndex
+        if (weekStart && weekEnd) {
+          const formattedWeek = formatWeekRange(weekStart, weekEnd);
+          document.getElementById("weekSummary").innerText = formattedWeek;
+        } 
+
+        // Fill summary data for importing: Days of week selected
+        const days = Array.from(document.querySelectorAll('#step6 input[type="checkbox"]:checked'))
+                    .map(cb => cb.value);
+        window.selectedDays = days.length ? days : Object.keys(defaultPlan);
+        console.log("Selected days:", window.selectedDays);
+
+        // Fill summary data for importing: User goal
+        const selectedGoal = document.getElementById("mainGoal").options[
+          document.getElementById("mainGoal").selectedIndex
+        ].text;
+
+        // Fill summary data for importing: Fitness level
+        const selectedInjuries = Array.from(document.querySelectorAll('#step4 input[type="checkbox"]:checked'))
+                                .map(cb => cb.value)
+                                .join(', ') || 'None';
+        const selectedFitness = document.getElementById("fitnessLevel").options[
+            document.getElementById("fitnessLevel").selectedIndex
             ].text;
-            const selectedInjuries = Array.from(document.querySelectorAll('#step4 input[type="checkbox"]:checked'))
-                                    .map(cb => cb.value)
-                                    .join(', ') || 'None';
-            const selectedFitness = document.getElementById("fitnessLevel").options[
-                document.getElementById("fitnessLevel").selectedIndex
-                ].text;
 
-            // Update summary fields
-            document.getElementById("freqSummary").innerText = selectedDays.join(', ');
-            document.getElementById("goalSummary").innerText = selectedGoal;
-            document.getElementById("injurySummary").innerText = selectedInjuries;
-            document.getElementById("fitnessSummary").innerText = selectedFitness;
+        //Update each just incase user overwrites from previously saved data
+        document.getElementById("freqSummary").innerText = selectedDays.join(', ');
+        document.getElementById("goalSummary").innerText = selectedGoal;
+        document.getElementById("injurySummary").innerText = selectedInjuries;
+        document.getElementById("fitnessSummary").innerText = selectedFitness;
 
-            submitWorkoutForm();
+        //Send to AI
+        submitWorkoutForm();
+      }
 
-             
-        }
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    }//nextStep()
 
+
+    //Goes to the previous step if the user hits back
     function prevStep() {
       document.getElementById(`step${step}`).classList.remove("visible");
       step--;
@@ -285,7 +274,9 @@
     }
 
 
+    //Gets user's selections, formats into a string, sends to server and receives AI response.
     function submitWorkoutForm() {
+      
       // Retrieve the summary fields' inner text
       const summaryFitness = document.getElementById("fitnessSummary").innerText;
       const summaryGoal = document.getElementById("goalSummary").innerText;
@@ -294,52 +285,40 @@
 
       // Combine them into one string to send to the server
       const userDataText = `Fitness Level: ${summaryFitness}; Goals: ${summaryGoal}; Injuries: ${summaryInjuries}; Selected Days: ${summaryDays}`;
-  
+
       // Log for debugging
       console.log("Submitting user data (from summary fields):", userDataText);
-  
+
       // Send the POST request using fetch
       fetch("{% url 'generate_workout' %}", {
           method: "POST",
           headers: {
               "Content-Type": "application/x-www-form-urlencoded",
               "X-CSRFToken": "{{ csrf_token }}",
-              "X-Requested-With": "XMLHttpRequest" 
+              "X-Requested-With": "XMLHttpRequest"
           },
           body: new URLSearchParams({ 'user_input': userDataText })
       })
+
       .then(response => response.text())
+
       .then(data => {
         console.log("Response from server:", data);
-
- 
         const rawEl = document.getElementById("rawResponse");
         if (rawEl) {
             rawEl.innerText = data;
         }
-
-        
       })
+
       .catch(error => console.error("Error:", error));
-    }
+
+    }//submitWorkoutForm()
 
 
-
-    
-    function renderPlan() {
-
-      const list = document.getElementById("planList");
-      
-      list.innerHTML = "";
-
-      // Get the raw AI response from the element with id "rawResponse"
-      const rawOutput = document.getElementById("rawResponse").innerText;
-      // Simply output the entire AI response (wrapped in a <pre> for formatting)
-      list.innerHTML = `<pre style="white-space: pre-wrap;">${rawOutput}</pre>`;
-    }
-
-
+    //Autofills userfunction data via the account and then skips appropriate steps
     function importUserData() {
+
+      // Set primary goal
       if (userData.goals) {
         const goalSelect = document.getElementById("mainGoal");
         const primaryGoal = userData.goals.split(",")[0].trim();
@@ -350,6 +329,8 @@
           }
         }
       }
+
+      //Set injuries
       if (userData.injuries) {
         const injuries = userData.injuries.split(", ");
         document.querySelectorAll('#step4 input[type="checkbox"]').forEach(box => {
@@ -358,52 +339,70 @@
           }
         });
       }
+
+      //Set fitness level
       if (userData.fitnessLevel) {
         const fitnessSelect = document.getElementById("fitnessLevel");
         if (fitnessSelect) {
           fitnessSelect.value = userData.fitnessLevel;
         }
       }
-      // Advance through steps (import fills Steps 2–5)
+
+      //Advance through steps (import fills Steps 2–5)
       nextStep();
       nextStep();
       nextStep();
       nextStep();
     }
 
-      document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
       generateSimpleWeekOptions();
     });
 
+    //Generate 3 week options starting from current week
     function generateSimpleWeekOptions() {
+
+      //Grabs html container where week selected will be.
       const container = document.getElementById("weekOptions");
+
+      //Sets today to current date, sets to start of the week
       const today = new Date();
       const startOfWeek = getStartOfWeek(today);
 
+      //List of button names: 
+      const labels = ["This Week", "Next Week", "Week After"];
+
+      //Sets selections for 3 weeks total (with appropraite dates)
       for (let i = 0; i < 3; i++) {
         const weekStart = new Date(startOfWeek);
-        weekStart.setDate(weekStart.getDate() + i * 7);
+        weekStart.setDate(startOfWeek.getDate() + i * 7);
 
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
 
+        //Creates the new button element for the new dates, adds to list
         const btn = document.createElement("button");
         btn.classList.add("week-option");
-        btn.innerText = getWeekLabel(i) + ` (${formatDate(weekStart)} - ${formatDate(weekEnd)})`;
+        btn.textContent = labels[i] + ` (${formatDate(weekStart)} - ${formatDate(weekEnd)})`;
 
+        //If user clicks a button, remove anything else selected, select currently clicked
         btn.onclick = () => {
           document.querySelectorAll(".week-option").forEach(b => b.classList.remove("selected"));
           btn.classList.add("selected");
 
+          //Store values for sending to calendar
           document.getElementById("selectedWeekStart").value = weekStart.toISOString().split('T')[0];
           document.getElementById("selectedWeekEnd").value = weekEnd.toISOString().split('T')[0];
-          document.getElementById("selectedWeekDisplay").innerText = btn.innerText;
+          document.getElementById("selectedWeekDisplay").innerText = btn.textContent;
         };
 
+        //Puts button onto webpage
         container.appendChild(btn);
       }
     }
 
+
+    //-------------Helper functions-------------------
     function getStartOfWeek(date) {
       const day = date.getDay(); // Sunday = 0
       const diff = date.getDate() - day;
@@ -414,10 +413,83 @@
       return `${date.getMonth() + 1}/${date.getDate()}`;
     }
 
-    function getWeekLabel(index) {
-      return ["This Week", "Next Week", "Week After"][index];
+
+    function formatWeekRange(start, end) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const options = { month: 'short', day: 'numeric' };
+      return `${startDate.toLocaleDateString(undefined, options)} – ${endDate.toLocaleDateString(undefined, options)}`;
     }
+    //-----------------------------------------------------------
+
     
+    //This sends everything to be added to the User's calendar.
+    function saveToCalendar() {
+
+      //Grabs AI plan text and the selected week from the user.
+      const planText = document.getElementById("rawResponse").innerText;
+      const weekStart = document.getElementById("selectedWeekStart").value;
+
+      //For error handling if either AIplan or weeks selected is missing.
+      if (!planText || !weekStart) {
+        alert("Workout plan or selected week missing.");
+        return;
+      }
+
+      //Fetch request that sends this to the save-to-calendar in views.
+      fetch("/save-to-calendar/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({
+          ai_plan: planText,
+          week_start: weekStart
+        })
+      })
+
+      //Printing for error handling.
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("calendarSaveStatus").innerText = "WOOOHOOO Successfully added to your calendar!";
+        console.log("Calendar save response:", data);
+      })
+      .catch(err => {
+        console.error("Calendar save error:", err);
+        document.getElementById("calendarSaveStatus").innerText = "Failed to add to calendar :( ).";
+      });
+    }
+
+
+    //Function to restart process at end.
+    function resetToStart() {
+      // Reset visible steps
+      document.getElementById(`step${step}`).classList.remove("visible");
+      step = 1;
+      document.getElementById(`step${step}`).classList.add("visible");
+
+      // Clear form fields
+      document.getElementById("mainGoal").selectedIndex = 0;
+      document.getElementById("fitnessLevel").selectedIndex = 0;
+      document.querySelectorAll('#step4 input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('#step6 input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.week-option').forEach(btn => btn.classList.remove("selected"));
+  
+      document.getElementById("selectedWeekDisplay").innerText = "None";
+      document.getElementById("selectedWeekStart").value = "";
+      document.getElementById("selectedWeekEnd").value = "";
+
+      document.getElementById("rawResponse").innerText = "";
+      document.getElementById("planList").innerHTML = "";
+      document.getElementById("weekSummary").innerText = "Not selected";
+      document.getElementById("calendarSaveStatus").innerText = "";
+
+      // Scroll to top for visual reset
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
   </script>
 </body>
 </html>

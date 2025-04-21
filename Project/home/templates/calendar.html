@@ -1,0 +1,461 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - Workout App</title>
+
+    <!-- Fonts and Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #003366;
+            padding: 20px 40px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 32px;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #007BFF;
+            transform: scale(1.05);
+        }
+
+        .container {
+            display: flex;
+            padding: 20px;
+            max-width: 100%; /* Use full screen width */
+            margin: 0 auto; /* Center the content */
+            justify-content: space-between;
+            gap: 20px; /* Adds space between the left and calendar sections */
+        }
+
+        .left-container {
+            width: 26%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-right: 20px;
+            height: 91vh; /* This will keep the left container a fixed height */
+            justify-content: space-between; /* Distribute space evenly */
+        }
+
+        .workout-section, .completed-workout-section {
+            width: 100%;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-height: 200px; /* Ensures a minimum height for the section */
+            flex-grow: 1; /* Allows sections to grow equally */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto; /* Makes the content scrollable */
+            height: 50%; /* Ensures equal height for both sections */
+        }
+
+        .workout-list h4 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #003366;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: gray;
+            font-style: italic;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%; /* Makes sure it fills the container */
+        }
+
+        .workout-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .workout-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .workout-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .workout-date {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .workout-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);  /* Larger checkbox for easier interaction */
+        }
+
+        /* Completed workout styles */
+        .workout-item.completed {
+            background-color: #e0e0e0;
+            text-decoration: line-through;
+            color: #bbb;
+        }
+
+        .main-section {
+            flex-grow: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #calendar {
+            margin-top: 20px;
+            width: 100%; /* Make the calendar container expand fully */
+            max-height: 82vh; /* Was 82vh — reduced to avoid bottom scroll */
+            overflow-y: auto;
+        }
+
+        .left-container h3 {
+            text-align: center;
+            background: #003366;
+            color: #fff;
+            padding: 0px 18px;         /* Increased padding for better visibility */
+            border-radius: 6px;
+            font-size: 24px;            /* Larger font size for better visibility */
+            text-transform: uppercase;
+            letter-spacing: 1px;        /* Slightly more spacing for a bolder look */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);  /* A bit more pronounced shadow */
+            margin-bottom: 0px;        /* More space below to separate from content */
+        }
+
+        .workout-section > h4 {
+            text-align: center;
+            background: #003366;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 20px;
+            margin: 0px 0 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #pending-workouts, #completed-workouts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1; /* Ensures both workout lists grow equally */
+            overflow-y: auto; /* Makes content scrollable when overflowing */
+        }
+
+        /* Tweak the empty message to match */
+        .empty-message {
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #ffeeba;
+            margin-top: 16px;
+        }
+
+        .active {
+            background-color: #007BFF !important;
+            transform: scale(1.05);
+        }
+        /* Overlay styles */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            display: none; /* Hidden by default */
+            z-index: 999; /* Ensure it covers everything */
+        }
+
+        /* No Workouts Message styles */
+        .no-workouts-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1000; /* Above the overlay */
+            display: none; /* Hidden by default */
+        }
+
+        .no-workouts-message h3 {
+            color: #003366;
+        }
+
+        .no-workouts-message p {
+            color: gray;
+        }
+
+        .goals-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .goals-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Add responsive behavior */
+        @media (max-width: 800px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left-container {
+                width: 100%;
+            }
+
+            /* Ensure the calendar still occupies full width in smaller screens */
+            .main-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header>
+        <a class="logo" href="{% url 'home' %}">Workout App</a>
+        <nav>
+            <ul>
+                <li><a class="activate" href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+                <li><a href="{% url 'calendar' %}" class="{% if request.path == '/calendar/' %}active{% endif %}">Calendar</a></li>
+                <li><a href="{% url 'goals:goals' %}">Goals</a></li>
+                <li><a href="{% url 'user_data' %}">Account</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Overlay for grey background -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- No Workouts Message Container -->
+    <div id="no-workouts-message" class="no-workouts-message">
+        <h3>No Current Workouts</h3>
+        <p>To use the calendar feature, you need an active workout.</p>
+        <a href="{% url 'goals:goals' %}" class="goals-button">Go to Goals Page</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Left Container for Workouts/Events -->
+        <div class="left-container">
+            <div class="workout-section">
+              <h4>Pending Workouts</h4>
+              <div id="pending-workouts" class="workout-list">
+                <!-- JS will inject pending workouts here -->
+              </div>
+            </div>
+
+            <div class="workout-section">
+              <h4>Completed Workouts</h4>
+              <div id="completed-workouts" class="workout-list">
+                <!-- JS will inject completed workouts here -->
+              </div>
+            </div>
+            <!--Warm up display section-->
+            <div class="workout-section">
+                <h4>Today's Warm-Ups</h4>
+                <div class="workout-list">
+                    {% if warm_ups %}
+                        {% for warmup in warm_ups %}
+                            <div class="workout-item">
+                                <div class="workout-title">{{ warmup.name|title }}</div>
+                                <div class="workout-date">
+                                    <small>Type: {{ warmup.type }}, Difficulty: {{ warmup.difficulty }}</small><br>
+                                    <small>Muscle: {{ warmup.muscle }}</small><br>
+                                    <small style="color: #777">{{ warmup.instructions }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-message">No warm-up exercises available.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+          </div>
+
+        <!-- Calendar Section -->
+        <div class="main-section">
+            <h2>Workout Calendar</h2>
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- FullCalendar Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const calendarEl = document.getElementById('calendar');
+          const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: "{% url 'workout_events' %}",
+            eventColor: '#007BFF',
+            firstDay: 1,
+
+            dateClick: info => loadWorkouts(info.dateStr),
+
+            eventClick: info => {
+              const ev = info.event;
+              const newStatus = !ev.extendedProps.completed;
+              if (!confirm(newStatus ? "Mark this done?" : "Undo completion?")) return;
+
+              toggleCompletion(ev.id, ev.startStr, newStatus, () => {
+                calendar.refetchEvents();
+                loadWorkouts(ev.startStr);
+              });
+            }
+          });
+
+          calendar.render();
+          loadWorkouts(new Date().toISOString().split('T')[0]);
+
+          function loadWorkouts(date) {
+            $.get("{% url 'workout_events' %}", { date })
+                .done(data => {
+                const pending = data.filter(w => !w.completed);
+                const done    = data.filter(w => w.completed);
+
+                const $pendingC   = $('#pending-workouts').empty();
+                const $completedC = $('#completed-workouts').empty();
+
+                // Pending
+                if (pending.length) {
+                    pending.forEach(w => {
+                    $pendingC.append(`
+                        <div class="workout-item">
+                        <input type="checkbox" class="workout-checkbox"
+                                data-id="${w.id}" data-date="${w.start}">
+                        <strong>${w.title}</strong> — ${w.start}
+                        </div>
+                    `);
+                    });
+                } else {
+                    $pendingC.html('<div class="empty-message">No pending workouts.</div>');
+                }
+
+                // Completed
+                if (done.length) {
+                    done.forEach(w => {
+                    $completedC.append(`
+                        <div class="workout-item completed">
+                        <input type="checkbox" class="workout-checkbox"
+                                data-id="${w.id}" data-date="${w.start}" checked>
+                        <strong>${w.title}</strong> — ${w.start}
+                        </div>
+                    `);
+                    });
+                } else {
+                    $completedC.html('<div class="empty-message">No completed workouts.</div>');
+                }
+
+                // Check if there are no workouts
+                const hasWorkouts = pending.length > 0 || done.length > 0;
+
+                if (!hasWorkouts) {
+                    $('#overlay').show(); // Show the overlay
+                    $('#no-workouts-message').show(); // Show the no workouts message
+                } else {
+                    $('#overlay').hide(); // Hide the overlay if there are workouts
+                    $('#no-workouts-message').hide(); // Hide the message if there are workouts
+                }
+
+                // Bind toggles
+                $('.workout-checkbox').off().on('change', function() {
+                    const id   = $(this).data('id');
+                    const date = $(this).data('date');
+                    const chk  = $(this).is(':checked');
+                    toggleCompletion(id, date, chk, () => {
+                    calendar.refetchEvents();
+                    loadWorkouts(date);
+                    });
+                });
+                })
+                .fail(err => console.error("Error fetching workouts:", err));
+            }
+
+          function toggleCompletion(workoutId, date, completed, cb) {
+            $.post("{% url 'calendar' %}", {
+              workout_id:      workoutId,
+              date_completed:  date,
+              completed:       completed,
+              csrfmiddlewaretoken: '{{ csrf_token }}'
+            })
+            .done(res => {
+              console.log("Toggled:", res);
+              if (cb) cb();
+            })
+            .fail(err => console.error("Toggle failed:", err));
+          }
+        });
+    </script>
+</body>
+</html>

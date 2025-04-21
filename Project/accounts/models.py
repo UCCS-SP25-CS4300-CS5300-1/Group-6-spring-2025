@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import date
 
 class UserProfile(models.Model):
     FITNESS_LEVEL_CHOICES = [
@@ -20,6 +21,9 @@ class UserProfile(models.Model):
     fitness_level = models.CharField(max_length=20, choices=FITNESS_LEVEL_CHOICES, null=True, blank=True)
     goals = models.ManyToManyField('Goal', blank=True)
     injury_history = models.ManyToManyField('Injury', blank=True)
+    friends = models.ManyToManyField('self', blank=True, symmetrical=True)
+    # is_working_out = models.BooleanField(default=False, help_text="Indicates if the user is working out today.")
+    weight_history = models.CharField(max_length=200, choices=FITNESS_LEVEL_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -44,12 +48,35 @@ class Injury(models.Model):
     def __str__(self):
         return self.name
 
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.from_user.username} -> {self.to_user.username}"
+class UserAccExercise(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    sets = models.IntegerField(default=0)
+    reps = models.IntegerField(default=0)
+    weight = models.IntegerField(default=0)
+
+class FoodDatabase(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    datelog = models.DateField(default=date.today)
+    barcode = models.IntegerField(default=0)
+    name = models.CharField(max_length=100)
+    carbs = models.FloatField(default=0)
+    protein = models.FloatField(default=0)
+    fat = models.FloatField(default=0)
+    servings = models.FloatField(default=0)
+
+
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created: 
+def create_or_save_userprofile(sender, instance, created, **kwargs):
+    if created:
         UserProfile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
-
+    else:
+        instance.userprofile.save()

@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserProfile, Goal, Injury, FitnessLevel
+from django.db import models
+from .models import UserProfile, Goal, Injury, FitnessLevel, UserAccExercise, FoodDatabase
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -60,3 +61,37 @@ class UserProfileUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['goals'].queryset = Goal.objects.all()  # Populate goals
         self.fields['injury_history'].queryset = Injury.objects.all()  # Populate injuries
+
+class UserLogDataFormWeight(forms.ModelForm):
+    WEIGHT_CHOICES = [(i, f"{i} lbs") for i in range(20, 600)]  # Weight from 20 lbs to 600 lbs
+    weight = forms.ChoiceField(choices=WEIGHT_CHOICES, required=False)
+
+    class Meta:
+        model = UserProfile
+        fields = ['weight']
+
+class UserLogDataFormExercise(forms.ModelForm):
+    class Meta:
+        model = UserAccExercise
+        name = forms.TextInput(attrs={'placeholder': 'Enter Username'})
+        weight = models.IntegerField(default=0)
+        sets = models.IntegerField(default=0)
+        reps = models.IntegerField(default=0)
+        fields = ['name', 'weight', 'sets', 'reps']
+
+class UserLogDataFormFood(forms.ModelForm):
+    class Meta:
+        model = FoodDatabase
+        barcode = models.IntegerField(default=0)
+        fields = ['barcode']
+
+class UserLogDataFormFoodData(forms.ModelForm):
+    class Meta:
+        model = FoodDatabase
+        barcode = models.IntegerField(default=0)
+        name = models.IntegerField(default=0)
+        carbs = models.IntegerField(default=0)
+        protein = models.IntegerField(default=0)
+        fat = models.IntegerField(default=0)
+        servings = models.IntegerField(default=0)
+        fields = ['barcode', 'name', 'carbs', 'protein', 'fat','servings']

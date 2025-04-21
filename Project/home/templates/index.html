@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!--<link rel="stylesheet" href="{% static 'css/styles.css' %}">-->
     <style>
         body {
             margin: 0;
@@ -207,15 +207,15 @@
 
 <body>
     <header>
-        <a class="logo" href="#home">Workout App</a>
+        <a class="logo" href="{% url 'home' %}">Workout App</a>
         <nav>
             <ul>
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'generate_workout' %}">Generate Weekly Workout</a></li>
-                    <li><a href="#">Calendar</a></li>
+                    <li><a href="{% url 'generate_workout' %}">Generate Workout</a></li>
+                    <li><a href="{% url 'calendar' %}">Calendar</a></li>
                     <li><a href="{% url 'goals:goals' %}">Goals</a></li>
                     <li><a href="{% url 'user_data' %}">Account</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Add logout link -->
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% else %}
                 <li class="dropdown">
                     <a href="#">Login/Register</a>
