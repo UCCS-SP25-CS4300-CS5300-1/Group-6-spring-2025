@@ -159,13 +159,26 @@
 
         {% if user.is_authenticated %}
         <div class="welcome">Welcome back, {{ user.username }}!</div>
-        <div class="workout-today">
+        <!-- <div class="workout-today">
           <h2>Today's Workout</h2>
           <p>Exercise: <strong>Full Body Strength Training</strong></p>
           <p>Duration: <strong>45 minutes</strong></p>
           <a href="#start-workout" class="cta-button">Start Workout</a>
+        </div> -->
+
+        <!-- Dynamic Workout Calendar -->
+        <div class="calendar" id="calendar">
+          <h2>Upcoming Week</h2>
+          <div class="day-header">Mon</div>
+          <div class="day-header">Tue</div>
+          <div class="day-header">Wed</div>
+          <div class="day-header">Thu</div>
+          <div class="day-header">Fri</div>
+          <div class="day-header">Sat</div>
+          <div class="day-header">Sun</div>
         </div>
-  
+
+
         <div class="progress">
           <h2>Current Goals</h2>
           <ul>
@@ -191,7 +204,11 @@
             ></div>
           </div>
         </div>
+      {% else %}
+        <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
+      {% endif %}
         
+        <!-- Month Progress bar script -->
         <script>
           document.addEventListener("DOMContentLoaded", () => {
             const today = new Date();
@@ -233,24 +250,10 @@
           
 
 
-        <!-- Dynamic Workout Calendar -->
-        <div class="calendar" id="calendar">
-          <h2>Upcoming Week</h2>
-          <div class="day-header">Mon</div>
-          <div class="day-header">Tue</div>
-          <div class="day-header">Wed</div>
-          <div class="day-header">Thu</div>
-          <div class="day-header">Fri</div>
-          <div class="day-header">Sat</div>
-          <div class="day-header">Sun</div>
-          <!-- 7 .day cells injected via JS -->
-        </div>
-      {% else %}
-        <div class="welcome">Welcome to the Workout App! Please log in or register to get started.</div>
-        <!-- You can include a guest calendar here if you like -->
-      {% endif %}
+
     </div>
-  
+   
+            <!-- Current week workouts script -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
   
@@ -270,6 +273,7 @@
             const daysSinceMon = (dow + 6) % 7;      // Sun→6, Mon→0, Tue→1, …, Sat→5
             const weekStart = new Date(today);
             weekStart.setDate(today.getDate() - daysSinceMon);
+            weekStart.setHours(0,0,0,0);
   
   
             const cal = document.getElementById('calendar');
