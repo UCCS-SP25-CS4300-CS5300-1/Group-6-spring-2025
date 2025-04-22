@@ -98,6 +98,7 @@ def calendar_view(request):
         # call the API to get a JSON response listing the exercises
         today = timezone.now().date()
         has_workout_today = UserExercise.objects.filter(user = request.user, start_date__lte = today).filter(end_date__gte = today).filter(recurring_day = today.weekday()).exists()
+        print(f"DEBUG: Has workout today variable = {has_workout_today}")
         if has_workout_today:     
             response = requests.get("https://api.api-ninjas.com/v1/exercises?type=stretching",
                 headers={
@@ -107,6 +108,9 @@ def calendar_view(request):
             )
             if response.status_code == 200:# if the response worked
                 warm_ups = response.json()[:3] # update the list (holds three exercises for now)
+                print(f"DEBUG: warmups = {warm_ups}")
+            else:
+                print("DEBUG: Status code not 200 from API")
     except Exception as e: # if the try did not work
         print(f"Error fetching warm-up excercises: {e}")#print an error message on the webpage
 
