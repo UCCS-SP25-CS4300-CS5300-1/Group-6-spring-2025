@@ -21,7 +21,7 @@ jobs:
     - name: Run Pylint
       run: |
         pylint Project > pylint_output.txt|| true
-    -name: Upload Pylint Report
+    - name: Upload Pylint Report
       uses: actions/upload-artifact@v4
       with:
         name: pylint-report
