@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'django.contrib.sites',  # django Allauth
-    'goals'
+    'goals',
 ]
 
 MIDDLEWARE = [
