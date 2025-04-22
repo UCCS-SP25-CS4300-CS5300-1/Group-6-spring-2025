@@ -24,7 +24,8 @@ class Goal(models.Model):
 
 class Exercise(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, blank = True)
+    description = models.TextField(blank=True, null=True)
     body_part = models.CharField(max_length=100)
     target = models.CharField(max_length=100)
     equipment = models.CharField(max_length=100)
