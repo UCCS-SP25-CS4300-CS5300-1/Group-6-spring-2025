@@ -20,4 +20,10 @@ jobs:
         python3 manage.py test || true
     - name: Run Pylint
       run: |
-        pylint Project || true
+        pylint Project > pylint_output.txt|| true
+    -name: Upload Pylint Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pylint-report
+        path: pylint_output.txt
