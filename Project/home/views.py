@@ -97,7 +97,7 @@ def calendar_view(request):
     try: #use a try except for requests from the API
         # call the API to get a JSON response listing the exercises
         today = timezone.now().date()
-        has_workout_today = UserExercise.objects.filter(user = request.user, start_date_lte = today).filter(end_date_gte = today).filter(recurring_day = today.weekday()).exists()
+        has_workout_today = UserExercise.objects.filter(user = request.user, start_date__lte = today).filter(end_date__gte = today).filter(recurring_day = today.weekday()).exists()
         if has_workout_today:     
             response = requests.get("https://api.api-ninjas.com/v1/exercises?type=stretching",
                 headers={
