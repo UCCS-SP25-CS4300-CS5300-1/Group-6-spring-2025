@@ -122,6 +122,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+EXERCISE_DB_API_KEY = '215e98e4bamsh44a0ddd9d91062cp107adajsn98198784801e'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -135,7 +136,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #
-#FORCE_SCRIPT_NAME = "/proxy/3000"
+FORCE_SCRIPT_NAME = "/proxy/3000"
 
 # Use x fowarded host header to determine original host
 USE_X_FORWARDED_HOST = True
