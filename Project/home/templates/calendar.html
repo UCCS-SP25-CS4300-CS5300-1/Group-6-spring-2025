@@ -361,9 +361,9 @@
                     {% if warm_ups %}
                         {% for warmup in warm_ups %}
                             <div class="workout-item">
-                                <div class="workout-title">{{ warmup.name|title }}</div>
+                                <div class="workout-title" style="margin-right: 20px;">{{ warmup.name|title }}</div>
                                 <div class="workout-date">
-                                    <small>Type: {{ warmup.type }}, Difficulty: {{ warmup.difficulty }}</small><br>
+                                    <small>Type: {{ warmup.type }}</small><br>
                                     <small>Muscle: {{ warmup.muscle }}</small><br>
                                     <small style="color: #777">{{ warmup.instructions }}</small>
                                 </div>
