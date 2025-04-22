@@ -1,8 +1,10 @@
 import os
 import openai
+from dotenv import load_dotenv
 
 # Set your OpenAI API key here or via an environment variable named "OPENAI_API_KEY"
-openai.api_key = os.getenv("OPENAI_API_KEY", "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")
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class AIModel:
     def __init__(self):
@@ -22,7 +24,7 @@ class AIModel:
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
-                max_tokens=300,
+                max_tokens=600,
                 n=1,
                 stop=None,
                 temperature=0.7

@@ -1,20 +1,128 @@
 from django.shortcuts import render, get_object_or_404
 from accounts.models import UserProfile
-from .ai import ai_model  # Import the AI model instance
 from goals.models import UserExercise, WorkoutLog, Exercise, Goal
 from django.http import JsonResponse, HttpResponse
-import datetime
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
-from datetime import timedelta
+from datetime import datetime, timedelta
 import requests
 import os
 from django.conf import settings
 from .ai import ai_model
+from django.utils.text import slugify
+from django.utils.crypto import get_random_string
+import re
 
 
+#Handles AI generated workout to the calendar
+@login_required
+def save_to_calendar(request):
+
+    #Ensures this response only happens with a request
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+
+    try:
+        data = json.loads(request.body)
+        #Grabs the AI plan workout text
+        raw_plan = data.get("ai_plan", "").strip()
+        #Gets start date from the user's input to go into calendar
+        week_start_str = data.get("week_start")
+
+        #Check to see if anything is missing for plan or dates
+        if not raw_plan or not week_start_str:
+            return JsonResponse({"error": "Missing data"}, status=400)
+
+        #Convert start string to date object
+        week_start = datetime.strptime(week_start_str, "%Y-%m-%d").date()
+
+        # Parse AI Plan
+        plan_lines = raw_plan.split('\n')
+        current_day = None
+        day_workouts = {}
+
+        #Cleaning data to process it
+        for line in plan_lines:
+            line = line.strip()
+            if not line:
+                continue
+            #Looks for colon (e.g "Friday:"), removes it, adds day to list
+            if line.endswith(":"):
+                current_day = line[:-1]
+                day_workouts[current_day] = []
+
+            #Extract exercise name and reps using regex (eg "2. Bench Press: 4 sets of 6 reps;")
+            elif current_day:
+                match = re.match(r'\d+\.\s*(.+?):\s*(\d+)\s*sets\s*of\s*(\d+)\s*reps', line, re.IGNORECASE)
+
+                #Get's name of workout and reps, stores as pair
+                if match:
+                    name = match.group(1).strip()
+                    reps = int(match.group(3))
+                    day_workouts[current_day].append((name, reps))
+
+                #Handles if AI output doesnt follow expected
+                else:
+                    fallback_match = re.match(r'\d+\.\s*(.+)', line)
+                    name = fallback_match.group(1).strip() if fallback_match else line.strip()
+                    day_workouts[current_day].append((name, 0))
+
+        #Map weekdays to actual dates (eg. "Friday" -> 2025-04-25)
+        day_to_date = {}
+        for i in range(7):
+            d = week_start + timedelta(days=i)
+            day_to_date[d.strftime('%A')] = d
+
+        #Create exercises and attach to user
+        for day, exercises in day_workouts.items():
+
+            #Converts date to format needed
+            date = day_to_date.get(day)
+            if not date:
+                print(f" Error unknown day: {day}")
+                continue
+
+            #If the exercise name exists, reuse, otherwise create unique slug
+            for name, reps in exercises:
+
+                slug = slugify(f"{name}-{get_random_string(4)}")
+
+                try:
+                    base_exercise = Exercise.objects.get(name=name)
+
+                except Exercise.DoesNotExist:
+                    base_exercise = Exercise.objects.create(
+                        name=name,
+                        slug=slug,
+                        description=f"AI-generated workout for {day}"
+                    )
+                # Create user's scheduled instance
+                UserExercise.objects.create(
+                    user=request.user,
+                    exercise=base_exercise,
+                    start_date=date,
+                    end_date=date,
+                    recurring_day=date.weekday(),
+                    current_weight=0,
+                    reps=reps,
+                    percent_increase=0,
+                )
+
+        return JsonResponse({"status": "success", "saved_days": list(day_workouts.keys())})
+
+    #Print errors for debugging
+    except Exception as e:
+        print(" Error saving workout:", str(e))
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
+#Handles generation of AI workouts
+@login_required
 def generate_workout(request):
     context = {}
 
