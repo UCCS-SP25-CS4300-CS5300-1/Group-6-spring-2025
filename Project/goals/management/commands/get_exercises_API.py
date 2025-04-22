@@ -2,6 +2,8 @@ import http.client
 import json
 import time
 import urllib.parse
+import requests
+import os
 
 # Load accessible names
 with open("accessible_exercise_names.txt", "r", encoding="utf-8") as f:
@@ -14,10 +16,20 @@ headers = {
     'x-rapidapi-host': "exercisedb.p.rapidapi.com"
 }
 
-matched = []
+# Load existing data if the file exists
+json_path = "final_accessible_exercises.json"
+if os.path.exists(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        existing_data = json.load(f)
+else:
+    existing_data = []
+
+# Create a dictionary for quick lookup by name (case-insensitive)
+existing_data_dict = {entry['name'].lower(): entry for entry in existing_data}
+
+updated_data = []
 
 for name in exercise_names:
-    # Properly URL encode the name
     encoded_name = urllib.parse.quote(name.lower())
     endpoint = f"/exercises/name/{encoded_name}?offset=0&limit=1"
 
@@ -25,23 +37,25 @@ for name in exercise_names:
         conn.request("GET", endpoint, headers=headers)
         res = conn.getresponse()
         data = res.read()
-
         result = json.loads(data.decode("utf-8"))
 
         if isinstance(result, list) and result:
-            matched.append(result[0])
-            print(f"✓ Found: {name}")
+            new_entry = result[0]
+            updated_data.append(new_entry)
+            existing_data_dict[name.lower()] = new_entry  # Replace or insert
+            print(f"✓ Updated: {name}")
         else:
             print(f"✗ Not found: {name}")
 
     except Exception as e:
         print(f"Error with {name}: {e}")
 
-    # Optional delay to avoid hitting rate limits (tweak as needed)
-    time.sleep(0.3)
+    time.sleep(0.3)  # To respect rate limits
 
-# Save the results to a JSON file
-with open("final_accessible_exercises.json", "w", encoding="utf-8") as f:
-    json.dump(matched, f, indent=4)
+# Convert updated dictionary back to list for saving
+final_data = list(existing_data_dict.values())
 
-print(f"\nFinished! Saved {len(matched)} matched exercises.")
+with open(json_path, "w", encoding="utf-8") as f:
+    json.dump(final_data, f, indent=4)
+
+print(f"\nFinished! Saved {len(final_data)} total matched exercises.")
