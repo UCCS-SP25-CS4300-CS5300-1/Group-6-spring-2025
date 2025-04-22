@@ -6,3 +6,4 @@ openai==0.28
 pylint
 pylint-django
 whitenoise
+urllib3==1.25.0
