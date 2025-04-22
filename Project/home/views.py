@@ -161,6 +161,7 @@ def workout_events(request):
     for date in sorted(events_by_date.keys()):
         sorted_events.extend(events_by_date[date])
 
+
     return JsonResponse(sorted_events, safe=False)
 
 @login_required
@@ -174,6 +175,8 @@ def completed_workouts(request):
         {
             "title": log.exercise.exercise.name,
             "date_completed": log.date_completed.strftime("%Y-%m-%d"),
+            "weight": log.weight,
+            "reps": log.reps,
         }
         for log in logs
     ]
