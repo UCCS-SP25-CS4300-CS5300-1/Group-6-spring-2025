@@ -32,6 +32,8 @@ class NewAIModelTests(TestCase):
 class NewViewTests(TestCase):
     def setUp(self):
         self.client = Client()
+        self.user = User.objects.create_user(username='tester', password='password123')
+        self.client.login(username='tester', password='password123')
 
     #Check if home view loads correctly
     def test_get_home_view(self):

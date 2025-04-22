@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404
 from accounts.models import UserProfile
 from goals.models import UserExercise, WorkoutLog, Exercise, Goal
 from django.http import JsonResponse, HttpResponse
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -124,8 +123,10 @@ def save_to_calendar(request):
 #Handles generation of AI workouts
 @login_required
 def generate_workout(request):
+    #Initializes context diary for basic template
     context = {}
 
+    #Attempting to pull user information if possible to add to workout
     if request.user.is_authenticated:
         try:
             profile = request.user.userprofile
@@ -137,9 +138,13 @@ def generate_workout(request):
             context['goals'] = ""
             context['injuries'] = ""
 
+    
     if request.method == "POST":
+        #Grabs user input from the frontend
         user_info_text = request.POST.get("user_input", "").strip()
-        print("User Info Text submitted:", user_info_text)
+
+
+        #Opening up the text file that is used to prompt the AI (workout_template.txt)
         template_path = os.path.join(settings.BASE_DIR, 'home', 'workout_template.txt')
         try:
             with open(template_path, "r", encoding="utf-8") as file:
@@ -147,17 +152,24 @@ def generate_workout(request):
         except Exception as e:
             return HttpResponse(f"Error reading prompt template: {e}", status=500)
 
+        #Adds in the actual user information to the prompt
         prompt = prompt_template.format(user_info=user_info_text)
 
+        #Attempt to send the prompt to the AI model
         try:
             ai_response = ai_model.get_response(prompt)
         except Exception as e:
             ai_response = f"Error generating response: {e}"
+
+        #Ensures the raw plain text of the AI response is sent, NOT the full HTML file    
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return HttpResponse(ai_response, content_type="text/plain")
+
+        #AI response passed to template to be rendered
         context["output"] = ai_response
 
     return render(request, "generate_workout.html", context)
+
 
 def index(request):
     """
