@@ -1,7 +1,9 @@
 import os
+from dotenv import load_dotenv
 import openai
 
 #CHANGE API HERE OR AI OUTPUT WILL NOT WORK
+load_dotenv() 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class AIModel:
@@ -24,7 +26,7 @@ class AIModel:
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
-                max_tokens=300,
+                max_tokens=600,
                 n=1,
                 stop=None,
                 temperature=0.7
