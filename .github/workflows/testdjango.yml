@@ -22,7 +22,6 @@ jobs:
       run: |
         pylint Project > pylint_output.txt|| true
     -name: Upload Pylint Report
-      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: pylint-report
