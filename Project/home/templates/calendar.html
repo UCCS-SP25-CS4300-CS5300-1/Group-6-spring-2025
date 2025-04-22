@@ -72,8 +72,8 @@
             flex-direction: column;
             gap: 10px;
             margin-right: 20px;
-            height: 91vh; /* This will keep the left container a fixed height */
-            justify-content: space-between; /* Distribute space evenly */
+            height: 91vh; /* Fixed height for the left container */
+            justify-content: space-between;
         }
 
         .workout-section, .completed-workout-section {
@@ -82,13 +82,13 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            min-height: 200px; /* Ensures a minimum height for the section */
-            flex-grow: 1; /* Allows sections to grow equally */
+            min-height: 200px;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            overflow-y: auto; /* Makes the content scrollable */
-            height: 50%; /* Ensures equal height for both sections */
+            overflow-y: auto;
+            height: 50%;
         }
 
         .workout-list h4 {
@@ -107,7 +107,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%; /* Makes sure it fills the container */
+            height: 100%;
         }
 
         .workout-item {
@@ -138,10 +138,9 @@
 
         .workout-checkbox {
             margin-right: 10px;
-            transform: scale(1.2);  /* Larger checkbox for easier interaction */
+            transform: scale(1.2);
         }
 
-        /* Completed workout styles */
         .workout-item.completed {
             background-color: #e0e0e0;
             text-decoration: line-through;
@@ -159,8 +158,8 @@
 
         #calendar {
             margin-top: 20px;
-            width: 100%; /* Make the calendar container expand fully */
-            max-height: 82vh; /* Was 82vh — reduced to avoid bottom scroll */
+            width: 100%;
+            max-height: 82vh;
             overflow-y: auto;
         }
 
@@ -168,13 +167,13 @@
             text-align: center;
             background: #003366;
             color: #fff;
-            padding: 0px 18px;         /* Increased padding for better visibility */
+            padding: 0px 18px;
             border-radius: 6px;
-            font-size: 24px;            /* Larger font size for better visibility */
+            font-size: 24px;
             text-transform: uppercase;
-            letter-spacing: 1px;        /* Slightly more spacing for a bolder look */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);  /* A bit more pronounced shadow */
-            margin-bottom: 0px;        /* More space below to separate from content */
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            margin-bottom: 0px;
         }
 
         .workout-section > h4 {
@@ -195,11 +194,10 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            flex-grow: 1; /* Ensures both workout lists grow equally */
-            overflow-y: auto; /* Makes content scrollable when overflowing */
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
-        /* Tweak the empty message to match */
         .empty-message {
             padding: 12px;
             border-radius: 4px;
@@ -211,6 +209,7 @@
             background-color: #007BFF !important;
             transform: scale(1.05);
         }
+
         /* Overlay styles */
         .overlay {
             position: fixed;
@@ -218,12 +217,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-            display: none; /* Hidden by default */
-            z-index: 999; /* Ensure it covers everything */
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
         }
 
-        /* No Workouts Message styles */
         .no-workouts-message {
             position: fixed;
             top: 50%;
@@ -234,8 +232,8 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             text-align: center;
-            z-index: 1000; /* Above the overlay */
-            display: none; /* Hidden by default */
+            z-index: 1000;
+            display: none;
         }
 
         .no-workouts-message h3 {
@@ -261,20 +259,55 @@
             background-color: #0056b3;
         }
 
-        /* Add responsive behavior */
+        /* Responsive behavior */
         @media (max-width: 800px) {
             .container {
                 flex-direction: column;
             }
-
             .left-container {
                 width: 100%;
             }
-
-            /* Ensure the calendar still occupies full width in smaller screens */
             .main-section {
                 width: 100%;
             }
+        }
+
+        /* New Popup and Overlay for Workout GIF */
+        .workout-gif-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 1500;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            max-width: 90%;
+            text-align: center;
+        }
+        .workout-gif-popup img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 28px;
+        }
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1400;
         }
     </style>
 </head>
@@ -294,10 +327,10 @@
         </nav>
     </header>
 
-    <!-- Overlay for grey background -->
+    <!-- Overlay for grey background (existing) -->
     <div id="overlay" class="overlay"></div>
 
-    <!-- No Workouts Message Container -->
+    <!-- No Workouts Message Container (existing) -->
     <div id="no-workouts-message" class="no-workouts-message">
         <h3>No Current Workouts</h3>
         <p>To use the calendar feature, you need an active workout.</p>
@@ -322,7 +355,7 @@
                 <!-- JS will inject completed workouts here -->
               </div>
             </div>
-            <!--Warm up display section-->
+            <!-- Warm-up Exercises Section -->
             <div class="workout-section">
                 <h4>Today's Warm-Ups</h4>
                 <div class="workout-list">
@@ -342,8 +375,7 @@
                     {% endif %}
                 </div>
             </div>
-
-          </div>
+        </div>
 
         <!-- Calendar Section -->
         <div class="main-section">
@@ -352,7 +384,15 @@
         </div>
     </div>
 
-    <!-- FullCalendar Script -->
+    <!-- New Popup Overlay and Container for Workout GIF -->
+    <div id="popup-overlay" class="popup-overlay"></div>
+    <div id="workout-gif-popup" class="workout-gif-popup">
+        <span id="popup-close" class="popup-close">&times;</span>
+        <h3 id="popup-workout-name"></h3>
+        <img id="popup-gif" src="" alt="Workout GIF">
+    </div>
+
+    <!-- FullCalendar and Calendar Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
           const calendarEl = document.getElementById('calendar');
@@ -382,66 +422,68 @@
           function loadWorkouts(date) {
             $.get("{% url 'workout_events' %}", { date })
                 .done(data => {
-                const pending = data.filter(w => !w.completed);
-                const done    = data.filter(w => w.completed);
+                  console.log("Workout events data:", data);
+                  const pending = data.filter(w => !w.completed);
+                  const done    = data.filter(w => w.completed);
+                  
+                  const $pendingC   = $('#pending-workouts').empty();
+                  const $completedC = $('#completed-workouts').empty();
 
-                const $pendingC   = $('#pending-workouts').empty();
-                const $completedC = $('#completed-workouts').empty();
+                  // Pending Workouts
+                  if (pending.length) {
+                      pending.forEach(w => {
+                        $pendingC.append(`
+                          <div class="workout-item">
+                            <input type="checkbox" class="workout-checkbox"
+                                    data-id="${w.id}" data-date="${w.start}">
+                            <strong>${w.title}</strong> — ${w.start}
+                            <button class="workout-help" data-gif-url="${w['gif-url']}" data-title="${w.title}">Help</button>
+                          </div>
+                        `);
+                      });
+                  } else {
+                      $pendingC.html('<div class="empty-message">No pending workouts.</div>');
+                  }
 
-                // Pending
-                if (pending.length) {
-                    pending.forEach(w => {
-                    $pendingC.append(`
-                        <div class="workout-item">
-                        <input type="checkbox" class="workout-checkbox"
-                                data-id="${w.id}" data-date="${w.start}">
-                        <strong>${w.title}</strong> — ${w.start}
-                        </div>
-                    `);
-                    });
-                } else {
-                    $pendingC.html('<div class="empty-message">No pending workouts.</div>');
-                }
+                  // Completed Workouts
+                  if (done.length) {
+                      done.forEach(w => {
+                        $completedC.append(`
+                          <div class="workout-item completed">
+                            <input type="checkbox" class="workout-checkbox"
+                                    data-id="${w.id}" data-date="${w.start}" checked>
+                            <strong>${w.title}</strong> — ${w.start}
+                            <button class="workout-help" data-gif-url="${w.gif_url}" data-title="${w.title}">Help</button>
+                          </div>
+                        `);
+                      });
+                  } else {
+                      $completedC.html('<div class="empty-message">No completed workouts.</div>');
+                  }
 
-                // Completed
-                if (done.length) {
-                    done.forEach(w => {
-                    $completedC.append(`
-                        <div class="workout-item completed">
-                        <input type="checkbox" class="workout-checkbox"
-                                data-id="${w.id}" data-date="${w.start}" checked>
-                        <strong>${w.title}</strong> — ${w.start}
-                        </div>
-                    `);
-                    });
-                } else {
-                    $completedC.html('<div class="empty-message">No completed workouts.</div>');
-                }
+                  // Check for no workouts and toggle overlay/message
+                  const hasWorkouts = pending.length > 0 || done.length > 0;
+                  if (!hasWorkouts) {
+                      $('#overlay').show();
+                      $('#no-workouts-message').show();
+                  } else {
+                      $('#overlay').hide();
+                      $('#no-workouts-message').hide();
+                  }
 
-                // Check if there are no workouts
-                const hasWorkouts = pending.length > 0 || done.length > 0;
-
-                if (!hasWorkouts) {
-                    $('#overlay').show(); // Show the overlay
-                    $('#no-workouts-message').show(); // Show the no workouts message
-                } else {
-                    $('#overlay').hide(); // Hide the overlay if there are workouts
-                    $('#no-workouts-message').hide(); // Hide the message if there are workouts
-                }
-
-                // Bind toggles
-                $('.workout-checkbox').off().on('change', function() {
-                    const id   = $(this).data('id');
-                    const date = $(this).data('date');
-                    const chk  = $(this).is(':checked');
-                    toggleCompletion(id, date, chk, () => {
-                    calendar.refetchEvents();
-                    loadWorkouts(date);
-                    });
-                });
+                  // Bind checkbox toggles
+                  $('.workout-checkbox').off().on('change', function() {
+                      const id   = $(this).data('id');
+                      const date = $(this).data('date');
+                      const chk  = $(this).is(':checked');
+                      toggleCompletion(id, date, chk, () => {
+                        calendar.refetchEvents();
+                        loadWorkouts(date);
+                      });
+                  });
                 })
                 .fail(err => console.error("Error fetching workouts:", err));
-            }
+          }
 
           function toggleCompletion(workoutId, date, completed, cb) {
             $.post("{% url 'calendar' %}", {
@@ -456,6 +498,33 @@
             })
             .fail(err => console.error("Toggle failed:", err));
           }
+
+          // NEW: Help Button handler to display the GIF popup
+          $(document).on('click', '.workout-help', function(e) {
+                e.preventDefault();
+                var gifUrl = $(this).data('gif-url');
+                var workoutTitle = $(this).data('title');
+                console.log("Help button clicked; gifUrl =", gifUrl, "workoutTitle =", workoutTitle);
+                if (gifUrl) {
+                    $('#popup-gif').attr('src', gifUrl);
+                    $('#popup-workout-name').text(workoutTitle);
+                    $('#workout-gif-popup').fadeIn();
+                    $('#popup-overlay').fadeIn();
+                } else {
+                    console.log("No gifUrl found, displaying fallback.");
+                    $('#popup-gif').attr('src', "https://via.placeholder.com/300x200.png?text=No+GIF+Available");
+                    $('#popup-workout-name').text(workoutTitle);
+                    $('#workout-gif-popup').fadeIn();
+                    $('#popup-overlay').fadeIn();
+                }
+            });
+
+            // NEW: Close the popup when clicking the close icon or overlay
+            $('#popup-close, #popup-overlay').on('click', function() {
+                $('#workout-gif-popup').fadeOut();
+                $('#popup-overlay').fadeOut();
+            });
+
         });
     </script>
 </body>
