@@ -61,6 +61,7 @@ Using Lukamac/PlayPart-AI-Personal-Trainer the user can query the AI with certai
 1. The task to report test covereage metrics in console on each commit has been explained above in the _Test Coverage Metrics && Coverage on commits_ section.
 2. The second task to run automated test for each commit is completed by using the github workflows. Our file is located at `.github/workflows/testdjango.yml`. In short, this workflow sets up the environments based of our `requirements.txt` the runs `python3 manage.py test` to run our entire test sweet. If it passes or fails it will be displayed and associated with that push.
 3. Finally, the last task is to automatically, for each pull request, query OpenAI and have it output a review of the code and explain the changes. Our workflow file is located at `.github/workflows/ai_pr_review.yml` and queries the gpt-4 model. The workflow also posts the output of the OpenAI model response to the PR review comments.
+4. yelllow
 
 ### 6. Host Production Environment
 Using Digital Ocean through the GitHub Student Developer Pack the team was capable of deploying our main branch (with some adjustments) to the Digital Ocean Droplet to deploy the application. Every time our main branch is changed the build process automatically starts to deploy the latest and greatest of our applicaiton.
