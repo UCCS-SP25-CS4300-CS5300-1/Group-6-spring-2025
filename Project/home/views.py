@@ -236,47 +236,48 @@ def workout_events(request):
     if not request.user.is_authenticated:
         return JsonResponse([], safe=False)
 
-    # Retrieve all exercises associated with the logged-in user
     exercises = UserExercise.objects.filter(user=request.user)
-
-    # Retrieve completed workouts from the WorkoutLog model
     completed_workouts = WorkoutLog.objects.filter(user=request.user).values_list("exercise_id", "date_completed")
     completed_dict = {(ex_id, date_completed) for ex_id, date_completed in completed_workouts}
-
-    # Prepare an empty dictionary to store workouts grouped by date
     events_by_date = {}
 
     for exercise in exercises:
-        start_date = exercise.start_date
-        end_date = exercise.end_date if exercise.end_date else start_date
+        ex_model = exercise.exercise
+        gif_url = ex_model.gif_url
+
+        # Check if the gif URL is broken
+        if not gif_url or not is_gif_url_valid(gif_url):
+            print(f"[INFO] Refreshing GIF for: {ex_model.name}")
+            new_url = fetch_new_gif_for_exercise(ex_model.name)
+            if new_url:
+                ex_model.gif_url = new_url
+                ex_model.save()
+                gif_url = new_url
+
+        current_date = exercise.start_date
+        end_date = exercise.end_date or current_date
         recurring_day = exercise.recurring_day
 
-        current_date = start_date
         if current_date.weekday() != recurring_day:
             days_ahead = (recurring_day - current_date.weekday()) % 7
             current_date += timedelta(days=days_ahead)
 
         while current_date <= end_date:
-            # Check if this event is marked as completed in WorkoutLog
             completed = (exercise.id, current_date) in completed_dict
-
             event = {
-                "id": exercise.id,  # Add id field for JS to use
-                "title": exercise.exercise.name,
-                "gif-url": exercise.exercise.gif_url,
+                "id": exercise.id,
+                "title": ex_model.name,
+                "gif-url": gif_url,
                 "start": current_date.strftime('%Y-%m-%d'),
-                "color": "#28A745" if completed else "#007BFF",  # Green if completed, blue otherwise
+                "color": "#28A745" if completed else "#007BFF",
                 "completed": completed,
             }
 
-            # Add event to the dictionary, grouped by date
             if current_date not in events_by_date:
                 events_by_date[current_date] = []
             events_by_date[current_date].append(event)
-            # Move to the next recurrence (one week later)
             current_date += timedelta(weeks=1)
 
-    # Flatten the grouped events and return as a list sorted by date
     sorted_events = []
     for date in sorted(events_by_date.keys()):
         sorted_events.extend(events_by_date[date])
@@ -299,3 +300,28 @@ def completed_workouts(request):
     ]
 
     return JsonResponse(results, safe=False)
+
+def is_gif_url_valid(url):
+    try:
+        response = requests.head(url, timeout=5)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
+
+def fetch_new_gif_for_exercise(name):
+    # 👇 Example with ExerciseDB; replace with actual API you prefer
+    try:
+        response = requests.get(
+            "https://exercisedb.p.rapidapi.com/exercises/name/" + name,
+            headers={
+                "X-RapidAPI-Key": "584fb71dc8msh70a768bec023ee2p1deb47jsna5aa2d4e703b",
+                "X-RapidAPI-Host": "exercisedb.p.rapidapi.com"
+            },
+            timeout=5
+        )
+        data = response.json()
+        if isinstance(data, list) and data:
+            return data[0].get("gifUrl", "")
+    except Exception as e:
+        print("GIF fetch failed:", e)
+    return ""
