@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=9999">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1000">
   <title>Ask AI for a Fitness Plan</title>
 </head>
 <script>
@@ -194,7 +194,7 @@
         <span class="checkmark">✔</span>
       </p>
       <p>Here is your plan for the week: <strong id="weekSummary">Not selected</strong> </p>
-      <pre id="rawResponse">{{ output }}</pre>
+      <pre id="rawResponse" style="display: none;"></pre>
       <div id="planList"></div>
       <button id="addToCalendarBtn" onclick="saveToCalendar()"> Add to Calendar</button>
       <p id="calendarSaveStatus" style="font-weight: bold; color: green;"></p>
@@ -273,9 +273,16 @@
     }
 
 
+
+
+
+
+
+
     //Gets user's selections, formats into a string, sends to server and receives AI response.
     function submitWorkoutForm() {
       
+      console.log("submitWorkoutForm was called");
       // Retrieve the summary fields' inner text
       const summaryFitness = document.getElementById("fitnessSummary").innerText;
       const summaryGoal = document.getElementById("goalSummary").innerText;
@@ -302,17 +309,75 @@
       .then(response => response.text())
 
       .then(data => {
+        
         console.log("Response from server:", data);
         const rawEl = document.getElementById("rawResponse");
         if (rawEl) {
             rawEl.innerText = data;
         }
+        renderPlanToUI(data);
       })
-
+      
       .catch(error => console.error("Error:", error));
+
+      
 
     }//submitWorkoutForm()
 
+
+
+    function renderPlanToUI(aiText) {
+      const planList = document.getElementById("planList");
+      planList.innerHTML = ""; // Clear previous plan
+
+      const lines = aiText.split('\n');
+      let currentDay = null;
+      let dayContainer = null;
+      let ul = null;
+
+      lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+
+      // Detect day heading
+        if (line.endsWith(":")) {
+          currentDay = line.slice(0, -1);
+
+      // Create container for the day
+          dayContainer = document.createElement("div");
+          dayContainer.classList.add("day-section");
+
+          const heading = document.createElement("h3");
+          heading.textContent = currentDay;
+          dayContainer.appendChild(heading);
+
+      // Create UL list for exercises
+          ul = document.createElement("ul");
+          ul.classList.add("exercise-list");
+          dayContainer.appendChild(ul);
+          planList.appendChild(dayContainer);
+        }
+
+        // Add exercises to the current day's UL
+        else if (dayContainer && ul) {
+          const li = document.createElement("li");
+          li.className = "exercise-card";
+
+          const text = document.createElement("span");
+          text.className = "exercise-text";
+          text.innerText = line;
+
+          const btn = document.createElement("button");
+          btn.className = "delete-btn";
+          btn.textContent = "✕";
+          btn.onclick = () => li.remove();
+
+          li.appendChild(text);
+          li.appendChild(btn);
+          ul.appendChild(li);
+        }
+      });
+    }
 
     //Autofills userfunction data via the account and then skips appropriate steps
     function importUserData() {
@@ -426,7 +491,21 @@
     function saveToCalendar() {
 
       //Grabs AI plan text and the selected week from the user.
-      const planText = document.getElementById("rawResponse").innerText;
+      let planText = "";
+      document.querySelectorAll("#planList .day-block").forEach(block => {
+      const day = block.getAttribute("data-day");
+      planText += `${day}:\n`;
+      block.querySelectorAll(".exercise-item").forEach(item => {
+        planText += item.textContent.replace("❌", "").trim() + "\n";
+        });
+      });
+
+
+
+
+
+
+
       const weekStart = document.getElementById("selectedWeekStart").value;
 
       //For error handling if either AIplan or weeks selected is missing.

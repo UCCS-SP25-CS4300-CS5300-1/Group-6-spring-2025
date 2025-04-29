@@ -15,7 +15,7 @@ class AIModel:
         """
         Given an input prompt, calls the ChatGPT API using the gpt-3.5-turbo model and returns the generated response.
         """
-        print(f"Generating response for: {input_text}")
+        #print(f"Generating response for: {input_text}")
         
         messages = [
             {"role": "system", "content": "You are a helpful personal trainer."},

@@ -376,12 +376,54 @@ footer {
   margin-bottom: 1em;
 }
 
+.day-section ul.exercise-list {
+    display: block;
+     /* 🔁 This forces vertical stacking */
+    gap: 0.75rem;           /* spacing between exercises */
+    padding-left: 0;
+    list-style: none;
+    margin: 1rem 0 0 0;
+}
 .day-section h3 {
   margin-top: 0;
   color: #333;
   font-size: 1.2rem;
 }
 
-.day-section ul {
-  padding-left: 1.2em;
+
+.exercise-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 0.75em 1em;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 0.5em 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: background-color 0.2s ease;
+}
+  
+.exercise-card:hover {
+    background-color: #f0f8ff;
+}
+  
+.exercise-text {
+    font-weight: 400;
+    color: #333;
+}
+  
+.delete-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 0.5em 0.8em;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+  
+.delete-btn:hover {
+    background-color: #cc0000;
 }
