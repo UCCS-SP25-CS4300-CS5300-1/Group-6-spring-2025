@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1002">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1003">
   <title>Ask AI for a Fitness Plan</title>
 </head>
 <script>
@@ -203,7 +203,7 @@
 
 
 
-    <!-- 🔄 Change Exercise Modal -->
+    <!--  Change Exercise Modal -->
     <div id="changeModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeChangeModal()">&times;</span>
@@ -234,34 +234,46 @@
 
   <script>
     
+    //Setting variables
     let currentExerciseNode = null;
     let currentExerciseText = "";
     let currentExerciseDay = "";
 
+    //Triggered when user hits "change", takes current values to send to model
     function openChangeModal(text, liElement, day) {
       currentExerciseNode = liElement;
       currentExerciseText = text;
       currentExerciseDay = day;
+
+      //Takes the excercise that needs changing
       document.getElementById("currentExerciseText").innerText = `Exercise: ${text}`;
+      //Obtains why the user wants to change
       document.getElementById("changeReason").value = "";
       document.getElementById("customReason").value = "";
-      document.getElementById("changeModal").style.display = "block";
-    }
 
+      //This allows the box to open up when user hits change.
+      document.getElementById("changeModal").style.display = "block";
+    }//openChangeModal
+
+    //Hides the pop up box when the user hits x or gets an exercise
     function closeChangeModal() {
       document.getElementById("changeModal").style.display = "none";
     }
 
+    //Function to submit user input and send to AI, gets a replacement
     function confirmChangeExercise() {
+      //Grabs input from user
       const reason = document.getElementById("changeReason").value;
       const custom = document.getElementById("customReason").value.trim();
       const fullReason = reason + (custom ? `. ${custom}` : '');
 
+      //Ensures the user enters something for reasoning
       if (!reason) {
         alert("Please select a reason.");
         return;
       }
 
+      //Sends post to Django Backend
       fetch("{% url 'replace_exercise' %}", {
         method: "POST",
         headers: {
@@ -274,36 +286,33 @@
           reason: fullReason
         }),
       })
+
+        //parses HTTP as a Json
         .then((res) => res.json())
+        //once parsed, make the result "data"
         .then((data) => {
+          //Replaces text of current exercise, then hides the modal
           if (data.success) {
             const newText = data.replacement;
+              // ✅ DEBUG LOGS HERE
+            console.log("Replacing with:", newText);
+            console.log("Target element:", currentExerciseNode.querySelector(".exercise-text"));
             currentExerciseNode.querySelector(".exercise-text").innerText = newText;
             closeChangeModal();
-          } else {
+          } 
+
+          //Error message if turing result to data didnt work
+          else {
             alert("Something went wrong replacing the exercise.");
           }
+
         })
+        //Error message if parsing HTTP to JSON doesnt work.
         .catch((err) => {
           console.error(err);
           alert("Server error while replacing exercise.");
         });
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }//confirmChangeExercise
 
     let step = 1;
     window.selectedDays = [];
@@ -365,7 +374,7 @@
       step--;
       document.getElementById(`step${step}`).classList.add("visible");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    }//prevStep()
 
 
 
@@ -415,24 +424,27 @@
     }//submitWorkoutForm()
 
 
-
+    //Takes AI generated workout text, turns into HTML
     function renderPlanToUI(aiText) {
 
+      //Grabbing current plan
       const planList = document.getElementById("planList");
       planList.innerHTML = ""; // Clear previous plan
 
+      //Splitting lines by newline char
       const lines = aiText.split('\n');
       let currentDay = null;
       let dayContainer = null;
       let ul = null;
 
+      //Loop through every line of text, trim it
       lines.forEach(line => {
         line = line.trim();
         if (!line) return;
 
-      // Detect day heading
+      // Detect the day header
         const validDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        if (line.endsWith(":") && validDays.includes(line.slice(0, -1))) {
+        if ( validDays.includes(line.slice(0, -1))) {
           currentDay = line.slice(0, -1);
 
       // Create container for the day
@@ -440,7 +452,7 @@
           dayContainer.classList.add("day-section");
           dayContainer.setAttribute("data-day", currentDay);  
 
-
+          //Make the day of the week a header
           const heading = document.createElement("h3");
           heading.textContent = currentDay;
           dayContainer.appendChild(heading);
@@ -452,7 +464,7 @@
           planList.appendChild(dayContainer);
         }
 
-        // Add exercises to the current day's UL
+        // Add exercises and use nice formatting
         else if (dayContainer && ul) {
           const li = document.createElement("li");
           li.className = "exercise-card";
@@ -470,11 +482,13 @@
           changeBtn.className = "change-btn";
           changeBtn.innerText = "Change";
 
-          changeBtn.onclick = () => {
-            openChangeModal(text.innerText, li, currentDay);
-          };
-            
-
+          changeBtn.onclick = (() => {
+            const dayForThisExercise = currentDay;  // explicitly capture it
+            return () => {
+              console.log("💬 Assigning current day as:", dayForThisExercise);
+              openChangeModal(text.innerText, li, dayForThisExercise);
+            };
+          })();
           
 
           li.appendChild(text);
@@ -563,7 +577,7 @@
           //Store values for sending to calendar
           document.getElementById("selectedWeekStart").value = weekStart.toISOString().split('T')[0];
           document.getElementById("selectedWeekEnd").value = weekEnd.toISOString().split('T')[0];
-          document.getElementById("selectedWeekDisplay").innerText = btn.textContent;
+          document.getElementById("weekSummary").innerText = btn.textContent;
         };
 
         //Puts button onto webpage
@@ -599,7 +613,7 @@
       let planText = "";
       document.querySelectorAll("#planList .day-section").forEach(block => {
       const day = block.getAttribute("data-day");
-      planText += `${day};\n`;
+      planText += `${day}:\n`;
 
       block.querySelectorAll(".exercise-card").forEach(item => {
       const exerciseTextEl = item.querySelector(".exercise-text");
@@ -633,7 +647,7 @@
           week_start: weekStart
         })
       })
-
+      
       //Printing for error handling.
       .then(res => res.json())
       .then(data => {

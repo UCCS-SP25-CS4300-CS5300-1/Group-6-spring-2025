@@ -6,6 +6,6 @@ Give specific exercises, reps and sets in this format for each day, organize by 
 DO NOT ADD ANY OTHER TEXT (DONT PUT MUSCLE GROUP, DASHES OR ANYTHING JUST (exercise name) : x sets of y reps;)
 give AT LEAST 6 workouts per day! (DO NOT NUMBER THEM)
 
-Day of week;
+Day of week; 
 exercise name: ______ sets of _____ reps
 Here is the user information: {user_info}

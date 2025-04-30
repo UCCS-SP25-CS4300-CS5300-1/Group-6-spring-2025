@@ -51,7 +51,7 @@ def save_to_calendar(request):
             if not line:
                 continue
             #Looks for colon (e.g "Friday:"), removes it, adds day to list
-            if line.endswith(";"):  
+            if line.endswith(":"):  
                 current_day = line[:-1]
                 day_workouts[current_day] = []
                 continue
@@ -158,6 +158,7 @@ def generate_workout(request):
         #Attempt to send the prompt to the AI model
         try:
             ai_response = ai_model.get_response(prompt)
+            
         except Exception as e:
             ai_response = f"Error generating response: {e}"
 
@@ -171,16 +172,18 @@ def generate_workout(request):
     return render(request, "generate_workout.html", context)
 
 
-
+#Function that replaces an exercise
 @require_POST
 @login_required
 def replace_exercise(request):
     try:
+        #obtaining data from HTML
         data = json.loads(request.body)
         original = data.get("original", "")
         reason = data.get("reason", "")
         day = data.get("day", "a day of the week")
 
+        #Prompt for AI
         prompt = f"""
         You are a fitness AI. Replace this exercise with another that fits the same muscle group.
 
@@ -192,6 +195,7 @@ def replace_exercise(request):
         (name of exercise): X sets of Y reps;
         """
 
+        #Grabs new response, replaces it accordingly
         response = ai_model.get_response(prompt)
         return JsonResponse({"success": True, "replacement": response})
 
