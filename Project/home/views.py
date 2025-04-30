@@ -172,6 +172,27 @@ def generate_workout(request):
     return render(request, "generate_workout.html", context)
 
 
+
+
+@csrf_exempt
+@login_required
+def swap_exercise(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            current_exercise = data.get("exercise", "")
+
+            prompt = f"Give me a different strength training exercise to replace: {current_exercise}. Use the format: Exercise Name: X sets of Y reps;"
+
+            new_exercise = ai_model.get_response(prompt)
+            return JsonResponse({"new_exercise": new_exercise})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+    
 def index(request):
     """
     Simple view to render the index page.
