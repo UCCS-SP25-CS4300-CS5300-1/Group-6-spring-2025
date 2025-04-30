@@ -29,7 +29,7 @@ class AIModel:
                 max_tokens=600,
                 n=1,
                 stop=None,
-                temperature=0.9
+                temperature=0.7
             )
             answer = response.choices[0].message.content.strip()
         except Exception as e:

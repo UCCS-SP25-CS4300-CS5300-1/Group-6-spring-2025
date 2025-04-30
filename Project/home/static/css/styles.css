@@ -427,3 +427,79 @@ footer {
 .delete-btn:hover {
     background-color: #cc0000;
 }
+
+.change-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5em 0.8em;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 0.5em;
+    transition: background-color 0.2s ease;
+}
+
+.change-btn:hover {
+    background-color: #388E3C;
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+  
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+  
+.modal-content h3 {
+    margin-top: 0;
+}
+  
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+  
+.modal-content button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #38a169;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.modal-content button:hover {
+    background-color: #2f855a;
+}
+  
+ .modal .close {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #aaa;
+}
+.modal .close:hover {
+    color: #000;
+}
+  

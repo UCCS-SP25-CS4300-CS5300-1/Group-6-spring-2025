@@ -4,6 +4,7 @@ from goals.models import UserExercise, WorkoutLog, Exercise, Goal
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import json
 from datetime import datetime, timedelta
 import requests
@@ -50,25 +51,23 @@ def save_to_calendar(request):
             if not line:
                 continue
             #Looks for colon (e.g "Friday:"), removes it, adds day to list
-            if line.endswith(":"):  
+            if line.endswith(";"):  
                 current_day = line[:-1]
                 day_workouts[current_day] = []
+                continue
 
             #Extract exercise name and reps using regex (eg "2. Bench Press: 4 sets of 6 reps;")
-            elif current_day:
-                match = re.match(r'\d+\.\s*(.+?):\s*(\d+)\s*sets\s*of\s*(\d+)\s*reps', line, re.IGNORECASE)
+           #Normalize and extract workout details
+            workout_match = re.match(r'^(?:\d+\.\s*)?(.*?):\s*(\d+)\s*sets\s*of\s*(\d+)', line, re.IGNORECASE)
 
-                #Get's name of workout and reps, stores as pair
-                if match:
-                    name = match.group(1).strip()
-                    reps = int(match.group(3))  
-                    day_workouts[current_day].append((name, reps))  
-
-                #Handles if AI output doesnt follow expected
-                else:
-                    fallback_match = re.match(r'\d+\.\s*(.+)', line)
-                    name = fallback_match.group(1).strip() if fallback_match else line.strip()
-                    day_workouts[current_day].append((name, 0)) 
+            if workout_match:
+                name = workout_match.group(1).strip()
+                reps = int(workout_match.group(3))
+                day_workouts[current_day].append((name, reps))
+            else:
+                 # Catch things like "Push-ups: 3 sets to failure" or fallback text
+                clean_line = line.replace("Exercise Name:", "").strip(" ;-")
+                day_workouts[current_day].append((clean_line, 0))
 
         #Map weekdays to actual dates (eg. "Friday" -> 2025-04-25)
         day_to_date = {}
@@ -173,23 +172,32 @@ def generate_workout(request):
 
 
 
-
-@csrf_exempt
+@require_POST
 @login_required
-def swap_exercise(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            current_exercise = data.get("exercise", "")
+def replace_exercise(request):
+    try:
+        data = json.loads(request.body)
+        original = data.get("original", "")
+        reason = data.get("reason", "")
+        day = data.get("day", "a day of the week")
 
-            prompt = f"Give me a different strength training exercise to replace: {current_exercise}. Use the format: Exercise Name: X sets of Y reps;"
+        prompt = f"""
+        You are a fitness AI. Replace this exercise with another that fits the same muscle group.
 
-            new_exercise = ai_model.get_response(prompt)
-            return JsonResponse({"new_exercise": new_exercise})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+        Original: {original}
+        Context: This is part of a workout for {day}.
+        User reason for changing: {reason}
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+        Give ONLY the replacement in this format:
+        (name of exercise): X sets of Y reps;
+        """
+
+        response = ai_model.get_response(prompt)
+        return JsonResponse({"success": True, "replacement": response})
+
+    except Exception as e:
+        print("Error in replace_exercise:", str(e))
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
     
