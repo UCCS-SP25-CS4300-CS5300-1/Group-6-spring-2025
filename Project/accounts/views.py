@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight, UserLogDataFormExercise, UserLogDataFormFood, UserLogDataFormFoodData
+from .forms import (UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight,
+    UserLogDataFormExercise, UserLogDataFormFood, UserLogDataFormFoodData)
 import json
 import requests
 from datetime import date
@@ -51,9 +52,11 @@ def user_data(request):
             .exclude(id__in=friends_ids)
     
     # Retrieve all user data entries for the logged-in user
-    user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')  # Prefetch related goals for efficiency
+    # Prefetch related goals for efficiency
+    user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related('goals')
     exercises = UserAccExercise.objects.filter(user=request.user)
     exerciseDict = {}
+
     for x in exercises:
         print(x.name, x.weight)
         if x.name in exerciseDict:
@@ -68,16 +71,18 @@ def user_data(request):
     print(exerciseDict)
     exerciseDict =  json.dumps(exerciseDict)
     print(exerciseDict, type(exerciseDict))
+
     #Get data for food log
-    totalCarb = 0
-    totalPro = 0
-    totalFat = 0
+    totalCarb, totalPro, totalFat = 0
     foodlist = FoodDatabase.objects.filter(user=request.user,datelog=date.today(),servings__gte=1)
+
     for food in foodlist:
         totalCarb += food.carbs * food.servings
         totalPro += food.protein * food.servings
         totalFat += food.fat * food.servings
-    labels = ['Protein (' + str(totalPro) + 'g)', 'Fat (' + str(totalFat) + 'g)', 'Carbohydrates (' + str(totalCarb) + 'g)']
+        
+    labels = ['Protein (' + str(totalPro) + 'g)', 'Fat (' + str(totalFat) + 'g)', 
+    'Carbohydrates (' + str(totalCarb) + 'g)']
     labelvalues = [totalPro * 4, totalFat * 9, totalCarb * 4]
     caltotal = labelvalues[0] + labelvalues[1] + labelvalues[2]
     print(labels, json.dumps(labelvalues))
@@ -106,13 +111,20 @@ def update_profile(request):
         form = UserProfileUpdateForm(request.POST, instance=profile)
         if form.is_valid():
             profile = form.save(commit=False)
-            profile.height = float(request.POST.get('height', 0)) if request.POST.get('height') else None
-            profile.weight = float(request.POST.get('weight', 0)) if request.POST.get('weight') else None
-            profile.weight_history = request.POST.get('weight', 0) if request.POST.get('weight') else None
+            profile.height = (float(request.POST.get('height', 0))
+                if request.POST.get('height')else None)
+            profile.weight = (float(request.POST.get('weight', 0))
+                if request.POST.get('weight') else None)
+            profile.weight_history = (request.POST.get('weight', 0)
+                if request.POST.get('weight') else None)
             profile.weight_history = json.dumps([int(profile.weight_history)])
+
             # Calculate BMI
-            height_m = profile.height * 0.0254 if profile.height else 0  # Convert height from inches to meters
-            weight_kg = profile.weight * 0.453592 if profile.weight else 0  # Convert weight from pounds to kg
+            # Convert height from inches to meters
+            height_m = profile.height * 0.0254 if profile.height else 0
+            # Convert weight from pounds to kg
+            weight_kg = profile.weight * 0.453592 if profile.weight else 0 
+
             if height_m > 0:  # Prevent division by zero
                 profile.bmi = weight_kg / (height_m ** 2)
             else:
@@ -120,16 +132,22 @@ def update_profile(request):
             # Save the updated profile
             profile.save()
             # Handle goals and injuries
-            goals = request.POST.getlist('goals')  # Get selected goals from the form
-            injuries = request.POST.getlist('injury_history')  # Get selected injuries from the form
+            # Get selected goals from the form
+            goals = request.POST.getlist('goals') 
+            # Get selected injuries from the form
+            injuries = request.POST.getlist('injury_history')  
             # Update the ManyToMany fields
-            profile.goals.set(goals)  # Update the user's goals
-            profile.injury_history.set(injuries)  # Update the user's injury history
-            return redirect('/accounts/user_data/')  # Redirect to home or another page after saving
+            # Update the user's goals
+            profile.goals.set(goals)  
+            # Update the user's injury history
+            profile.injury_history.set(injuries)  
+            # Redirect to home or another page after saving
+            return redirect('/accounts/user_data/')  
         else:
             print(form.errors)  # Print any validation errors
     else:
         form = UserProfileUpdateForm(instance=profile)
+
     selected_goals = profile.goals.values_list('id', flat=True)
     selected_injuries = profile.injury_history.values_list('id', flat=True)
     return render(request, 'accounts/update_profile.html', {
@@ -182,7 +200,8 @@ def friend_search(request):
         results = User.objects.filter(username__icontains=query)\
             .exclude(id=request.user.id)\
             .exclude(id__in=friends_ids)
-    return render(request, 'accounts/user_data.html', {'search_results': results, 'search_query': query})
+    return render(request, 'accounts/user_data.html',
+    {'search_results': results, 'search_query': query})
 
 @login_required
 def friend_data(request, user_id):
@@ -198,14 +217,23 @@ def log_data(request):
     exercisesdone = UserAccExercise.objects.filter(user=request.user)
     flag = False
     print(profile)
+
     if request.method == 'POST':
-        #This will update the weight_history attribute as a json object so i can be used in the charts.
+        # This will update the weight_history attribute as a json object so it 
+        # can be used in the charts.
         if('servings' in request.POST):
-            FoodDatabase.objects.create(user=request.user,barcode=request.POST.get('barcode'),name=request.POST.get('name'),carbs=float(request.POST.get('carbs')),protein=float(request.POST.get('protein')),fat=float(request.POST.get('fat')),servings=float(request.POST.get('servings')))
+            FoodDatabase.objects.create(user=request.user,barcode=request.POST.get('barcode'),
+                name=request.POST.get('name'),carbs=float(request.POST.get('carbs')),
+                protein=float(request.POST.get('protein')),fat=float(request.POST.get('fat')),
+                servings=float(request.POST.get('servings')))
+
             formweight = UserLogDataFormWeight()
             formexercise = UserLogDataFormExercise()
             formfood = UserLogDataFormFood()
-            return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone, 'flag':flag})
+            return render(request, 'accounts/log_data.html',
+                {'form':formweight, 'formtwo':formexercise, 'formthree':formfood,
+                'exercises':exercisesdone, 'flag':flag})
+
         elif('barcode' in request.POST): #This is a foodlog update
             tosend = 'https://cs4300-group2.tech/api/product/' + request.POST.get('barcode')
             response = requests.get(tosend)
@@ -213,31 +241,52 @@ def log_data(request):
             response = response.decode('utf-8')
             response = json.loads(response)
             data = json.loads(response['nutrition_data'])
-            foodinfo = ['Barcode: ' + response['barcode'], 'Name: ' + response['name'],'Carbohydrates: ' + str(data['carbohydrates']),'Protein: ' + str(data['proteins']),'Fat: ' + str(data['fat'])]
-            formprefill = {'barcode':response['barcode'], 'name':response['name'], 'carbs':str(data['carbohydrates']), 'protein':str(data['proteins']), 'fat':str(data['fat'])}
+
+            foodinfo = ['Barcode: ' + response['barcode'], 'Name: ' + response['name'],
+                'Carbohydrates: ' + str(data['carbohydrates']),'Protein: ' + str(data['proteins']),
+                'Fat: ' + str(data['fat'])]
+
+            formprefill = {'barcode':response['barcode'], 'name':response['name'],
+                'carbs':str(data['carbohydrates']), 'protein':str(data['proteins']),
+                'fat':str(data['fat'])}
+
             formfooddata = UserLogDataFormFoodData(initial=formprefill)
             flag = True
-            #need to making database and new modal to display food data and allow user to update their food log
+
+            # need to making database and new modal to display food data and allow user 
+            # to update their food log
         elif ('sets' in request.POST): #This is a exercise update
             print(len(request.POST))
-            UserAccExercise.objects.create(user=request.user,name=request.POST.get('name'),sets=request.POST.get('sets', 0),reps=request.POST.get('reps', 0),weight=request.POST.get('weight', 0))
+            UserAccExercise.objects.create(user=request.user,name=request.POST.get('name'),
+                sets=request.POST.get('sets', 0),reps=request.POST.get('reps', 0),
+                weight=request.POST.get('weight', 0))
+
         else: #This is a weight update
             newweight = int(request.POST.get('weight', 0))
             oldweight = json.loads(profile.weight_history)
             oldweight.append(newweight)
             toupdate = json.dumps(oldweight)
             UserProfile.objects.filter(user=request.user).update(weight_history=toupdate)
+            
         if flag:
             formweight = UserLogDataFormWeight()
             formexercise = UserLogDataFormExercise()
             formfood = UserLogDataFormFood()
-            return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone, 'flag':flag, 'foodinfo':foodinfo, 'formfour':formfooddata})
+            return render(request, 'accounts/log_data.html', {'form':formweight,
+                'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone,
+                'flag':flag, 'foodinfo':foodinfo, 'formfour':formfooddata})
+
         formweight = UserLogDataFormWeight()
         formexercise = UserLogDataFormExercise()
         formfood = UserLogDataFormFood()
-        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone, 'flag':flag})
+        return render(request, 'accounts/log_data.html', {'form':formweight,
+            'formtwo':formexercise, 'formthree':formfood,
+            'exercises':exercisesdone, 'flag':flag})
+
     else:
         formweight = UserLogDataFormWeight()
         formexercise = UserLogDataFormExercise()
         formfood = UserLogDataFormFood()
-        return render(request, 'accounts/log_data.html', {'form':formweight, 'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone, 'flag':flag})
+        return render(request, 'accounts/log_data.html', {'form':formweight,
+            'formtwo':formexercise, 'formthree':formfood, 'exercises':exercisesdone,
+            'flag':flag})
