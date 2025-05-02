@@ -4,11 +4,11 @@ goal management, injury history, social connections (friends and friend requests
 exercise logging, and food intake logging within a Django application.
 """
 
+from datetime import date
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from datetime import date
 
 
 class UserProfile(models.Model):
@@ -69,7 +69,7 @@ class UserProfile(models.Model):
     )
 
     def __str__(self):
-        return self.user.username
+        return str(self.user.username)
 
 
 class FitnessLevel(models.Model):
@@ -79,7 +79,7 @@ class FitnessLevel(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Goal(models.Model):
@@ -90,7 +90,7 @@ class Goal(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Injury(models.Model):
@@ -101,7 +101,7 @@ class Injury(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class FriendRequest(models.Model):
@@ -147,7 +147,7 @@ class FoodDatabase(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_or_save_userprofile(sender, instance, created, **kwargs):
+def create_or_save_userprofile(_sender, instance, created, **_kwargs):
     """
     Signal to automatically create or save a UserProfile whenever a User is created or updated.
     """
