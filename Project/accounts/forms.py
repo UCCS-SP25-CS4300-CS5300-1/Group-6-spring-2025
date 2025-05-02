@@ -1,3 +1,8 @@
+'''
+This module defines Django forms for user registration, profile updates, 
+and logging data related to weight, exercise, and food.
+'''
+
 from django import forms
 from django.contrib.auth.models import User
 from django.db import models
@@ -5,6 +10,7 @@ from .models import UserProfile, Goal, Injury, UserAccExercise, FoodDatabase
 
 
 class UserRegistrationForm(forms.ModelForm):
+    """Form for registering a new user."""
     password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
@@ -33,6 +39,7 @@ class UserRegistrationForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
+        """Create a new user with a hashed password."""
         # Create user instance without saving
         user = super(UserRegistrationForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password"])
@@ -42,6 +49,7 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserProfileUpdateForm(forms.ModelForm):
+    """Form for updating user profile information."""
     HEIGHT_CHOICES = [
         (i, f"{i} inches") for i in range(24, 96)
     ]  # Height from 2'0" (24 inches) to 8'0" (96 inches)
@@ -72,6 +80,7 @@ class UserProfileUpdateForm(forms.ModelForm):
 
 
 class UserLogDataFormWeight(forms.ModelForm):
+    """Form for logging user weight entries."""
     WEIGHT_CHOICES = [
         (i, f"{i} lbs") for i in range(20, 600)
     ]  # Weight from 20 lbs to 600 lbs
@@ -83,6 +92,7 @@ class UserLogDataFormWeight(forms.ModelForm):
 
 
 class UserLogDataFormExercise(forms.ModelForm):
+    """Form for logging user exercise entries."""
     class Meta:
         model = UserAccExercise
         name = forms.TextInput(attrs={"placeholder": "Enter Username"})
@@ -93,6 +103,7 @@ class UserLogDataFormExercise(forms.ModelForm):
 
 
 class UserLogDataFormFood(forms.ModelForm):
+    """Form for logging a food item barcode."""
     class Meta:
         model = FoodDatabase
         barcode = models.IntegerField(default=0)
@@ -100,6 +111,7 @@ class UserLogDataFormFood(forms.ModelForm):
 
 
 class UserLogDataFormFoodData(forms.ModelForm):
+    """Form for logging detailed food data entry."""
     class Meta:
         model = FoodDatabase
         barcode = models.IntegerField(default=0)
