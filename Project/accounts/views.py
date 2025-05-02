@@ -113,10 +113,9 @@ def user_data(request):
     user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related(
         "goals"
     )
-    exercises = UserAccExercise.objects.filter(user=request.user)
     exercise_dict = {}
 
-    for x in exercises:
+    for x in UserAccExercise.objects.filter(user=request.user):
         print(x.name, x.weight)
         if x.name in exercise_dict:
             temp = exercise_dict.get(x.name)
@@ -132,12 +131,10 @@ def user_data(request):
     print(exercise_dict, type(exercise_dict))
 
     # Get data for food log
-    total_carb, total_pro, total_fat = 0, 0, 0
-    foodlist = FoodDatabase.objects.filter(
-        user=request.user, datelog=date.today(), servings__gte=1
-    )
+    total_carb = total_pro = total_fat = 0
 
-    for food in foodlist:
+    for food in FoodDatabase.objects.filter(
+        user=request.user, datelog=date.today(), servings__gte=1):
         total_carb += food.carbs * food.servings
         total_pro += food.protein * food.servings
         total_fat += food.fat * food.servings
@@ -418,7 +415,7 @@ def log_data(request):
     renders the default empty forms.
     """
     profile = request.user.userprofile
-    exercisesdone = UserAccExercise.objects.filter(user=request.user)
+    #exercisesdone = UserAccExercise.objects.filter(user=request.user)
     foodinfo = None
     formfooddata = None
     flag = False
@@ -448,12 +445,12 @@ def log_data(request):
                     "form": formweight,
                     "formtwo": formexercise,
                     "formthree": formfood,
-                    "exercises": exercisesdone,
+                    "exercises": UserAccExercise.objects.filter(user=request.user),
                     "flag": flag,
                 },
             )
 
-        elif "barcode" in request.POST:  # This is a foodlog update
+        if "barcode" in request.POST:  # This is a foodlog update
             tosend = "https://cs4300-group2.tech/api/product/" + request.POST.get(
                 "barcode"
             )
@@ -484,7 +481,7 @@ def log_data(request):
 
             # need to making database and new modal to display food data and allow user
             # to update their food log
-        elif "sets" in request.POST:  # This is a exercise update
+        if "sets" in request.POST:  # This is a exercise update
             print(len(request.POST))
             UserAccExercise.objects.create(
                 user=request.user,
@@ -494,7 +491,11 @@ def log_data(request):
                 weight=request.POST.get("weight", 0),
             )
 
-        else:   # This is a weight update
+        if (
+            "servings" not in request.POST
+            and "barcode" not in request.POST
+            and "sets" not in request.POST):   # This is a weight update
+            
             newweight = int(request.POST.get("weight", 0))
             oldweight = json.loads(profile.weight_history)
             oldweight.append(newweight)
@@ -514,7 +515,7 @@ def log_data(request):
                     "form": formweight,
                     "formtwo": formexercise,
                     "formthree": formfood,
-                    "exercises": exercisesdone,
+                    "exercises": UserAccExercise.objects.filter(user=request.user),
                     "flag": flag,
                     "foodinfo": foodinfo,
                     "formfour": formfooddata,
@@ -531,7 +532,7 @@ def log_data(request):
                 "form": formweight,
                 "formtwo": formexercise,
                 "formthree": formfood,
-                "exercises": exercisesdone,
+                "exercises": UserAccExercise.objects.filter(user=request.user),
                 "flag": flag,
             },
         )
@@ -547,7 +548,7 @@ def log_data(request):
                 "form": formweight,
                 "formtwo": formexercise,
                 "formthree": formfood,
-                "exercises": exercisesdone,
+                "exercises": UserAccExercise.objects.filter(user=request.user),
                 "flag": flag,
             },
         )
