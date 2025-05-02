@@ -69,7 +69,7 @@ class UserProfile(models.Model):
     )
 
     def __str__(self):
-        return str(self.user.username)
+        return str(self.user.username) # pylint: disable=no-member
 
 
 class FitnessLevel(models.Model):
@@ -116,7 +116,7 @@ class FriendRequest(models.Model):
     )
 
     def __str__(self):
-        return f"{self.from_user.username} -> {self.to_user.username}"
+        return f"{self.from_user.username} -> {self.to_user.username}" # pylint: disable=no-member
 
 
 class UserAccExercise(models.Model):
@@ -152,6 +152,6 @@ def create_or_save_userprofile(_sender, instance, created, **_kwargs):
     Signal to automatically create or save a UserProfile whenever a User is created or updated.
     """
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.create(user=instance) # pylint: disable=no-member
     else:
         instance.userprofile.save()
