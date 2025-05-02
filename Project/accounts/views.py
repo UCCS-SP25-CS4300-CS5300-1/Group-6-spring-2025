@@ -452,7 +452,7 @@ def log_data(request):
             tosend = "https://cs4300-group2.tech/api/product/" + request.POST.get(
                 "barcode"
             )
-            response = requests.get(tosend, timeout=10)
+            response = requests.get(tosend, timeout=360)
             response = response.content
             response = response.decode("utf-8")
             response = json.loads(response)
