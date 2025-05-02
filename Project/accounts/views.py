@@ -110,9 +110,6 @@ def user_data(request):
 
     # Retrieve all user data entries for the logged-in user
     # Prefetch related goals for efficiency
-    user_data_entries = UserProfile.objects.filter(user=request.user).prefetch_related(
-        "goals"
-    )
     exercise_dict = {}
 
     for x in UserAccExercise.objects.filter(user=request.user):
@@ -126,9 +123,7 @@ def user_data(request):
             exercise_dict[x.name] = temp
         else:
             exercise_dict[x.name] = [x.weight]
-    print(exercise_dict)
     exercise_dict = json.dumps(exercise_dict)
-    print(exercise_dict, type(exercise_dict))
 
     # Get data for food log
     total_carb = total_pro = total_fat = 0
@@ -145,23 +140,26 @@ def user_data(request):
         "Carbohydrates (" + str(total_carb) + "g)",
     ]
     labelvalues = [total_pro * 4, total_fat * 9, total_carb * 4]
-    caltotal = labelvalues[0] + labelvalues[1] + labelvalues[2]
-    print(labels, json.dumps(labelvalues))
 
     return render(
         request,
         "accounts/user_data.html",
         {
             "user_profile": user_profile,
-            "user_data_entries": user_data_entries,
+            "user_data_entries": UserProfile.objects.filter(user=request.user).prefetch_related(
+                                     "goals"),
             "user_exercises": exercise_dict,
             "friend_requests": friend_requests,
             "search_query": search_query,
             "search_results": search_results,
             "foodlabels": json.dumps(labels),
             "foodlabelvalues": json.dumps(labelvalues),
-            "foodlist": foodlist,
-            "caltotal": caltotal,
+            "foodlist": FoodDatabase.objects.filter(
+                                     user=request.user,
+                                     datelog=date.today(),
+                                     servings__gte=1
+                                  ),
+            "caltotal": labelvalues[0] + labelvalues[1] + labelvalues[2],
         },
     )
 
@@ -495,7 +493,7 @@ def log_data(request):
             "servings" not in request.POST
             and "barcode" not in request.POST
             and "sets" not in request.POST):   # This is a weight update
-            
+
             newweight = int(request.POST.get("weight", 0))
             oldweight = json.loads(profile.weight_history)
             oldweight.append(newweight)
@@ -537,19 +535,18 @@ def log_data(request):
             },
         )
 
-    else:
-        formweight = UserLogDataFormWeight()
-        formexercise = UserLogDataFormExercise()
-        formfood = UserLogDataFormFood()
-        return render(
-            request,
-            "accounts/log_data.html",
-            {
-                "form": formweight,
-                "formtwo": formexercise,
-                "formthree": formfood,
-                "exercises": UserAccExercise.objects.filter(user=request.user),
-                "flag": flag,
-            },
-        )
+    formweight = UserLogDataFormWeight()
+    formexercise = UserLogDataFormExercise()
+    formfood = UserLogDataFormFood()
+    return render(
+        request,
+        "accounts/log_data.html",
+        {
+            "form": formweight,
+            "formtwo": formexercise,
+            "formthree": formfood,
+            "exercises": UserAccExercise.objects.filter(user=request.user),
+            "flag": flag,
+        },
+    )
 # pylint: enable=no-member
