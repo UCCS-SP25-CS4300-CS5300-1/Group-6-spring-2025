@@ -9,10 +9,9 @@ to perform necessary actions like creating new users or updating user informatio
 Each view function is responsible for rendering the appropriate templates 
 and returning the corresponding HTTP responses.
 """
-
+from datetime import date
 import json
 import requests
-from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -133,7 +132,7 @@ def user_data(request):
     print(exercise_dict, type(exercise_dict))
 
     # Get data for food log
-    total_carb, total_pro, total_fat = 0
+    total_carb, total_pro, total_fat = 0, 0, 0
     foodlist = FoodDatabase.objects.filter(
         user=request.user, datelog=date.today(), servings__gte=1
     )
