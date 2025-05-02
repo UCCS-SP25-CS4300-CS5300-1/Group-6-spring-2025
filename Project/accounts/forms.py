@@ -13,7 +13,8 @@ class UserRegistrationForm(forms.ModelForm):
     """Form for registering a new user."""
     password = forms.CharField(widget=forms.PasswordInput)
 
-    class Meta:
+    class Meta: # pylint: disable=too-few-public-methods
+        """Form variables"""
         model = User
         fields = ["username", "email", "password"]
         widgets = {
@@ -23,7 +24,7 @@ class UserRegistrationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["username"].help_text = ""  # Remove help text
         self.fields["username"].error_messages = {
             "required": "Please enter a username.",
@@ -41,7 +42,7 @@ class UserRegistrationForm(forms.ModelForm):
     def save(self, commit=True):
         """Create a new user with a hashed password."""
         # Create user instance without saving
-        user = super(UserRegistrationForm, self).save(commit=False)
+        user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()  # Save the user instance to the database
@@ -64,6 +65,7 @@ class UserProfileUpdateForm(forms.ModelForm):
     # fitness_level = forms.ModelChoiceField(queryset=FitnessLevel.objects.all(), required=False)
 
     class Meta:
+        """Form variables for their account info"""
         model = UserProfile
         fields = ["height", "weight", "fitness_level", "goals", "injury_history"]
         widgets = {
@@ -73,10 +75,10 @@ class UserProfileUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["goals"].queryset = Goal.objects.all()  # Populate goals
+        self.fields["goals"].queryset = Goal.objects.all()  # pylint: disable=no-member
         self.fields[
             "injury_history"
-        ].queryset = Injury.objects.all()  # Populate injuries
+        ].queryset = Injury.objects.all()  # pylint: disable=no-member
 
 
 class UserLogDataFormWeight(forms.ModelForm):
@@ -87,6 +89,7 @@ class UserLogDataFormWeight(forms.ModelForm):
     weight = forms.ChoiceField(choices=WEIGHT_CHOICES, required=False)
 
     class Meta:
+        """Form variables"""
         model = UserProfile
         fields = ["weight"]
 
@@ -94,6 +97,7 @@ class UserLogDataFormWeight(forms.ModelForm):
 class UserLogDataFormExercise(forms.ModelForm):
     """Form for logging user exercise entries."""
     class Meta:
+        """Form variables"""
         model = UserAccExercise
         name = forms.TextInput(attrs={"placeholder": "Enter Username"})
         weight = models.IntegerField(default=0)
@@ -105,6 +109,7 @@ class UserLogDataFormExercise(forms.ModelForm):
 class UserLogDataFormFood(forms.ModelForm):
     """Form for logging a food item barcode."""
     class Meta:
+        """Form variables"""
         model = FoodDatabase
         barcode = models.IntegerField(default=0)
         fields = ["barcode"]
@@ -113,6 +118,7 @@ class UserLogDataFormFood(forms.ModelForm):
 class UserLogDataFormFoodData(forms.ModelForm):
     """Form for logging detailed food data entry."""
     class Meta:
+        """Form variables and their default values."""
         model = FoodDatabase
         barcode = models.IntegerField(default=0)
         name = models.IntegerField(default=0)
