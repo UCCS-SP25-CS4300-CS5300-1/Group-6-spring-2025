@@ -405,6 +405,18 @@ def friend_data(request, user_id):
 
 
 def log_data(request):
+    """
+    Handle logging POSTs for user weight, food, and exercise entries, and render
+    the log_data page with the appropriate forms and data.
+
+    - `servings` → add a food entry and immediately render the forms
+    - `barcode`  → fetch nutrition info, prefill the food form, set flag
+    - `sets`     → create an exercise entry
+    - otherwise → append a new weight entry
+
+    Finally, if `flag` is set it renders the food‐prefill form; otherwise it
+    renders the default empty forms.
+    """
     profile = request.user.userprofile
     exercisesdone = UserAccExercise.objects.filter(user=request.user)
     foodinfo = None
@@ -441,7 +453,7 @@ def log_data(request):
                 },
             )
 
-        if "barcode" in request.POST:  # This is a foodlog update
+        elif "barcode" in request.POST:  # This is a foodlog update
             tosend = "https://cs4300-group2.tech/api/product/" + request.POST.get(
                 "barcode"
             )
@@ -472,7 +484,7 @@ def log_data(request):
 
             # need to making database and new modal to display food data and allow user
             # to update their food log
-        if "sets" in request.POST:  # This is a exercise update
+        elif "sets" in request.POST:  # This is a exercise update
             print(len(request.POST))
             UserAccExercise.objects.create(
                 user=request.user,
@@ -482,14 +494,14 @@ def log_data(request):
                 weight=request.POST.get("weight", 0),
             )
 
-        # This is a weight update
-        newweight = int(request.POST.get("weight", 0))
-        oldweight = json.loads(profile.weight_history)
-        oldweight.append(newweight)
-        toupdate = json.dumps(oldweight)
-        UserProfile.objects.filter(user=request.user).update(
-            weight_history=toupdate
-        )
+        else:   # This is a weight update
+            newweight = int(request.POST.get("weight", 0))
+            oldweight = json.loads(profile.weight_history)
+            oldweight.append(newweight)
+            toupdate = json.dumps(oldweight)
+            UserProfile.objects.filter(user=request.user).update(
+                weight_history=toupdate
+            )
 
         if flag:
             formweight = UserLogDataFormWeight()
