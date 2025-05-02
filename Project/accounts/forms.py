@@ -1,7 +1,21 @@
-'''
-This module defines Django forms for user registration, profile updates, 
-and logging data related to weight, exercise, and food.
-'''
+"""
+forms.py
+
+This module defines Django form classes used in the user account system.
+It includes forms for user registration, profile updates, and logging 
+user data such as weight, exercises, and food intake.
+
+Forms:
+- UserRegistrationForm: Handles new user sign-up with password hashing.
+- UserProfileUpdateForm: Allows users to update profile details like height,
+  weight, fitness level, goals, and injury history.
+- UserLogDataFormWeight: Used for logging user weight.
+- UserLogDataFormExercise: Used for logging exercise details including weight, sets, and reps.
+- UserLogDataFormFood: Logs food entries by barcode.
+- UserLogDataFormFoodData: Logs detailed nutritional info for food items.
+
+These forms are tightly integrated with
+"""
 
 from django import forms
 from django.contrib.auth.models import User
@@ -64,7 +78,7 @@ class UserProfileUpdateForm(forms.ModelForm):
     fitness_level = forms.ChoiceField(choices=FITNESS_LEVEL_CHOICES, required=False)
     # fitness_level = forms.ModelChoiceField(queryset=FitnessLevel.objects.all(), required=False)
 
-    class Meta:
+    class Meta: # pylint: disable=too-few-public-methods
         """Form variables for their account info"""
         model = UserProfile
         fields = ["height", "weight", "fitness_level", "goals", "injury_history"]
@@ -88,7 +102,7 @@ class UserLogDataFormWeight(forms.ModelForm):
     ]  # Weight from 20 lbs to 600 lbs
     weight = forms.ChoiceField(choices=WEIGHT_CHOICES, required=False)
 
-    class Meta:
+    class Meta: # pylint: disable=too-few-public-methods
         """Form variables"""
         model = UserProfile
         fields = ["weight"]
@@ -96,7 +110,7 @@ class UserLogDataFormWeight(forms.ModelForm):
 
 class UserLogDataFormExercise(forms.ModelForm):
     """Form for logging user exercise entries."""
-    class Meta:
+    class Meta: # pylint: disable=too-few-public-methods
         """Form variables"""
         model = UserAccExercise
         name = forms.TextInput(attrs={"placeholder": "Enter Username"})
@@ -108,7 +122,7 @@ class UserLogDataFormExercise(forms.ModelForm):
 
 class UserLogDataFormFood(forms.ModelForm):
     """Form for logging a food item barcode."""
-    class Meta:
+    class Meta: # pylint: disable=too-few-public-methods
         """Form variables"""
         model = FoodDatabase
         barcode = models.IntegerField(default=0)
@@ -117,7 +131,7 @@ class UserLogDataFormFood(forms.ModelForm):
 
 class UserLogDataFormFoodData(forms.ModelForm):
     """Form for logging detailed food data entry."""
-    class Meta:
+    class Meta: # pylint: disable=too-few-public-methods
         """Form variables and their default values."""
         model = FoodDatabase
         barcode = models.IntegerField(default=0)

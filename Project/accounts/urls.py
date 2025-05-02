@@ -1,3 +1,16 @@
+"""
+URL configuration for the accounts app.
+
+This module defines the URL patterns for user account management, including:
+- User registration, login, logout, and profile updates
+- Logging user data such as weight, exercise, and food
+- Friend management features (sending, accepting, rejecting, and removing requests)
+- Viewing and searching friend lists and user data
+
+Each path is associated with a view function that handles the corresponding logic.
+"""
+
+
 from django.urls import path
 from .views import (
     register,
@@ -16,17 +29,29 @@ from .views import (
 )
 
 urlpatterns = [
-    path('register/', register, name='register'),
-    path('login/', user_login, name='login'),
-    path('user_data/', user_data, name='user_data'),
-    path('update_profile/', update_profile, name='update_profile'),
-    path('logout/', custom_logout, name='logout'),
-    path('friend-request/send/<int:user_id>/', send_friend_request, name='send_friend_request'),
-    path('friend-request/accept/<int:request_id>/', accept_friend_request, name='accept_friend_request'),
-    path('friend-request/reject/<int:request_id>/', reject_friend_request, name='reject_friend_request'),
-    path('friend/remove/<int:user_id>/', remove_friend, name='remove_friend'),
-    path('friends/', friend_list, name='friend_list'),
-    path('friend-search/', friend_search, name='friend_search'),
-    path('user_data/<int:user_id>/', friend_data, name='friend_data'),
-    path('log_data/', log_data, name='log_data'),
+    path("register/", register, name="register"),
+    path("login/", user_login, name="login"),
+    path("user_data/", user_data, name="user_data"),
+    path("update_profile/", update_profile, name="update_profile"),
+    path("logout/", custom_logout, name="logout"),
+    path(
+        "friend-request/send/<int:user_id>/",
+        send_friend_request,
+        name="send_friend_request",
+    ),
+    path(
+        "friend-request/accept/<int:request_id>/",
+        accept_friend_request,
+        name="accept_friend_request",
+    ),
+    path(
+        "friend-request/reject/<int:request_id>/",
+        reject_friend_request,
+        name="reject_friend_request",
+    ),
+    path("friend/remove/<int:user_id>/", remove_friend, name="remove_friend"),
+    path("friends/", friend_list, name="friend_list"),
+    path("friend-search/", friend_search, name="friend_search"),
+    path("user_data/<int:user_id>/", friend_data, name="friend_data"),
+    path("log_data/", log_data, name="log_data"),
 ]
