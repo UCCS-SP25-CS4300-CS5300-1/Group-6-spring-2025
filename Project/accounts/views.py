@@ -28,7 +28,7 @@ from .forms import (
 )
 from .models import UserProfile, FriendRequest, UserAccExercise, FoodDatabase
 
-
+# pylint: disable=no-member
 def register(request):
     """
     Handle user registration. If the request method is POST, validate and save the form 
@@ -95,7 +95,7 @@ def user_data(request):
     user_profile = request.user.userprofile
 
     # Friend management
-    friend_requests = FriendRequest.objects.filter(to_user=request.user)
+    FriendRequest.objects.filter(to_user=request.user) 
     search_query = request.GET.get("q", "")
     search_results = []
     if search_query:
@@ -241,8 +241,7 @@ def update_profile(request):
             profile.injury_history.set(injuries)
             # Redirect to home or another page after saving
             return redirect("/accounts/user_data/")
-        else:
-            print(form.errors)  # Print any validation errors
+        print(form.errors)  # Print any validation errors
     else:
         form = UserProfileUpdateForm(instance=profile)
 
@@ -408,6 +407,8 @@ def friend_data(request, user_id):
 def log_data(request):
     profile = request.user.userprofile
     exercisesdone = UserAccExercise.objects.filter(user=request.user)
+    foodinfo = None 
+    formfooddata = None
     flag = False
     print(profile)
 
@@ -444,7 +445,7 @@ def log_data(request):
             tosend = "https://cs4300-group2.tech/api/product/" + request.POST.get(
                 "barcode"
             )
-            response = requests.get(tosend)
+            response = requests.get(tosend, timeout=10)
             response = response.content
             response = response.decode("utf-8")
             response = json.loads(response)
@@ -538,3 +539,4 @@ def log_data(request):
                 "flag": flag,
             },
         )
+# pylint: enable=no-member
