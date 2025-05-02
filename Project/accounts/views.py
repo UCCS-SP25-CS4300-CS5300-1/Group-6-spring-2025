@@ -1,14 +1,20 @@
+import json
+import requests
+from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import (UserRegistrationForm, UserProfileUpdateForm, UserLogDataFormWeight,
-    UserLogDataFormExercise, UserLogDataFormFood, UserLogDataFormFoodData)
-import json
-import requests
-from datetime import date
+from .forms import (
+    UserRegistrationForm,
+    UserProfileUpdateForm,
+    UserLogDataFormWeight,
+    UserLogDataFormExercise,
+    UserLogDataFormFood,
+    UserLogDataFormFoodData
+    )
 from .models import UserProfile, FriendRequest, UserAccExercise, FoodDatabase
 
 def register(request):
@@ -47,9 +53,7 @@ def user_data(request):
     search_results = []
     if search_query:
         friends_ids = request.user.userprofile.friends.all().values_list('user__id', flat=True)
-        search_results = User.objects.filter(username__icontains=search_query) \
-            .exclude(id=request.user.id) \
-            .exclude(id__in=friends_ids)
+        search_results = (User.objects.filter(username__icontains=search_query).exclude(id=request.user.id).exclude(id__in=friends_ids))
     
     # Retrieve all user data entries for the logged-in user
     # Prefetch related goals for efficiency
