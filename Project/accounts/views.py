@@ -19,6 +19,16 @@ from .models import UserProfile, FriendRequest, UserAccExercise, FoodDatabase
 
 
 def register(request):
+    """
+    Handle user registration. If the request method is POST, validate and save the form data,
+    authenticate the user, and log them in. Redirect to the home page after a successful registration.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Rendered registration page with the registration form.
+    """
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -31,6 +41,16 @@ def register(request):
 
 
 def user_login(request):
+    """
+    Handle user login. If the request method is POST, authenticate the user using the provided
+    username and password. If successful, log the user in and redirect to the home page.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Rendered login page with the authentication form.
+    """
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -47,6 +67,17 @@ def user_login(request):
 
 @login_required
 def user_data(request):
+    """
+    Display user data including the user's profile, friend requests, search results for friends,
+    and logs of exercises and food entries. This function handles retrieval and rendering of various
+    data related to the logged-in user.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Rendered user data page with user-related information such as exercises, food logs, and friends.
+    """
     # Retrieve the user's profile
     user_profile = request.user.userprofile
 
@@ -70,40 +101,40 @@ def user_data(request):
         "goals"
     )
     exercises = UserAccExercise.objects.filter(user=request.user)
-    exerciseDict = {}
+    exercise_dict = {}
 
     for x in exercises:
         print(x.name, x.weight)
-        if x.name in exerciseDict:
-            temp = exerciseDict.get(x.name)
+        if x.name in exercise_dict:
+            temp = exercise_dict.get(x.name)
             print(temp)
             print(type(temp), type(temp[0]), type(x.weight))
             temp.append(x.weight)
             print(temp)
-            exerciseDict[x.name] = temp
+            exercise_dict[x.name] = temp
         else:
-            exerciseDict[x.name] = [x.weight]
-    print(exerciseDict)
-    exerciseDict = json.dumps(exerciseDict)
-    print(exerciseDict, type(exerciseDict))
+            exercise_dict[x.name] = [x.weight]
+    print(exercise_dict)
+    exercise_dict = json.dumps(exercise_dict)
+    print(exercise_dict, type(exercise_dict))
 
     # Get data for food log
-    totalCarb, totalPro, totalFat = 0
+    total_carb, total_pro, total_fat = 0
     foodlist = FoodDatabase.objects.filter(
         user=request.user, datelog=date.today(), servings__gte=1
     )
 
     for food in foodlist:
-        totalCarb += food.carbs * food.servings
-        totalPro += food.protein * food.servings
-        totalFat += food.fat * food.servings
+        total_carb += food.carbs * food.servings
+        total_pro += food.protein * food.servings
+        total_fat += food.fat * food.servings
 
     labels = [
-        "Protein (" + str(totalPro) + "g)",
-        "Fat (" + str(totalFat) + "g)",
-        "Carbohydrates (" + str(totalCarb) + "g)",
+        "Protein (" + str(total_pro) + "g)",
+        "Fat (" + str(total_fat) + "g)",
+        "Carbohydrates (" + str(total_carb) + "g)",
     ]
-    labelvalues = [totalPro * 4, totalFat * 9, totalCarb * 4]
+    labelvalues = [total_pro * 4, total_fat * 9, total_carb * 4]
     caltotal = labelvalues[0] + labelvalues[1] + labelvalues[2]
     print(labels, json.dumps(labelvalues))
 
@@ -113,7 +144,7 @@ def user_data(request):
         {
             "user_profile": user_profile,
             "user_data_entries": user_data_entries,
-            "user_exercises": exerciseDict,
+            "user_exercises": exercise_dict,
             "friend_requests": friend_requests,
             "search_query": search_query,
             "search_results": search_results,
@@ -126,12 +157,31 @@ def user_data(request):
 
 
 def custom_logout(request):
+    """
+    Log the user out and redirect to the home page.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Redirect to the home page after logging out.
+    """
     logout(request)
     return redirect("/")
 
 
 @login_required
 def update_profile(request):
+    """
+    Update the user's profile information, including height, weight, BMI, goals, and injury history.
+    If the form is valid, save the updated profile data and redirect the user to the user data page.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Rendered profile update page with the user's current profile data and a form to update the profile.
+    """
     profile = request.user.userprofile
     if request.method == "POST":
         form = UserProfileUpdateForm(request.POST, instance=profile)
@@ -196,6 +246,17 @@ def update_profile(request):
 
 @login_required
 def send_friend_request(request, user_id):
+    """
+    Send a friend request to another user. If a request already exists, inform the user. Redirect to
+    the user data page after sending the request.
+
+    Args:
+        request: The HTTP request object.
+        user_id: The ID of the user to whom the friend request is sent.
+
+    Returns:
+        Redirect to the user data page with a success or info message.
+    """
     to_user = get_object_or_404(User, id=user_id)
     friend_request, created = FriendRequest.objects.get_or_create(
         from_user=request.user, to_user=to_user
@@ -209,6 +270,17 @@ def send_friend_request(request, user_id):
 
 @login_required
 def accept_friend_request(request, request_id):
+    """
+    Accept a pending friend request, add the sender to the user's friend list, and delete the request.
+    Redirect to the user data page after accepting the request.
+
+    Args:
+        request: The HTTP request object.
+        request_id: The ID of the friend request to accept.
+
+    Returns:
+        Redirect to the user data page after accepting the request.
+    """
     f_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     request.user.userprofile.friends.add(f_request.from_user.userprofile)
     f_request.delete()
@@ -217,6 +289,16 @@ def accept_friend_request(request, request_id):
 
 @login_required
 def reject_friend_request(request, request_id):
+    """
+    Reject a pending friend request by deleting it. Redirect to the user data page after rejecting the request.
+
+    Args:
+        request: The HTTP request object.
+        request_id: The ID of the friend request to reject.
+
+    Returns:
+        Redirect to the user data page after rejecting the request.
+    """
     f_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     f_request.delete()
     return redirect("user_data")
@@ -224,6 +306,17 @@ def reject_friend_request(request, request_id):
 
 @login_required
 def remove_friend(request, user_id):
+    """
+    Remove a friend from the user's friend list. This will also remove the user from the friend's list.
+    Redirect to the user data page after removing the friend.
+
+    Args:
+        request: The HTTP request object.
+        user_id: The ID of the user to be removed from the friend list.
+
+    Returns:
+        Redirect to the user data page after removing the friend.
+    """
     friend = get_object_or_404(User, id=user_id)
     request.user.userprofile.friends.remove(friend.userprofile)
     friend.userprofile.friends.remove(request.user.userprofile)
@@ -232,12 +325,31 @@ def remove_friend(request, user_id):
 
 @login_required
 def friend_list(request):
+    """
+    Display a list of the user's friends.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Rendered user data page with the user's friend list.
+    """
     friends = request.user.userprofile.friends.all()
     return render(request, "accounts/user_data.html", {"friends": friends})
 
 
 @login_required
 def friend_search(request):
+    """
+    Search for users by username, excluding the current user and their existing friends. The search
+    results are displayed on the user data page.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        Rendered user data page with search results for friends.
+    """
     query = request.GET.get("q", "")
     results = []
     if query:
@@ -258,6 +370,16 @@ def friend_search(request):
 
 @login_required
 def friend_data(request, user_id):
+    """
+    Display detailed data for a specific friend, if they are in the user's friend list.
+
+    Args:
+        request: The HTTP request object.
+        user_id: The ID of the friend whose data to display.
+
+    Returns:
+        Rendered user data page with the friend's information.
+    """
     friend = get_object_or_404(User, id=user_id)
     if not request.user.userprofile.friends.filter(pk=friend.userprofile.pk).exists():
         messages.error(request, "You are not allowed to view this profile.")
