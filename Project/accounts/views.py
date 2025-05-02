@@ -1,3 +1,15 @@
+"""
+Views for the accounts module.
+
+This module contains the views for user authentication and profile management,
+including registration, login, logout, and editing user profiles. It handles
+the request/response cycle for these operations and interacts with the models 
+to perform necessary actions like creating new users or updating user information.
+
+Each view function is responsible for rendering the appropriate templates 
+and returning the corresponding HTTP responses.
+"""
+
 import json
 import requests
 from datetime import date
@@ -20,8 +32,9 @@ from .models import UserProfile, FriendRequest, UserAccExercise, FoodDatabase
 
 def register(request):
     """
-    Handle user registration. If the request method is POST, validate and save the form data,
-    authenticate the user, and log them in. Redirect to the home page after a successful registration.
+    Handle user registration. If the request method is POST, validate and save the form 
+    data, authenticate the user, and log them in. Redirect to the home page after a 
+    successful registration.
 
     Args:
         request: The HTTP request object.
@@ -69,14 +82,15 @@ def user_login(request):
 def user_data(request):
     """
     Display user data including the user's profile, friend requests, search results for friends,
-    and logs of exercises and food entries. This function handles retrieval and rendering of various
-    data related to the logged-in user.
+    and logs of exercises and food entries. This function handles retrieval and rendering of
+    various data related to the logged-in user.
 
     Args:
         request: The HTTP request object.
 
     Returns:
-        Rendered user data page with user-related information such as exercises, food logs, and friends.
+        Rendered user data page with user-related information such as exercises, food logs, and
+        friends.
     """
     # Retrieve the user's profile
     user_profile = request.user.userprofile
@@ -173,14 +187,16 @@ def custom_logout(request):
 @login_required
 def update_profile(request):
     """
-    Update the user's profile information, including height, weight, BMI, goals, and injury history.
-    If the form is valid, save the updated profile data and redirect the user to the user data page.
+    Update the user's profile information, including height, weight, BMI, goals, and injury 
+    history. If the form is valid, save the updated profile data and redirect the user to
+    the user data page.
 
     Args:
         request: The HTTP request object.
 
     Returns:
-        Rendered profile update page with the user's current profile data and a form to update the profile.
+        Rendered profile update page with the user's current profile data and a form to
+        update the profile.
     """
     profile = request.user.userprofile
     if request.method == "POST":
@@ -247,8 +263,8 @@ def update_profile(request):
 @login_required
 def send_friend_request(request, user_id):
     """
-    Send a friend request to another user. If a request already exists, inform the user. Redirect to
-    the user data page after sending the request.
+    Send a friend request to another user. If a request already exists, inform the
+    user. Redirect to the user data page after sending the request.
 
     Args:
         request: The HTTP request object.
@@ -271,8 +287,8 @@ def send_friend_request(request, user_id):
 @login_required
 def accept_friend_request(request, request_id):
     """
-    Accept a pending friend request, add the sender to the user's friend list, and delete the request.
-    Redirect to the user data page after accepting the request.
+    Accept a pending friend request, add the sender to the user's friend list, and 
+    delete the request. Redirect to the user data page after accepting the request.
 
     Args:
         request: The HTTP request object.
@@ -290,7 +306,8 @@ def accept_friend_request(request, request_id):
 @login_required
 def reject_friend_request(request, request_id):
     """
-    Reject a pending friend request by deleting it. Redirect to the user data page after rejecting the request.
+    Reject a pending friend request by deleting it. Redirect to the user data page after
+    rejecting the request.
 
     Args:
         request: The HTTP request object.
@@ -307,8 +324,8 @@ def reject_friend_request(request, request_id):
 @login_required
 def remove_friend(request, user_id):
     """
-    Remove a friend from the user's friend list. This will also remove the user from the friend's list.
-    Redirect to the user data page after removing the friend.
+    Remove a friend from the user's friend list. This will also remove the user from the
+    friend's list. Redirect to the user data page after removing the friend.
 
     Args:
         request: The HTTP request object.
@@ -341,8 +358,8 @@ def friend_list(request):
 @login_required
 def friend_search(request):
     """
-    Search for users by username, excluding the current user and their existing friends. The search
-    results are displayed on the user data page.
+    Search for users by username, excluding the current user and their existing friends. The
+    search results are displayed on the user data page.
 
     Args:
         request: The HTTP request object.
