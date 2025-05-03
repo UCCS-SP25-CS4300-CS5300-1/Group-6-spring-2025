@@ -1,3 +1,15 @@
+"""
+Unit tests for the social features of the application, including friend requests,
+removing friends, viewing friend data, and searching for new connections.
+
+Covers:
+- Sending, accepting, and rejecting friend requests
+- Removing existing friends
+- Viewing the friend list
+- Searching for new friends
+- Viewing a friend's profile with access control
+"""
+
 from django.contrib.messages import get_messages
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
@@ -39,10 +51,10 @@ class UserProfileModelTests(TestCase):
 
     def test_many_to_many_relationships(self):
         """Ensure goals and injuries can be added to a UserProfile."""
-        goal = Goal.objects.create(
+        goal = Goal.objects.create( # pylint: disable=no-member
             name="Build Strength", description="Increase muscle mass"
         )
-        injury = Injury.objects.create(
+        injury = Injury.objects.create( # pylint: disable=no-member
             name="Knee Injury", description="Previous ACL tear"
         )
 
@@ -61,9 +73,9 @@ class UserAuthenticationTests(TestCase):
     def setUp(self):
         """Set up a user and test client without CSRF enforcement."""
         # Disable CSRF for testing
-        self.client = Client(enforce_csrf_checks=False)  
+        self.client = Client(enforce_csrf_checks=False)
         self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", 
+            username="testuser", email="test@example.com",
             password="testpassword"
         )
 
@@ -122,16 +134,16 @@ class UserProfileUpdateTests(TestCase):
 
     def test_update_profile(self):
         """Ensure users can update their profile information."""
-        goal = Goal.objects.create(
+        goal = Goal.objects.create( # pylint: disable=no-member
             name="Lose Weight", description="Cut fat percentage"
-            ) # pylint: disable=no-member
-        injury = Injury.objects.create(
+            )
+        injury = Injury.objects.create( # pylint: disable=no-member
             name="Back Pain", description="Chronic lower back pain"
-        ) # pylint: disable=no-member
+        )
 
         update_profile_url = reverse("update_profile")
          # Debugging URL resolution
-        print(f"Update Profile URL: {update_profile_url}") 
+        print(f"Update Profile URL: {update_profile_url}")
 
         response = self.client.post(
             update_profile_url,
@@ -144,7 +156,7 @@ class UserProfileUpdateTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)  # Expect redirect
-        profile = UserProfile.objects.get(user=self.user)
+        profile = UserProfile.objects.get(user=self.user) # pylint: disable=no-member
         self.assertEqual(profile.height, 72)
         self.assertEqual(profile.weight, 180)
         self.assertIn(goal, profile.goals.all())
@@ -212,7 +224,7 @@ class FriendRequestTestCase(TestCase):
         """
         Test that a FriendRequest can be created and saved.
         """
-        friend_request = FriendRequest.objects.create(
+        friend_request = FriendRequest.objects.create( # pylint: disable=no-member
             from_user=self.user1, to_user=self.user2
         ) # pylint: disable=no-member
         self.assertIsNotNone(
@@ -225,7 +237,7 @@ class FriendRequestTestCase(TestCase):
         """
         Test the __str__ method of the FriendRequest model.
         """
-        friend_request = FriendRequest.objects.create(
+        friend_request = FriendRequest.objects.create( # pylint: disable=no-member
             from_user=self.user1, to_user=self.user2
         ) # pylint: disable=no-member
         expected_str = f"{self.user1.username} -> {self.user2.username}"
@@ -240,7 +252,7 @@ class FriendViewsTestCase(TestCase):
     def setUp(self):
         """Create two users and clear any pre-existing friendships."""
         self.client = Client()
-        # Create two users. Assume that a signal creates a related userprofile 
+        # Create two users. Assume that a signal creates a related userprofile
         # automatically.
         self.user1 = User.objects.create_user(
             username="user1",
@@ -254,7 +266,11 @@ class FriendViewsTestCase(TestCase):
         self.user1.userprofile.friends.clear()
         self.user2.userprofile.friends.clear()
 
-    def test_profile_view_requires_login(self):
+    def test_profile_view_requires_login(self): 
+        """
+        Ensure that unauthenticated access to the profile view
+        is redirected to the login page.
+        """
         url = reverse("user_data")
         response = self.client.get(url)
         # Expect a redirect to the login page for an unauthenticated user.
@@ -288,7 +304,7 @@ class FriendViewsTestCase(TestCase):
         url = reverse("send_friend_request", args=[self.user2.id])
         # Send friend request the first time.
         response = self.client.get(url)
-        fr = FriendRequest.objects.filter(
+        fr = FriendRequest.objects.filter( # pylint: disable=no-member
             from_user=self.user1, to_user=self.user2
         ).first()
         self.assertIsNotNone(fr)
@@ -307,7 +323,7 @@ class FriendViewsTestCase(TestCase):
         to the other's friends list and deletes the request.
         """
         # Create a friend request from user2 to user1.
-        friend_request = FriendRequest.objects.create(
+        friend_request = FriendRequest.objects.create( # pylint: disable=no-member
             from_user=self.user2, to_user=self.user1
         )
         self.client.login(username="user1", password="password1")
@@ -315,9 +331,9 @@ class FriendViewsTestCase(TestCase):
         response = self.client.get(url)
         # After accepting, the friend request should be deleted.
         self.assertFalse(
-            FriendRequest.objects.filter(id=friend_request.id).exists()
+            FriendRequest.objects.filter(id=friend_request.id).exists() # pylint: disable=no-member
             )
-        # And both users should now be friends 
+        # And both users should now be friends
         # (assuming a symmetrical relationship).
         self.assertIn(
             self.user2.userprofile,
@@ -333,7 +349,7 @@ class FriendViewsTestCase(TestCase):
         """
         Tests that rejecting a friend request deletes it and redirects the user.
         """
-        friend_request = FriendRequest.objects.create(
+        friend_request = FriendRequest.objects.create( # pylint: disable=no-member
             from_user=self.user2, to_user=self.user1
         )
         self.client.login(username="user1", password="password1")
@@ -341,7 +357,7 @@ class FriendViewsTestCase(TestCase):
         response = self.client.get(url)
         # The friend request should be deleted.
         self.assertFalse(
-            FriendRequest.objects.filter(id=friend_request.id).exists()
+            FriendRequest.objects.filter(id=friend_request.id).exists() # pylint: disable=no-member
             )
         self.assertRedirects(response, reverse("user_data"))
 
