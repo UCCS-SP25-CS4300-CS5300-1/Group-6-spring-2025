@@ -14,15 +14,18 @@ Test classes:
 - CalendarTests: Covers workout completion logging and warm-up fetching via API
 """
 
+
+from datetime import date
+from decimal import Decimal
+from unittest.mock import patch
+
 import requests
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
-from datetime import date
-from goals.models import UserExercise, WorkoutLog, Exercise
-from decimal import Decimal
 from django.contrib.auth import get_user_model
-from unittest.mock import patch
+from django.contrib.auth.models import User
+
+from goals.models import UserExercise, WorkoutLog, Exercise
 from .ai import ai_model
 
 
