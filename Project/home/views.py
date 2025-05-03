@@ -1,4 +1,4 @@
-# pylint: disable=no-member,invalid-name
+# pylint: disable=no-member,invalid-name, too-many-locals, too-many-branches
 
 """
 Workout AI and Calendar Views
@@ -25,6 +25,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.crypto import get_random_string
 from django.utils.text import slugify
+from django.core.exceptions import ObjectDoesNotExist
 
 from accounts.models import UserProfile
 from goals.models import UserExercise, WorkoutLog, Exercise
@@ -150,7 +151,7 @@ def save_to_calendar(request):
         )
 
     # Print errors for debugging
-    except Exception as e:
+    except ObjectDoesNotExist as e:
         print(" Error saving workout:", str(e))
         return JsonResponse({"error": str(e)}, status=500)
 
@@ -195,7 +196,7 @@ def generate_workout(request):
         try:
             with open(template_path, "r", encoding="utf-8") as file:
                 prompt_template = file.read()
-        except Exception as e:
+        except ObjectDoesNotExist as e:
             return HttpResponse(f"Error reading prompt template: {e}", status=500)
 
         # Adds in the actual user information to the prompt
@@ -204,7 +205,7 @@ def generate_workout(request):
         # Attempt to send the prompt to the AI model
         try:
             ai_response = ai_model.get_response(prompt)
-        except Exception as e:
+        except ObjectDoesNotExist as e:
             ai_response = f"Error generating response: {e}"
 
         # Ensures the raw plain text of the AI response is sent, NOT the full HTML file
@@ -281,12 +282,13 @@ def calendar_view(request):
                 # input the API key for the project
                 "X-API-Key": "BB+Yg/m06BKgSpFZ+FCbdw==W7rniUupiho7pyGz"
             },
+            timeout=360
         )
         if response.status_code == 200:  # if the response worked
             warm_ups = response.json()[
                 :3
             ]  # update the list (holds three exercises for now)
-    except Exception as e:  # if the try did not work
+    except ObjectDoesNotExist as e:  # if the try did not work
         print(
             f"Error fetching warm-up excercises: {e}"
         )  # print an error message on the webpage
@@ -311,12 +313,10 @@ def workout_events(request):
     exercises = UserExercise.objects.filter(user=request.user)
 
     # Retrieve completed workouts from the WorkoutLog model
-    completed_workouts = WorkoutLog.objects.filter(user=request.user).values_list(
+    user_completed_workouts = WorkoutLog.objects.filter(user=request.user).values_list(
         "exercise_id", "date_completed"
     )
-    completed_dict = {
-        (ex_id, date_completed) for ex_id, date_completed in completed_workouts
-    }
+    completed_dict = set(user_completed_workouts)
 
     # Prepare an empty dictionary to store workouts grouped by date
     events_by_date = {}
