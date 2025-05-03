@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1003">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1008">
   <title>Ask AI for a Fitness Plan</title>
 </head>
 <script>
@@ -239,6 +239,51 @@
     let currentExerciseText = "";
     let currentExerciseDay = "";
 
+
+    function fetchExerciseInfo(exerciseName) {
+        fetch("/exercise-info/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+        body: JSON.stringify({ name: exerciseName })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            showAdviceModal(exerciseName, data.info);
+          } else{
+            alert(data.error || "No info available.");
+          }
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+          alert("Failed to load tip.");
+        });
+      }
+
+      function getCSRFToken() {
+        return document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+      }
+
+      function showAdviceModal(title, advice) {
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+
+        modal.innerHTML = `
+          <div class="modal-box">
+            <span class="modal-close" onclick="this.parentElement.parentElement.remove()">×</span>
+            <h3>${title}</h3>
+            <p>${advice}</p>
+          </div>
+          `;
+
+      document.body.appendChild(modal);
+    }
+
     //Triggered when user hits "change", takes current values to send to model
     function openChangeModal(text, liElement, day) {
       currentExerciseNode = liElement;
@@ -466,24 +511,45 @@
 
         // Add exercises and use nice formatting
         else if (dayContainer && ul) {
+
           const li = document.createElement("li");
           li.className = "exercise-card";
 
+          // Create "?" button with tooltip and click event
+          const infoWrapper = document.createElement("span");
+          infoWrapper.className = "tooltip-icon";
+          infoWrapper.innerText = "?";
+
+          // Tooltip text
+          const tooltip = document.createElement("span");
+          tooltip.className = "tooltip-text";
+          tooltip.innerText = "Learn more about this workout";
+          infoWrapper.appendChild(tooltip);
+
+          // Makes ? clickable
+          infoWrapper.style.cursor = "pointer";
+          infoWrapper.onclick = () => fetchExerciseInfo(line);  
+
+          //Information
+          li.appendChild(infoWrapper);
           const text = document.createElement("span");
           text.className = "exercise-text";
           text.innerText = line;
 
+          //Delte button
           const btn = document.createElement("button");
           btn.className = "delete-btn";
           btn.textContent = "✕";
           btn.onclick = () => li.remove();
 
+          //Change workout button
           const changeBtn = document.createElement("button");
           changeBtn.className = "change-btn";
           changeBtn.innerText = "Change";
 
+          //Get change button information from AI
           changeBtn.onclick = (() => {
-            const dayForThisExercise = currentDay;  // explicitly capture it
+            const dayForThisExercise = currentDay;  
             return () => {
               console.log("💬 Assigning current day as:", dayForThisExercise);
               openChangeModal(text.innerText, li, dayForThisExercise);

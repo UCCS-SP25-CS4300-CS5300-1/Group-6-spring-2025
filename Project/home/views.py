@@ -16,6 +16,34 @@ from django.utils.crypto import get_random_string
 import re
 
 
+#function that adds form advice from AI to the user.
+@require_POST
+@login_required
+def exercise_info(request):
+    try:
+        #get the workout from the request
+        data = json.loads(request.body)
+        exercise_name = data.get("name")
+
+        #Error handling
+        if not exercise_name:
+            return JsonResponse({"success": False, "error": "No name given"})
+
+        #Prompt to AI
+        prompt = f"""
+        You are a certified personal trainer. Explain how to correctly perform '{exercise_name}'.
+        make this as short and easy to understand as possible
+        """
+
+        #Return the AI response
+        response = ai_model.get_response(prompt)
+
+        return JsonResponse({"success": True, "info": response})
+    #Error handinling
+    except Exception as e:
+        print(" Error fetching AI exercise info:", str(e))
+        return JsonResponse({"success": False, "error": str(e)})
+
 
 #Handles AI generated workout to the calendar
 @login_required
@@ -182,6 +210,10 @@ def replace_exercise(request):
         original = data.get("original", "")
         reason = data.get("reason", "")
         day = data.get("day", "a day of the week")
+
+        #handle error if information is missing
+        if not original or not reason or not day:
+            return JsonResponse({"success": False, "error": "Missing required fields"}, status=400)
 
         #Prompt for AI
         prompt = f"""
