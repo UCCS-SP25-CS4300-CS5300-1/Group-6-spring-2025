@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring
+# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring, R0801
 
 """
 Initial migration to create the UserData and UserProfile models, with related fields for tracking 

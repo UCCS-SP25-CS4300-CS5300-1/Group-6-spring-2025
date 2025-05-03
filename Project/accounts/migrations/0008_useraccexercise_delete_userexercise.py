@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring, line-too-long
+# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring, line-too-long, R0801
 
 """
 Migration to create the UserAccExercise model and delete the deprecated UserExercise model.
