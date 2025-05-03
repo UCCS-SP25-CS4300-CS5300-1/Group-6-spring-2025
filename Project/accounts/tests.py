@@ -266,7 +266,7 @@ class FriendViewsTestCase(TestCase):
         self.user1.userprofile.friends.clear()
         self.user2.userprofile.friends.clear()
 
-    def test_profile_view_requires_login(self): 
+    def test_profile_view_requires_login(self):
         """
         Ensure that unauthenticated access to the profile view
         is redirected to the login page.
