@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'django.contrib.sites',  # django Allauth
-    'goals'
+    'goals',
 ]
 
 MIDDLEWARE = [
@@ -136,7 +136,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #
-#FORCE_SCRIPT_NAME = "/proxy/3000"
+FORCE_SCRIPT_NAME = "/proxy/3000"
 
 # Use x fowarded host header to determine original host
 USE_X_FORWARDED_HOST = True

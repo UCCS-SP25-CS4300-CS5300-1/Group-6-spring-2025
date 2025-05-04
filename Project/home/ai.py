@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
 import openai
+from dotenv import load_dotenv
 
-#CHANGE API HERE OR AI OUTPUT WILL NOT WORK
-load_dotenv() 
+# Set your OpenAI API key here or via an environment variable named "OPENAI_API_KEY"
+load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 class AIModel:

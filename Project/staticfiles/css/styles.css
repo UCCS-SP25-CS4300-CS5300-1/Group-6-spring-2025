@@ -323,7 +323,6 @@ footer {
     gap: 1rem;
     margin: 2em 0;
 }
-  
 .week-option {
     padding: 14px 24px;
     border: 2px solid #ccc;
@@ -338,7 +337,6 @@ footer {
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
- 
 .week-option:hover {
     background-color: #e0e0e0;
     border-color: #999;

@@ -175,7 +175,6 @@
 
     <!-- Step 7: Weekly Plan Summary -->
     <div id="step7" class="container">
-     
       <h2>Your Weekly Plan</h2>
       <p>
         You selected to work out on <strong id="freqSummary"></strong>
@@ -378,7 +377,7 @@
         if (weekStart && weekEnd) {
           const formattedWeek = formatWeekRange(weekStart, weekEnd);
           document.getElementById("weekSummary").innerText = formattedWeek;
-        } 
+        }
 
         // Fill summary data for importing: Days of week selected
         const days = Array.from(document.querySelectorAll('#step6 input[type="checkbox"]:checked'))
@@ -619,7 +618,7 @@
       const today = new Date();
       const startOfWeek = getStartOfWeek(today);
 
-      //List of button names: 
+      //List of button names:
       const labels = ["This Week", "Next Week", "Week After"];
 
       //Sets selections for 3 weeks total (with appropraite dates)
@@ -671,7 +670,6 @@
     }
     //-----------------------------------------------------------
 
-    
     //This sends everything to be added to the User's calendar.
     function saveToCalendar() {
 
@@ -740,7 +738,6 @@
       document.querySelectorAll('#step4 input[type="checkbox"]').forEach(cb => cb.checked = false);
       document.querySelectorAll('#step6 input[type="checkbox"]').forEach(cb => cb.checked = false);
       document.querySelectorAll('.week-option').forEach(btn => btn.classList.remove("selected"));
-  
       document.getElementById("selectedWeekDisplay").innerText = "None";
       document.getElementById("selectedWeekStart").value = "";
       document.getElementById("selectedWeekEnd").value = "";
