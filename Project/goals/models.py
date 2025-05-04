@@ -32,6 +32,7 @@ class Exercise(models.Model):
     gif_url = models.URLField(blank=True)
     secondary_muscles = models.JSONField(blank=True, default=list)
     instructions = models.JSONField(blank=True, default=list)
+    
 
     def __str__(self):
         return self.name

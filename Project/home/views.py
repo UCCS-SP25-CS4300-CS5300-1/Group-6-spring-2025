@@ -4,6 +4,7 @@ from goals.models import UserExercise, WorkoutLog, Exercise, Goal
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import json
 from datetime import datetime, timedelta
 import requests
@@ -14,6 +15,35 @@ from django.utils.text import slugify
 from django.utils.crypto import get_random_string
 import re
 
+
+
+#function that adds form advice from AI to the user.
+@require_POST
+@login_required
+def exercise_info(request):
+    try:
+        #get the workout from the request
+        data = json.loads(request.body)
+        exercise_name = data.get("name")
+
+        #Error handling
+        if not exercise_name:
+            return JsonResponse({"success": False, "error": "No name given"})
+
+        #Prompt to AI
+        prompt = f"""
+        You are a certified personal trainer. Explain how to correctly perform '{exercise_name}'.
+        make this as short and easy to understand as possible
+        """
+
+        #Return the AI response
+        response = ai_model.get_response(prompt)
+
+        return JsonResponse({"success": True, "info": response})
+    #Error handinling
+    except Exception as e:
+        print(" Error fetching AI exercise info:", str(e))
+        return JsonResponse({"success": False, "error": str(e)})
 
 #Handles AI generated workout to the calendar
 @login_required
@@ -52,22 +82,21 @@ def save_to_calendar(request):
             if line.endswith(":"):
                 current_day = line[:-1]
                 day_workouts[current_day] = []
+                continue
 
             #Extract exercise name and reps using regex (eg "2. Bench Press: 4 sets of 6 reps;")
-            elif current_day:
-                match = re.match(r'\d+\.\s*(.+?):\s*(\d+)\s*sets\s*of\s*(\d+)\s*reps', line, re.IGNORECASE)
+            #Normalize and extract workout details
+            workout_match = re.match(r'^(?:\d+\.\s*)?(.*?):\s*(\d+)\s*sets\s*of\s*(\d+)', line, re.IGNORECASE)
 
-                #Get's name of workout and reps, stores as pair
-                if match:
-                    name = match.group(1).strip()
-                    reps = int(match.group(3))
-                    day_workouts[current_day].append((name, reps))
+            if workout_match:
+                name = workout_match.group(1).strip()
+                reps = int(workout_match.group(3))
+                day_workouts[current_day].append((name, reps))
+            else:
+                 # Catch things like "Push-ups: 3 sets to failure" or fallback text
+                clean_line = line.replace("Exercise Name:", "").strip(" ;-")
+                day_workouts[current_day].append((clean_line, 0))
 
-                #Handles if AI output doesnt follow expected
-                else:
-                    fallback_match = re.match(r'\d+\.\s*(.+)', line)
-                    name = fallback_match.group(1).strip() if fallback_match else line.strip()
-                    day_workouts[current_day].append((name, 0))
 
         #Map weekdays to actual dates (eg. "Friday" -> 2025-04-25)
         day_to_date = {}
@@ -158,6 +187,7 @@ def generate_workout(request):
         #Attempt to send the prompt to the AI model
         try:
             ai_response = ai_model.get_response(prompt)
+            
         except Exception as e:
             ai_response = f"Error generating response: {e}"
 
@@ -171,6 +201,43 @@ def generate_workout(request):
     return render(request, "generate_workout.html", context)
 
 
+#Function that replaces an exercise
+@require_POST
+@login_required
+def replace_exercise(request):
+    try:
+        #obtaining data from HTML
+        data = json.loads(request.body)
+        original = data.get("original", "")
+        reason = data.get("reason", "")
+        day = data.get("day", "a day of the week")
+
+        #handle error if information is missing
+        if not original or not reason or not day:
+            return JsonResponse({"success": False, "error": "Missing required fields"}, status=400)
+
+        #Prompt for AI
+        prompt = f"""
+        You are a fitness AI. Replace this exercise with another that fits the same muscle group.
+
+        Original: {original}
+        Context: This is part of a workout for {day}.
+        User reason for changing: {reason}
+
+        Give ONLY the replacement in this format:
+        (name of exercise): X sets of Y reps;
+        """
+
+        #Grabs new response, replaces it accordingly
+        response = ai_model.get_response(prompt)
+        return JsonResponse({"success": True, "replacement": response})
+
+    except Exception as e:
+        print("Error in replace_exercise:", str(e))
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+    
 def index(request):
     """
     Simple view to render the index page.
