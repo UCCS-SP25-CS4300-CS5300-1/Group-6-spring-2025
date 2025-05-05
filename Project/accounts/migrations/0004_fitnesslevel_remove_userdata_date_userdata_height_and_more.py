@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring
+# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring, R0801
 
 """
 Migration to modify the 'userdata' model:

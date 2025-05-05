@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring, line-too-long
+# pylint: disable=invalid-name, missing-module-docstring, missing-class-docstring, line-too-long, R0801
 
 """
 Migration to add the 'friends' field and create 'FriendRequest' model:

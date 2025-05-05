@@ -1,3 +1,10 @@
+"""
+URL configuration for the home app.
+
+Includes routes for homepage, workout generation, calendar view,
+retrieving workout events, and saving AI-generated workouts.
+"""
+
 from django.urls import path
 from .views import index, generate_workout, calendar_view, workout_events, save_to_calendar
 
