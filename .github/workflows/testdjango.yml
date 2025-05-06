@@ -17,12 +17,4 @@ jobs:
     - name: Run Tests
       run: |
         cd Project
-        python3 manage.py test || true
-    - name: Run Pylint
-      run: |
-        pylint Project > pylint_output.txt|| true
-    - name: Upload Pylint Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: pylint-report
-        path: pylint_output.txt
+        python3 manage.py test
