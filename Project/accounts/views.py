@@ -1,4 +1,4 @@
-# pylint: disable=E0401, E0611, E0606, W0612, C0103
+# pylint: disable=E0401, E0611, E0606, W0612, C0103, E1101
 """
 This module handles user authentication, profile management, friend requests, and logging data in
 the user account system.
@@ -227,8 +227,7 @@ def update_profile(request):
             return redirect(
                 "/accounts/user_data/"
             )  # Redirect to home or another page after saving
-        else:
-            print(form.errors)  # Print any validation errors
+        print(form.errors)  # Print any validation errors
     else:
         form = UserProfileUpdateForm(instance=profile)
     selected_goals = profile.goals.values_list("id", flat=True)
@@ -454,18 +453,17 @@ def log_data(request):
                 "flag": flag,
             },
         )
-    else:
-        formweight = UserLogDataFormWeight()
-        formexercise = UserLogDataFormExercise()
-        formfood = UserLogDataFormFood()
-        return render(
-            request,
-            "accounts/log_data.html",
-            {
-                "form": formweight,
-                "formtwo": formexercise,
-                "formthree": formfood,
-                "exercises": exercisesdone,
-                "flag": flag,
-            },
-        )
+    formweight = UserLogDataFormWeight()
+    formexercise = UserLogDataFormExercise()
+    formfood = UserLogDataFormFood()
+    return render(
+        request,
+        "accounts/log_data.html",
+        {
+            "form": formweight,
+            "formtwo": formexercise,
+            "formthree": formfood,
+            "exercises": exercisesdone,
+            "flag": flag,
+        },
+    )

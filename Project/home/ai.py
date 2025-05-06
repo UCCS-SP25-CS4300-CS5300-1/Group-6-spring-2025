@@ -72,6 +72,11 @@ class AIModel:
 
         return answer
 
+    def print_response(self):
+        """
+        Prints the response
+        """
+        print(self)
 
 # Instantiate the AI model for use globally
 ai_model = AIModel()

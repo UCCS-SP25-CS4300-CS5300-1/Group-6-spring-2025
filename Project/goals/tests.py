@@ -284,6 +284,7 @@ class ViewsTests(TestCase):
             'form-0-recurring_day': '1',
         }
         response = self.client.post(url, data)
+        print(response)
         count = UserExercise.objects.filter(
             user=self.user, exercise=new_exercise
         ).count()

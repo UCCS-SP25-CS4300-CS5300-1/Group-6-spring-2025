@@ -1,4 +1,4 @@
-# pylint: disable=E0401, E0611, W0611, W0105, C0103, C0301
+# pylint: disable=E0401, E0611, W0611, W0105, C0103, C0301, E1101
 """
 This module contains test cases for various views, forms, and AI integration in a fitness
 application.
@@ -46,7 +46,7 @@ Note:
     - The tests use Django's TestCase class for unit testing, Client for simulating requests,
       and patching for mocking external API responses.
 """
-
+import json
 from datetime import date
 from decimal import Decimal
 from unittest.mock import patch
@@ -59,7 +59,6 @@ from goals.models import UserExercise, WorkoutLog, Exercise
 from goals.forms import UserExerciseForm
 import requests
 from .ai import ai_model
-import json
 
 
 # Ensuring model is working with
@@ -329,9 +328,9 @@ class CalendarTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Error", response.content.decode())
 
-#Tests if a valid request to replace an exercise returns a correct AI-generated alternative
-class AIIntegrationTests(TestCase):
 
+class AIIntegrationTests(TestCase):
+    """Tests if a valid request to replace an exercise returns a correct AI-generated alternative"""
     #Sets up clean environment for testing
     def setUp(self):
         #Prepares fresh envirnment
@@ -385,7 +384,7 @@ class AIIntegrationTests(TestCase):
         response = self.client.post(
             reverse('replace_exercise'),
             # Missing all required fields
-            data=json.dumps({}),  
+            data=json.dumps({}),
             content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
@@ -426,7 +425,7 @@ class AIIntegrationTests(TestCase):
         response = self.client.post(
             reverse('exercise_info'),
             # No name provided
-            data=json.dumps({}),  
+            data=json.dumps({}),
             content_type="application/json"
         )
         #Checks that an error message is returned.
@@ -457,3 +456,4 @@ class AIIntegrationTests(TestCase):
         #confirms the failure is reported instead of silently crashing
         self.assertFalse(data["success"])
         self.assertIn("AI failure", data["error"])
+        print(mock_ai_response)

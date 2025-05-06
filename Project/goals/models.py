@@ -38,7 +38,7 @@ class Exercise(models.Model):
     instructions = models.JSONField(blank=True, default=list)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 # Define choices from 0% to 100% in 5% increments.
@@ -88,5 +88,5 @@ class WorkoutLog(models.Model):
     completed = models.BooleanField(default=True)
 
     class Meta:
-        # Prevent duplicate completions on the same day
+        """Prevent duplicate completions on the same day"""
         unique_together = ("user", "exercise", "date_completed")

@@ -1,4 +1,4 @@
-# pylint: disable=E0401, E0611, W0611, W0718, W0621
+# pylint: disable=E0401, E0611, W0611, W0718, W0621, E1101, R0914, R0912
 """
 Module to handle AI-generated workout plans, user profiles, and calendar functionality
 within the app.
@@ -32,17 +32,17 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
-from .ai import ai_model
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
-from django.conf import settings
 from accounts.models import UserProfile
 from goals.models import UserExercise, WorkoutLog, Exercise, Goal
+from .ai import ai_model
 
-#function that adds form advice from AI to the user.
+
 @require_POST
 @login_required
 def exercise_info(request):
+    """function that adds form advice from AI to the user."""
     try:
         #get the workout from the request
         data = json.loads(request.body)
@@ -120,7 +120,11 @@ def save_to_calendar(request):
 
             #Extract exercise name and reps using regex (eg "2. Bench Press: 4 sets of 6 reps;")
             #Normalize and extract workout details
-            workout_match = re.match(r'^(?:\d+\.\s*)?(.*?):\s*(\d+)\s*sets\s*of\s*(\d+)', line, re.IGNORECASE)
+            workout_match = re.match(
+                r'^(?:\d+\.\s*)?(.*?):\s*(\d+)\s*sets\s*of\s*(\d+)',
+                line,
+                re.IGNORECASE
+                )
 
             if workout_match:
                 name = workout_match.group(1).strip()
@@ -227,11 +231,10 @@ def generate_workout(request):
 
         # Adds in the actual user information to the prompt
         prompt = prompt_template.format(user_info=user_info_text)
-
         # Attempt to send the prompt to the AI model
         try:
             ai_response = ai_model.get_response(prompt)
-            
+
         except Exception as e:
             ai_response = f"Error generating response: {e}"
 
@@ -245,10 +248,11 @@ def generate_workout(request):
     return render(request, "generate_workout.html", context)
 
 
-#Function that replaces an exercise
+
 @require_POST
 @login_required
 def replace_exercise(request):
+    """Function that replaces an exercise"""
     try:
         #obtaining data from HTML
         data = json.loads(request.body)
@@ -280,8 +284,6 @@ def replace_exercise(request):
         print("Error in replace_exercise:", str(e))
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-
-    
 def index(request):
     """
     Simple view to render the index page.
@@ -468,6 +470,7 @@ def completed_workouts(request):
     return JsonResponse(results, safe=False)
 
 def is_gif_url_valid(url):
+    """checks if url is still valid"""
     try:
         response = requests.head(url, timeout=5)
         return response.status_code == 200
@@ -475,7 +478,7 @@ def is_gif_url_valid(url):
         return False
 
 def fetch_new_gif_for_exercise(name):
-    # 👇 Example with ExerciseDB; replace with actual API you prefer
+    """ 👇 Example with ExerciseDB; replace with actual API you prefer"""
     try:
         response = requests.get(
             "https://exercisedb.p.rapidapi.com/exercises/name/" + name,
