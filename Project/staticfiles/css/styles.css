@@ -356,28 +356,211 @@ footer {
     color: #222;
     text-align: center;
 }
+
+
 #planList {
-  margin-top: 2em;
-  text-align: left;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+    margin-top: 2em;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
-
+  
 .day-section {
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  padding: 1em;
-  border-radius: 8px;
-  margin-bottom: 1em;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 1em;
+    border-radius: 8px;
+    margin-bottom: 1em;
 }
-
+  
+.day-section ul.exercise-list {
+      display: block;
+       /* 🔁 This forces vertical stacking */
+      gap: 0.75rem;           /* spacing between exercises */
+      padding-left: 0;
+      list-style: none;
+      margin: 1rem 0 0 0;
+}
 .day-section h3 {
-  margin-top: 0;
-  color: #333;
-  font-size: 1.2rem;
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2rem;
 }
-
-.day-section ul {
-  padding-left: 1.2em;
+  
+  
+.exercise-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 0.75em 1em;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 0.5em 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: background-color 0.2s ease;
 }
+    
+.exercise-card:hover {
+      background-color: #f0f8ff;
+}
+    
+.exercise-text {
+      font-weight: 400;
+      color: #333;
+}
+    
+.delete-btn {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 0.5em 0.8em;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+}
+    
+.delete-btn:hover {
+      background-color: #cc0000;
+}
+  
+.change-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 0.5em 0.8em;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-left: 0.5em;
+      transition: background-color 0.2s ease;
+}
+  
+.change-btn:hover {
+      background-color: #388E3C;
+}
+  
+  
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+    
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+    
+.modal-content h3 {
+    margin-top: 0;
+}
+    
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+    
+  .modal-content button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #38a169;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.modal-content button:hover {
+    background-color: #2f855a;
+}
+    
+.modal .close {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #aaa;
+}
+.modal .close:hover {
+    color: #000;
+}
+    
+.tooltip-icon {
+    position: relative;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 10px;
+    cursor: pointer;
+    color: #555;
+    border: 1px solid #aaa;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    font-size: 14px;
+}
+    
+.tooltip-icon:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+}
+    
+.tooltip-text {
+      visibility: hidden;
+      width: 180px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 8px;
+      position: absolute;
+      z-index: 10;
+      top: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 0.8rem;
+      white-space: nowrap;
+}
+  
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+}
+    
+.modal-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    max-width: 90%;
+    position: relative;
+}
+    
+.modal-close {
+    position: absolute;
+    top: 10px; right: 15px;
+    cursor: pointer;
+    font-size: 1.2em;
+}   

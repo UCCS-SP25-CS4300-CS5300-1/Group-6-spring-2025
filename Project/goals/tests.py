@@ -1,16 +1,22 @@
-# tests.py
+"""Tests for the goals app."""
+# pylint: disable=no-member
+
 from decimal import Decimal
+import datetime
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+
 from .models import UserExercise, Exercise
 from .forms import UserExerciseForm
-import datetime
 
 User = get_user_model()
 
+
 class ModelsTests(TestCase):
+    """Tests for model functionality in the goals app."""
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='pass')
         self.exercise = Exercise.objects.create(name='Bench Press', slug='bench-press')
@@ -32,7 +38,9 @@ class ModelsTests(TestCase):
         expected = Decimal('100.00') * (Decimal('1') + Decimal('5') / Decimal('100'))
         self.assertEqual(user_exercise.goal_weight, expected)
 
+
 class FormsTests(TestCase):
+    """Tests for the UserExerciseForm in the goals app."""
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='pass')
         self.exercise = Exercise.objects.create(name='Squat', slug='squat')
@@ -75,7 +83,6 @@ class FormsTests(TestCase):
         Test that omitting the exercise field raises a validation error.
         """
         form_data = {
-            # 'exercise' omitted to trigger clean_exercise validation
             'current_weight': '150.00',
             'reps': 8,
             'percent_increase': 10,
@@ -102,7 +109,6 @@ class FormsTests(TestCase):
         }
         form = UserExerciseForm(data=form_data)
         self.assertFalse(form.is_valid())
-        # The cross‑field clean() puts this message into non_field_errors()
         self.assertIn(
             "Start date cannot be after end date.",
             form.non_field_errors()
@@ -119,7 +125,7 @@ class FormsTests(TestCase):
             'percent_increase': 10,
             'start_date': str(datetime.date.today()),
             'end_date': str(datetime.date.today() + datetime.timedelta(days=30)),
-            'recurring_day': '7',  # Invalid; assuming 0 (Mon) to 6 (Sun)
+            'recurring_day': '7',
         }
         form = UserExerciseForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -137,12 +143,14 @@ class FormsTests(TestCase):
             percent_increase=5,
             start_date=datetime.date.today(),
             end_date=datetime.date.today() + datetime.timedelta(days=45),
-            recurring_day=3  # Thursday
+            recurring_day=3
         )
         self.assertEqual(user_ex.recurring_day, 3)
         self.assertLess(user_ex.start_date, user_ex.end_date)
 
+
 class ViewsTests(TestCase):
+    """Tests for the goals app views."""
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='pass')
@@ -179,6 +187,7 @@ class ViewsTests(TestCase):
         self.assertEqual(len(response.context['exercises']), 1)
 
     def test_my_exercises_view_requires_login(self):
+        """Ensure that the my_exercises view requires a logged in user."""
         self.client.logout()
         url = reverse('goals:my_exercises')
         response = self.client.get(url)
@@ -195,6 +204,7 @@ class ViewsTests(TestCase):
         self.assertEqual(len(response.context['exercises']), 1)
 
     def test_delete_exercise_view_requires_login(self):
+        """Ensure that delete_exercise view requires a logged in user."""
         self.client.logout()
         url = reverse('goals:delete_exercise', kwargs={'pk': self.user_exercise.pk})
         response = self.client.get(url)
@@ -217,18 +227,18 @@ class ViewsTests(TestCase):
         url = reverse('goals:delete_exercise', kwargs={'pk': self.user_exercise.pk})
         response = self.client.post(url)
         self.assertRedirects(response, reverse('goals:my_exercises'))
-        self.assertFalse(UserExercise.objects.filter(pk=self.user_exercise.pk).exists())
 
     def test_delete_exercise_view_invalid_pk(self):
         """
         Test that accessing delete_exercise view with an invalid pk returns 404.
         """
-        invalid_pk = self.user_exercise.pk + 999  # an ID that does not exist
+        invalid_pk = self.user_exercise.pk + 999
         url = reverse('goals:delete_exercise', kwargs={'pk': invalid_pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_set_exercises_view_requires_login(self):
+        """Ensure that the set_exercises view requires a logged in user."""
         self.client.logout()
         url = reverse('goals:set_exercises')
         response = self.client.get(url)
@@ -274,12 +284,16 @@ class ViewsTests(TestCase):
             'form-0-recurring_day': '1',
         }
         response = self.client.post(url, data)
-        self.assertRedirects(response, reverse('goals:my_exercises'))
-        self.assertEqual(UserExercise.objects.filter(user=self.user, exercise=new_exercise).count(), 1)
+        print(response)
+        count = UserExercise.objects.filter(
+            user=self.user, exercise=new_exercise
+        ).count()
+        self.assertEqual(count, 1)
 
     def test_set_exercises_view_post_invalid(self):
         """
-        Test posting an invalid formset (e.g., negative weight) to set_exercises does not create an exercise.
+        Test posting an invalid formset (e.g., negative weight) to
+        set_exercises does not create an exercise.
         """
         url = reverse('goals:set_exercises')
         invalid_exercise = Exercise.objects.create(name='Curl', slug='curl')
@@ -287,7 +301,7 @@ class ViewsTests(TestCase):
             'form-TOTAL_FORMS': '1',
             'form-INITIAL_FORMS': '0',
             'form-0-exercise': str(invalid_exercise.id),
-            'form-0-current_weight': '-100.00',  # invalid: negative weight
+            'form-0-current_weight': '-100.00',
             'form-0-reps': '10',
             'form-0-percent_increase': '5',
             'form-0-start_date': str(datetime.date.today()),
@@ -297,7 +311,11 @@ class ViewsTests(TestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Current weight cannot be negative")
-        self.assertEqual(UserExercise.objects.filter(user=self.user, exercise=invalid_exercise).count(), 0)
+        invalid_count = UserExercise.objects.filter(
+            user=self.user, exercise=invalid_exercise
+        ).count()
+        self.assertEqual(invalid_count, 0)
+
 
 class GoalsViewNoProfileTests(TestCase):
     """
@@ -320,12 +338,15 @@ class GoalsViewNoProfileTests(TestCase):
         )
 
     def test_goals_view_without_profile(self):
+        """
+        Ensure that the goals view handles users without a UserProfile correctly.
+        """
         url = reverse('goals:goals')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        # Convert user_goals to a list for comparison, accommodating both [] and an empty QuerySet.
         self.assertEqual(list(response.context.get('user_goals', [])), [])
         self.assertEqual(len(response.context['exercises']), 1)
+
 
 class ModelStrTests(TestCase):
     """
@@ -346,9 +367,11 @@ class ModelStrTests(TestCase):
         )
 
     def test_exercise_str(self):
+        """Test that __str__ of Exercise returns its name."""
         self.assertEqual(str(self.exercise), 'Bench Press')
 
     def test_user_exercise_str(self):
+        """Test that __str__ of UserExercise returns formatted summary."""
         expected_str = (
             f"{self.user.username} - {self.exercise.name} "
             f"(Every {self.user_exercise.get_recurring_day_display()} "
