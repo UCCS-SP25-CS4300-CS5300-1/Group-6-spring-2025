@@ -25,6 +25,8 @@ from .views import (
     calendar_view,
     workout_events,
     save_to_calendar,
+    replace_exercise,
+    exercise_info
 )
 
 urlpatterns = [
