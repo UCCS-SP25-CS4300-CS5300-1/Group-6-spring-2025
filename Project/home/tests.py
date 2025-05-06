@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 import requests
 from unittest.mock import patch
 from .ai import ai_model
+import json
 
 #Ensuring model is working with
 class NewAIModelTests(TestCase):
@@ -217,3 +218,132 @@ class CalendarTests(TestCase):
         response = self.client.post(reverse('generate_workout'), {})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Error", response.content.decode())
+
+#Tests if a valid request to replace an exercise returns a correct AI-generated alternative
+class AIIntegrationTests(TestCase):
+
+    #Sets up clean environment for testing
+    def setUp(self):
+        #Prepares fresh envirnment
+        self.client = Client()
+        #Starts up django test client
+        self.user = User.objects.create_user(username='aitestuser', password='testpass123')
+        #Creates test user
+        self.client.login(username='aitestuser', password='testpass123')
+        #test exercise for database
+        self.exercise = Exercise.objects.create(name='Push-Up', slug='push-up')
+
+    #Uses mocktesting to avoid API calls
+    @patch('home.views.ai_model.get_response')
+
+    #confirms view replace_exercise gives good AI response
+    def test_replace_exercise_success(self, mock_ai_response):
+        """
+        Should return a valid AI-generated replacement.
+        """
+        #gives fake exercise
+        mock_ai_response.return_value = "Incline Bench Press: 4 sets of 10 reps;"
+
+        #Defines what the fake AI should return
+        payload = {
+            "original": "Push-Up: 3 sets of 10 reps;",
+            "reason": "I have wrist pain.",
+            "day": "Tuesday"
+        }
+
+        #Gives a simulates frontload from Javascript (bottom of HTML)/sends post request
+        response = self.client.post(
+            reverse('replace_exercise'),
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+
+        #asserts HTTP response working
+        self.assertEqual(response.status_code, 200)
+        #parses output a
+        data = response.json()
+        # check if view returned successfullu
+        self.assertTrue(data["success"])
+        #confrim mocked AI output is present in response
+        self.assertIn("Incline Bench Press", data["replacement"])
+
+    #Tests what happens if the frontend sends an empty payload:
+    def test_replace_exercise_missing_fields(self):
+        """
+         Should fail gracefully with missing fields.
+        """
+        response = self.client.post(
+            reverse('replace_exercise'),
+            # Missing all required fields
+            data=json.dumps({}),  
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertIn("error", data)
+
+    #Tests whether the view that gives advice for an exercise works
+    @patch('home.views.ai_model.get_response')
+    def test_exercise_info_success(self, mock_ai_response):
+        """
+         Should return a short AI-generated explanation for an exercise.
+        """
+        #Defines a mock success message for the AI.
+        mock_ai_response.return_value = "Keep your core tight and elbows tucked."
+
+        #Posts valid input: { "name": "Push-Up" }.
+        response = self.client.post(
+            reverse('exercise_info'),
+            data=json.dumps({"name": "Push-Up"}),
+            content_type="application/json"
+        )
+
+        #Confirms that the AI gave useful form advice.
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertIn("core", data["info"].lower())
+
+
+    #Tests failure when exercise name is missing:
+    def test_exercise_info_missing_name(self):
+        """
+         Should return error if 'name' is not provided.
+        """
+
+        #sends post response with no name provided
+        response = self.client.post(
+            reverse('exercise_info'),
+            # No name provided
+            data=json.dumps({}),  
+            content_type="application/json"
+        )
+        #Checks that an error message is returned.
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertEqual(data["error"], "No name given")
+
+    #Simulates the AI crashing (e.g., server error, timeout, etc.)
+    @patch('home.views.ai_model.get_response', side_effect=Exception("AI failure"))
+    def test_replace_exercise_ai_error(self, mock_ai_response):
+        """
+         Should handle AI backend failure and return error.
+        """
+        #Post purposfully triggers an error
+        response = self.client.post(
+            reverse('replace_exercise'),
+            data=json.dumps({
+                "original": "Push-Up: 3 sets of 10 reps;",
+                "reason": "Too hard",
+                "day": "Wednesday"
+            }),
+            content_type="application/json"
+        )
+        #correctly returns server error
+        self.assertEqual(response.status_code, 500)
+        data = response.json()
+        #confirms the failure is reported instead of silently crashing
+        self.assertFalse(data["success"])
+        self.assertIn("AI failure", data["error"])

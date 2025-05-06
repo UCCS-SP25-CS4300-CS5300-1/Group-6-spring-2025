@@ -1,10 +1,13 @@
-from django.db import models
+"""Models for the goals app."""
+# pylint: disable=E1101
+
+import datetime
+from decimal import Decimal
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.conf import settings
-from decimal import Decimal
 from django.utils.timezone import now
-import datetime
 
 RECURRENCE_CHOICES = [
     (0, 'Monday'),
@@ -16,15 +19,16 @@ RECURRENCE_CHOICES = [
     (6, 'Sunday'),
 ]
 
+
 class Goal(models.Model):
+    """A fitness goal belonging to a user."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='goals')
 
-    def __str__(self):
-        return f"{self.title} ({self.get_category_display()})"
 
 class Exercise(models.Model):
+    """A single type of exercise with metadata."""
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True, blank = True)
+    slug = models.SlugField(unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     body_part = models.CharField(max_length=100)
     target = models.CharField(max_length=100)
@@ -36,10 +40,13 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name
 
+
 # Define choices from 0% to 100% in 5% increments.
 PERCENT_CHOICES = [(i, f'{i}%') for i in range(0, 101, 5)]
 
+
 class UserExercise(models.Model):
+    """An exercise entry for a user, including planned recurrence."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
     current_weight = models.DecimalField(max_digits=6, decimal_places=2)
@@ -47,24 +54,39 @@ class UserExercise(models.Model):
     percent_increase = models.IntegerField(choices=PERCENT_CHOICES, default=0)
 
     # Recurring workout fields
-    start_date = models.DateField(default=now)  # When recurrence starts
-    end_date = models.DateField(null=True, blank=True)  # Optional end date
-    recurring_day = models.IntegerField(choices=RECURRENCE_CHOICES, default=0)  # Default to Monday
+    start_date = models.DateField(default=now)
+    end_date = models.DateField(null=True, blank=True)
+    recurring_day = models.IntegerField(
+        choices=RECURRENCE_CHOICES,
+        default=0,
+    )
 
     @property
     def goal_weight(self):
-        # Calculate goal weight using Decimal arithmetic for precision.
-        return self.current_weight * (Decimal('1') + Decimal(self.percent_increase) / Decimal('100'))
+        """Return the target weight after applying the percentage increase."""
+        return (
+            self.current_weight
+            * (
+                Decimal('1')
+                + Decimal(self.percent_increase) / Decimal('100')
+            )
+        )
 
     def __str__(self):
-        return f"{self.user.username} - {self.exercise.name} (Every {self.get_recurring_day_display()} from {self.start_date} to {self.end_date})"
+        return (
+            f"{self.user.username} - {self.exercise.name} (Every "
+            f"{self.get_recurring_day_display()} from {self.start_date} "
+            f"to {self.end_date})"
+        )
 
-# Class to track if a user completed a workout or not
+
 class WorkoutLog(models.Model):
+    """Log of a user’s completed workout on a given date."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     exercise = models.ForeignKey(UserExercise, on_delete=models.CASCADE)
     date_completed = models.DateField(default=datetime.date.today)
-    completed = models.BooleanField(default=True)  # Mark workout as completed
+    completed = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ("user", "exercise", "date_completed")  # Prevent duplicate completions on the same day
+        # Prevent duplicate completions on the same day
+        unique_together = ("user", "exercise", "date_completed")

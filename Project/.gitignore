@@ -1,1 +1,20 @@
-.env
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual envs
+venv/
+.env/
+env/
+ENV/
+
+# Django
+*.sqlite3
+*.log
+
+# IDE configs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
