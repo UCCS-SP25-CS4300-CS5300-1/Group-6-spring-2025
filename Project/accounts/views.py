@@ -1,3 +1,42 @@
+# pylint: disable=E0401, E0611, E0606, W0612, C0103
+"""
+This module handles user authentication, profile management, friend requests, and logging data in
+the user account system.
+
+It includes views for:
+
+1. User registration, login, and logout.
+2. Viewing and updating user profiles, including personal data, fitness goals, injury history,
+   and BMI calculation.
+3. Sending, accepting, rejecting, and removing friends through friend requests.
+4. Searching for friends based on a query string.
+5. Viewing a friend's profile and managing access to it.
+6. Logging and updating user data, including exercise logs, food intake, and weight history.
+
+The following forms are used in this module:
+- UserRegistrationForm
+- UserProfileUpdateForm
+- UserLogDataFormWeight
+- UserLogDataFormExercise
+- UserLogDataFormFood
+- UserLogDataFormFoodData
+
+This module interacts with the following models:
+- UserProfile
+- FriendRequest
+- UserAccExercise
+- FoodDatabase
+
+The module provides functionality for:
+- User authentication and session management.
+- Managing user profile data.
+- Managing friends and sending friend requests.
+- Logging exercise, food, and weight data.
+"""
+
+from datetime import date
+import json
+import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -12,13 +51,14 @@ from .forms import (
     UserLogDataFormFood,
     UserLogDataFormFoodData,
 )
-import json
-import requests
-from datetime import date
 from .models import UserProfile, FriendRequest, UserAccExercise, FoodDatabase
 
 
 def register(request):
+    """
+    Handles user registration, including form validation and user creation.
+    After successful registration, the user is logged in and redirected to the homepage.
+    """
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -31,6 +71,10 @@ def register(request):
 
 
 def user_login(request):
+    """
+    Handles user login by validating user credentials through the AuthenticationForm.
+    If valid, the user is authenticated and redirected to the homepage.
+    """
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -47,6 +91,10 @@ def user_login(request):
 
 @login_required
 def user_data(request):
+    """
+    Retrieves and displays the user's profile data, friend requests, food logs, and exercise logs.
+    It also handles search functionality for adding friends and rendering relevant data.
+    """
     # Retrieve the user's profile
     user_profile = request.user.userprofile
 
@@ -123,12 +171,19 @@ def user_data(request):
 
 
 def custom_logout(request):
+    """
+    Logs out the current user and redirects them to the homepage.
+    """
     logout(request)
     return redirect("/")
 
 
 @login_required
 def update_profile(request):
+    """
+    Allows the logged-in user to update their profile information, including height, weight, goals,
+    and injury history. It also calculates the user's BMI and saves the updated profile data.
+    """
     profile = request.user.userprofile
     if request.method == "POST":
         form = UserProfileUpdateForm(request.POST, instance=profile)
@@ -191,6 +246,10 @@ def update_profile(request):
 
 @login_required
 def send_friend_request(request, user_id):
+    """
+    Sends a friend request from the logged-in user to another user with the given user_id.
+    If the request was already sent, an informational message is shown.
+    """
     to_user = get_object_or_404(User, id=user_id)
     friend_request, created = FriendRequest.objects.get_or_create(
         from_user=request.user, to_user=to_user
@@ -204,6 +263,9 @@ def send_friend_request(request, user_id):
 
 @login_required
 def accept_friend_request(request, request_id):
+    """
+    Accepts a pending friend request and adds the sender to the logged-in user's friends list.
+    """
     f_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     request.user.userprofile.friends.add(f_request.from_user.userprofile)
     f_request.delete()
@@ -212,6 +274,9 @@ def accept_friend_request(request, request_id):
 
 @login_required
 def reject_friend_request(request, request_id):
+    """
+    Rejects a pending friend request and deletes it from the database.
+    """
     f_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
     f_request.delete()
     return redirect("user_data")
@@ -219,6 +284,10 @@ def reject_friend_request(request, request_id):
 
 @login_required
 def remove_friend(request, user_id):
+    """
+    Removes a friend from the logged-in user's friends list.
+    Also removes the logged-in user from the friend's friends list.
+    """
     friend = get_object_or_404(User, id=user_id)
     request.user.userprofile.friends.remove(friend.userprofile)
     friend.userprofile.friends.remove(request.user.userprofile)
@@ -227,12 +296,19 @@ def remove_friend(request, user_id):
 
 @login_required
 def friend_list(request):
+    """
+    Displays a list of the logged-in user's friends.
+    """
     friends = request.user.userprofile.friends.all()
     return render(request, "accounts/user_data.html", {"friends": friends})
 
 
 @login_required
 def friend_search(request):
+    """
+    Handles searching for users to add as friends by filtering based on the search query.
+    Excludes the logged-in user and already added friends.
+    """
     query = request.GET.get("q", "")
     results = []
     if query:
@@ -253,6 +329,10 @@ def friend_search(request):
 
 @login_required
 def friend_data(request, user_id):
+    """
+    Displays the profile data of a friend, if the logged-in user is friends with them.
+    If not a friend, redirects to the user data page with an error message.
+    """
     friend = get_object_or_404(User, id=user_id)
     if not request.user.userprofile.friends.filter(pk=friend.userprofile.pk).exists():
         messages.error(request, "You are not allowed to view this profile.")
@@ -263,12 +343,18 @@ def friend_data(request, user_id):
 
 
 def log_data(request):
+    """
+    Handles logging of user data such as food, exercise, and weight.
+    Creates new entries for food and exercise logs, updates the weight history,
+    and provides pre-filled forms for updating food logs based on barcode.
+    """
     profile = request.user.userprofile
     exercisesdone = UserAccExercise.objects.filter(user=request.user)
     flag = False
     print(profile)
     if request.method == "POST":
-        # This will update the weight_history attribute as a json object so i can be used in the charts.
+        # This will update the weight_history attribute as a json object so i can be used
+        # in the charts.
         if "servings" in request.POST:
             FoodDatabase.objects.create(
                 user=request.user,
@@ -318,7 +404,8 @@ def log_data(request):
             }
             formfooddata = UserLogDataFormFoodData(initial=formprefill)
             flag = True
-            # need to making database and new modal to display food data and allow user to update their food log
+            # need to making database and new modal to display food data and allow user to
+            # update their food log
         elif "sets" in request.POST:  # This is a exercise update
             print(len(request.POST))
             UserAccExercise.objects.create(

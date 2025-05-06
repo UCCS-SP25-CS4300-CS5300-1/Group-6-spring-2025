@@ -1,21 +1,79 @@
+# pylint: disable=E0401, E0611, W0611, W0105, C0103, C0301
+"""
+This module contains test cases for various views, forms, and AI integration in a fitness
+application.
+
+The tests ensure that the application behaves correctly by verifying its responses, ensuring
+correct behavior in different scenarios, and testing various API integrations and AI model
+responses.
+
+Test Cases:
+    1. NewAIModelTests:
+        - test_response_contains_expected_keywords: Verifies that common fitness-related
+          keywords are present in the AI model response.
+        - test_response_handles_injuries_gracefully: Verifies that the AI model responds
+          appropriately when injury information is provided.
+
+    2. NewViewTests:
+        - test_get_home_view: Verifies that the home view loads correctly and includes
+          expected content.
+        - test_post_generates_plan_with_multiple_days: Verifies that a workout plan is
+          generated for multiple days based on user input.
+        - test_invalid_user_input_still_returns_page: Verifies that invalid user input
+          doesn't cause crashes and still returns a response.
+
+    3. CalendarTests:
+        - test_calendar_view_get: Verifies that the calendar view loads correctly and displays
+          the appropriate events.
+        - test_mark_workout_completed: Verifies that marking a workout as completed creates a
+          corresponding WorkoutLog entry.
+        - test_unmark_workout_completed: Verifies that unmarking a workout as completed deletes
+          the corresponding WorkoutLog entry.
+        - test_calendar_view_fetches_warmups_from_api: Verifies that the calendar view fetches
+          warm-up exercises from an external API.
+        - test_mock_valid_data_response: Tests API integration by mocking a valid response and
+          checking that the correct data is returned.
+        - test_warmup_api_handles_errors: Simulates an error in the API request and verifies that
+          the application handles it correctly.
+        - test_missing_user_input: Verifies that the application handles missing user input
+          gracefully.
+
+    4. Tear Down:
+        - tearDown: Cleans up after each test, deleting the created user and exercises to ensure a
+          clean test environment.
+
+Note:
+    - The tests use Django's TestCase class for unit testing, Client for simulating requests,
+      and patching for mocking external API responses.
+"""
+
+from datetime import date
+from decimal import Decimal
+from unittest.mock import patch
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-from datetime import date
+from django.contrib.auth import get_user_model
 from accounts.models import UserProfile
 from goals.models import UserExercise, WorkoutLog, Exercise
 from goals.forms import UserExerciseForm
-from decimal import Decimal
-from django.contrib.auth import get_user_model
 import requests
-from unittest.mock import patch
 from .ai import ai_model
 
 
 # Ensuring model is working with
 class NewAIModelTests(TestCase):
+    """
+    Test cases for ensuring the AI model behaves as expected, specifically checking
+    fitness-related responses.
+    """
+
     # Ensure common fitness terms appear in AI output.
     def test_response_contains_expected_keywords(self):
+        """
+        Verifies that common fitness-related keywords such as 'sets', 'reps', 'rest', and 'exercise'
+        appear in the AI model response when a beginner strength plan is requested.
+        """
         response = ai_model.get_response("Give me a beginner strength plan")
         keywords = ["sets", "reps", "rest", "exercise"]
         found = any(keyword in response.lower() for keyword in keywords)
@@ -23,6 +81,10 @@ class NewAIModelTests(TestCase):
 
     # Check AI can still respond when injury limitations are given
     def test_response_handles_injuries_gracefully(self):
+        """
+        Ensures that the AI model responds appropriately when injury-related information is provided
+        in the user's workout request.
+        """
         prompt = "Workout plan for someone with knee injury and lower back pain"
         response = ai_model.get_response(prompt)
         self.assertIsInstance(response, str)
@@ -30,13 +92,25 @@ class NewAIModelTests(TestCase):
 
 
 class NewViewTests(TestCase):
+    """
+    Test cases for ensuring views work correctly, including the home view and workout plan
+    generation.
+    """
+
     def setUp(self):
+        """
+        Sets up the test environment by creating a user and logging them in for subsequent tests.
+        """
         self.client = Client()
         self.user = User.objects.create_user(username="tester", password="password123")
         self.client.login(username="tester", password="password123")
 
     # Check if home view loads correctly
     def test_get_home_view(self):
+        """
+        Tests that the home view loads successfully and contains expected content, such as
+        'Workout App'.
+        """
         # Simulates going to home view
         response = self.client.get(reverse("home"))
         # The http status code is 200 (successful)
@@ -46,6 +120,11 @@ class NewViewTests(TestCase):
 
     # Make sure plan generates when multiple days are specified.
     def test_post_generates_plan_with_multiple_days(self):
+        """
+        Tests that when multiple days are specified in the user input, a workout plan is generated
+        correctly
+        with the specified days included.
+        """
         input_text = "Fitness Level: Intermediate; Goals: Build Muscle; Injuries: None; Selected Days: Monday, Wednesday, Friday"
 
         # Simulates AJAX request,
@@ -62,6 +141,10 @@ class NewViewTests(TestCase):
 
     # Submit gibberish and ensure the app doesn't crash
     def test_invalid_user_input_still_returns_page(self):
+        """
+        Tests that invalid user input does not cause the app to crash, and the page still returns
+        successfully.
+        """
         response = self.client.post(
             reverse("generate_workout"), {"user_input": "asdfasdfasfdasfdasdfasdf"}
         )
@@ -73,7 +156,16 @@ User = get_user_model()
 
 
 class CalendarTests(TestCase):
+    """
+    Test cases for ensuring the calendar view works correctly, including workout completion
+    and warm-up fetching.
+    """
+
     def setUp(self):
+        """
+        Sets up the test environment by creating a user, exercises, and user exercises
+        for the calendar-related tests.
+        """
         self.client = Client()
         self.user = User.objects.create_user(username="testuser", password="pass")
         self.client.login(username="testuser", password="pass")
@@ -184,6 +276,10 @@ class CalendarTests(TestCase):
         "home.views.requests.get"
     )  # must include where the function is used not where the function is defined
     def test_mock_valid_data_response(self, mock_get):
+        """
+        Tests the calendar view when a valid mocked response is returned from the external API.
+        Verifies that the warm-up exercises are correctly added to the context.
+        """
         # Mocked API data
         mock_data = [
             {
@@ -200,7 +296,8 @@ class CalendarTests(TestCase):
         mock_get.return_value.json.return_value = mock_data
 
         response = self.client.get(reverse("calendar"))
-        # make sure that the response code is 200, the exercise it correct and the template is correct
+        # make sure that the response code is 200, the exercise it correct and the template is
+        # correct
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Quad Pulls")
         self.assertTemplateUsed(response, "calendar.html")
@@ -223,6 +320,10 @@ class CalendarTests(TestCase):
 
     # Test behavior when no input is sent.
     def test_missing_user_input(self):
+        """
+        Tests that the application handles missing user input gracefully by ensuring a meaningful
+        response is returned.
+        """
         response = self.client.post(reverse("generate_workout"), {})
         self.assertEqual(response.status_code, 200)
         self.assertIn("Error", response.content.decode())

@@ -1,17 +1,42 @@
+# pylint: disable=E1101, W0611, E0611, E0401, C0103
+"""
+Test module for user friendship functionalities in the application.
+
+This module contains a set of tests to verify the behavior of various friendship-related views,
+including adding/removing friends, viewing the friend list, searching for friends, and accessing
+friend data. The tests ensure that only valid friendships allow access to certain data and that
+friendship actions such as removal and search behave as expected.
+
+Tests include:
+- Removing friends and ensuring the relationship is deleted.
+- Viewing a user's friend list and verifying the context contains friends.
+- Searching for friends while ensuring only non-friends are returned in the results.
+- Accessing friend data when a valid friendship exists and ensuring restrictions are
+enforced for non-friends.
+
+Each test verifies the integrity of the friendship features and ensures the correct user experience
+in the context of friendship management.
+"""
+
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
-from .models import UserProfile, Goal, Injury, FriendRequest
-from .forms import UserRegistrationForm, UserProfileUpdateForm
 from django.core.exceptions import ValidationError
-from django.test import TestCase, Client
-from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
+from .models import UserProfile, Goal, Injury, FriendRequest
+from .forms import UserRegistrationForm, UserProfileUpdateForm
 
 
 class UserProfileModelTests(TestCase):
+    """
+    Test suite for the UserProfile model and its related features.
+    """
+
     def setUp(self):
+        """
+        Set up a test user for UserProfile-related tests.
+        """
         self.user = User.objects.create_user(
             username="testuser", email="test@example.com", password="testpassword"
         )
@@ -54,7 +79,15 @@ class UserProfileModelTests(TestCase):
 
 
 class UserAuthenticationTests(TestCase):
+    """
+    Test suite for user registration, login, and logout views.
+    """
+
     def setUp(self):
+        """
+        Set up a test client and user for authentication tests.
+        """
+
         self.client = Client(enforce_csrf_checks=False)  # Disable CSRF for testing
         self.user = User.objects.create_user(
             username="testuser", email="test@example.com", password="testpassword"
@@ -101,7 +134,15 @@ class UserAuthenticationTests(TestCase):
 
 
 class UserProfileUpdateTests(TestCase):
+    """
+    Test suite for updating user profile data through the update form.
+    """
+
     def setUp(self):
+        """
+        Set up test client and log in a user for profile update tests.
+        """
+
         self.client = Client(enforce_csrf_checks=False)  # Disable CSRF
         self.user = User.objects.create_user(
             username="testuser", email="test@example.com", password="testpassword"
@@ -137,6 +178,10 @@ class UserProfileUpdateTests(TestCase):
 
 
 class FormTests(TestCase):
+    """
+    Test suite for validating custom form logic.
+    """
+
     def test_user_registration_form(self):
         """Ensure the UserRegistrationForm validates input correctly."""
         form = UserRegistrationForm(
@@ -172,6 +217,10 @@ class FormTests(TestCase):
 
 
 class FriendRequestTestCase(TestCase):
+    """
+    Test suite for FriendRequest model functionality.
+    """
+
     def setUp(self):
         """
         Create two users that we can use throughout our tests.
@@ -208,7 +257,15 @@ class FriendRequestTestCase(TestCase):
 
 
 class FriendViewsTestCase(TestCase):
+    """
+    Ensure a FriendRequest can be created between two users.
+    """
+
     def setUp(self):
+        """
+        Ensure the __str__ method returns a readable format.
+        """
+
         self.client = Client()
         # Create two users. Assume that a signal creates a related userprofile automatically.
         self.user1 = User.objects.create_user(username="user1", password="password1")
@@ -218,6 +275,9 @@ class FriendViewsTestCase(TestCase):
         self.user2.userprofile.friends.clear()
 
     def test_profile_view_requires_login(self):
+        """
+        Verify that accessing the user data view without login redirects to login page.
+        """
         url = reverse("user_data")
         response = self.client.get(url)
         # Expect a redirect to the login page for an unauthenticated user.
@@ -241,6 +301,10 @@ class FriendViewsTestCase(TestCase):
     #    self.assertNotIn(self.user1, response.context['search_results'])
 
     def test_send_friend_request(self):
+        """
+        Test that a friend request can be sent and duplicates are handled.
+        """
+
         self.client.login(username="user1", password="password1")
         url = reverse("send_friend_request", args=[self.user2.id])
         # Send friend request the first time.
@@ -258,6 +322,10 @@ class FriendViewsTestCase(TestCase):
         self.assertTrue(any("already sent" in m.message for m in messages_list))
 
     def test_accept_friend_request(self):
+        """
+        Ensure accepting a friend request works and adds users to each other’s friend list.
+        """
+
         # Create a friend request from user2 to user1.
         friend_request = FriendRequest.objects.create(
             from_user=self.user2, to_user=self.user1
@@ -273,6 +341,10 @@ class FriendViewsTestCase(TestCase):
         self.assertRedirects(response, reverse("user_data"))
 
     def test_reject_friend_request(self):
+        """
+        Ensure rejecting a friend request deletes it and does not add users as friends.
+        """
+
         friend_request = FriendRequest.objects.create(
             from_user=self.user2, to_user=self.user1
         )
@@ -284,6 +356,10 @@ class FriendViewsTestCase(TestCase):
         self.assertRedirects(response, reverse("user_data"))
 
     def test_remove_friend(self):
+        """
+        Test that a friendship can be removed and the friends are no longer connected.
+        The friendship should be deleted from both user's friend lists.
+        """
         # Set up a friendship between user1 and user2.
         self.user1.userprofile.friends.add(self.user2.userprofile)
         self.user2.userprofile.friends.add(self.user1.userprofile)
@@ -296,6 +372,10 @@ class FriendViewsTestCase(TestCase):
         self.assertRedirects(response, reverse("user_data"))
 
     def test_friend_list(self):
+        """
+        Test that the friend list is properly returned in the context when accessing the friend
+        list page.
+        """
         # Set up a friendship.
         self.user1.userprofile.friends.add(self.user2.userprofile)
         self.client.login(username="user1", password="password1")
@@ -307,6 +387,10 @@ class FriendViewsTestCase(TestCase):
         self.assertIn(self.user2.userprofile, response.context["friends"])
 
     def test_friend_search(self):
+        """
+        Test the functionality of the friend search feature to ensure non-friends are included
+        and friends are excluded.
+        """
         # Create an extra user who is not a friend.
         user3 = User.objects.create_user(username="searchable", password="password3")
         # Establish a friendship with user2 (so that user2 is excluded).
@@ -322,6 +406,10 @@ class FriendViewsTestCase(TestCase):
         self.assertNotIn(self.user1, results)  # self should be excluded
 
     def test_friend_data_allowed(self):
+        """
+        Test that a user can view a friend's data when a friendship exists.
+        """
+
         # Establish friendship between user1 and user2.
         self.user1.userprofile.friends.add(self.user2.userprofile)
         self.user2.userprofile.friends.add(self.user1.userprofile)
@@ -333,6 +421,11 @@ class FriendViewsTestCase(TestCase):
         self.assertIn("user_profile", response.context)
 
     def test_friend_data_not_allowed(self):
+        """
+        Test that an error message is displayed if a user attempts to view data of someone
+        who is not a friend.
+        """
+
         # No friendship established between user1 and user2.
         self.client.login(username="user1", password="password1")
         url = reverse("friend_data", args=[self.user2.id])

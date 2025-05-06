@@ -1,3 +1,24 @@
+# pylint: disable=E0401, E0611
+"""
+URL configuration for user-related views, including authentication and friendship management.
+
+This module defines the URL patterns for user registration, login, profile management,
+friendship actions, and log data. The views corresponding to these URLs handle tasks such as
+user registration, login/logout, updating user profiles, sending and accepting friend requests,
+viewing and removing friends, and managing friend searches.
+
+The following routes are included:
+- Register, login, and logout functionality.
+- User data management, including profile updates and viewing.
+- Friend request handling (send, accept, reject).
+- Friendship list and data management.
+- Searching for friends.
+- Logging data for user activities.
+
+Each route corresponds to a specific view function that implements the logic for the corresponding
+action.
+"""
+
 from django.urls import path
 from .views import (
     register,

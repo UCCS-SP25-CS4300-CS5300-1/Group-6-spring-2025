@@ -1,23 +1,61 @@
+# pylint: disable=E0401, E0611, W0611, W0718, W0621
+"""
+Module to handle AI-generated workout plans, user profiles, and calendar functionality
+within the app.
+
+This module includes the following functionalities:
+- Saving AI-generated workouts to the calendar.
+- Generating AI workout plans based on user input.
+- Managing workout events in the user's calendar.
+- Fetching warm-up exercises from an external API.
+- Logging and tracking completed workouts for users.
+
+The module works in conjunction with models from the `accounts`, `goals`, and `workouts`
+apps, including `UserProfile`, `UserExercise`, `WorkoutLog`, and `Exercise`. It uses AI
+to generate personalized workout plans and allows users to log and view their progress
+in a calendar view.
+
+Dependencies:
+- Django
+- Requests
+- AI model (imported from `ai`)
+"""
+
+import json
+import os
+import re
+from datetime import datetime, timedelta
+import requests
 from django.shortcuts import render, get_object_or_404
-from accounts.models import UserProfile
-from goals.models import UserExercise, WorkoutLog, Exercise, Goal
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-import json
-from datetime import datetime, timedelta
-import requests
-import os
-from django.conf import settings
-from .ai import ai_model
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
-import re
+from django.conf import settings
+from accounts.models import UserProfile
+from goals.models import UserExercise, WorkoutLog, Exercise, Goal
+from .ai import ai_model
 
 
 # Handles AI generated workout to the calendar
 @login_required
 def save_to_calendar(request):
+    """
+    Handles saving an AI-generated workout plan to the user's calendar.
+
+    This view accepts a POST request with an AI-generated workout plan and a start date.
+    It processes the workout plan, maps days to specific dates, creates or retrieves exercise
+    objects, and associates them with the user's profile for the specified dates.
+    The workout is saved and a success response is returned.
+
+    POST request data should include:
+    - "ai_plan": AI-generated workout plan as raw text.
+    - "week_start": Start date of the week in 'YYYY-MM-DD' format.
+
+    Returns:
+        JsonResponse: Status of the operation with the saved workout days or an error message.
+    """
     # Ensures this response only happens with a request
     if request.method != "POST":
         return JsonResponse({"error": "Invalid method"}, status=405)
@@ -127,6 +165,18 @@ def save_to_calendar(request):
 # Handles generation of AI workouts
 @login_required
 def generate_workout(request):
+    """
+    Handles the generation of a workout plan using an AI model.
+
+    This view accepts a POST request with user input and generates a workout plan using
+    an AI model. The AI response is then rendered on the frontend for the user to see.
+
+    POST request data should include:
+    - "user_input": User-provided information for generating a workout plan.
+
+    Returns:
+        JsonResponse or HttpResponse: The AI-generated workout plan or an error message.
+    """
     # Initializes context diary for basic template
     context = {}
 
@@ -193,6 +243,21 @@ def index(request):
 
 @login_required
 def calendar_view(request):
+    """
+    Renders the calendar page and handles toggling workout occurrences.
+
+    This view handles both GET and POST requests:
+    - GET: Renders the calendar page with scheduled workout events.
+    - POST: Toggles a workout occurrence (mark completed or incomplete) for a given date.
+
+    POST request data should include:
+    - "workout_id": ID of the workout.
+    - "date_completed": Date of completion in 'YYYY-MM-DD' format.
+    - "completed": A boolean value indicating if the workout was completed.
+
+    Returns:
+        JsonResponse: Status of the operation or the rendered calendar page.
+    """
     # POST: toggle a workout occurrence
     if request.method == "POST":
         workout_id = request.POST.get("workout_id")
@@ -247,6 +312,16 @@ def calendar_view(request):
 
 @login_required
 def workout_events(request):
+    """
+    Retrieves the user's scheduled workouts and their completion status.
+
+    This view returns all scheduled workouts for the authenticated user, including the
+    completion status of each workout, grouped by date. The status is determined by whether
+    the workout has been logged as completed.
+
+    Returns:
+        JsonResponse: A list of workout events, including completion status.
+    """
     if not request.user.is_authenticated:
         return JsonResponse([], safe=False)
 
@@ -306,6 +381,15 @@ def workout_events(request):
 
 @login_required
 def completed_workouts(request):
+    """
+    Retrieves the user's completed workouts.
+
+    This view returns a list of workouts that the user has marked as completed, ordered
+    by the date they were completed.
+
+    Returns:
+        JsonResponse: A list of completed workouts with their completion dates.
+    """
     if not request.user.is_authenticated:
         return JsonResponse([], safe=False)
 
