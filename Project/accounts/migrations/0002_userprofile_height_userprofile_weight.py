@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0001_initial'),
+        ("accounts", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='height',
-            field=models.FloatField(blank=True, help_text='Height in centimeters', null=True),
+            model_name="userprofile",
+            name="height",
+            field=models.FloatField(
+                blank=True, help_text="Height in centimeters", null=True
+            ),
         ),
         migrations.AddField(
-            model_name='userprofile',
-            name='weight',
-            field=models.FloatField(blank=True, help_text='Weight in kilograms', null=True),
+            model_name="userprofile",
+            name="weight",
+            field=models.FloatField(
+                blank=True, help_text="Weight in kilograms", null=True
+            ),
         ),
     ]

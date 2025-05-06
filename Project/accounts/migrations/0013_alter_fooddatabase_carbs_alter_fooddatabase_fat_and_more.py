@@ -4,30 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0012_fooddatabase'),
+        ("accounts", "0012_fooddatabase"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='fooddatabase',
-            name='carbs',
+            model_name="fooddatabase",
+            name="carbs",
             field=models.FloatField(default=0),
         ),
         migrations.AlterField(
-            model_name='fooddatabase',
-            name='fat',
+            model_name="fooddatabase",
+            name="fat",
             field=models.FloatField(default=0),
         ),
         migrations.AlterField(
-            model_name='fooddatabase',
-            name='protein',
+            model_name="fooddatabase",
+            name="protein",
             field=models.FloatField(default=0),
         ),
         migrations.AlterField(
-            model_name='fooddatabase',
-            name='servings',
+            model_name="fooddatabase",
+            name="servings",
             field=models.FloatField(default=0),
         ),
     ]

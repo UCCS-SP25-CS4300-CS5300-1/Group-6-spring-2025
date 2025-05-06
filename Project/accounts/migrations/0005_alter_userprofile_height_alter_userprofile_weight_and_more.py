@@ -4,23 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0004_fitnesslevel_remove_userdata_date_userdata_height_and_more'),
+        ("accounts", "0004_fitnesslevel_remove_userdata_date_userdata_height_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userprofile',
-            name='height',
-            field=models.FloatField(blank=True, help_text='Height in inches', null=True),
+            model_name="userprofile",
+            name="height",
+            field=models.FloatField(
+                blank=True, help_text="Height in inches", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='userprofile',
-            name='weight',
-            field=models.FloatField(blank=True, help_text='Weight in pounds', null=True),
+            model_name="userprofile",
+            name="weight",
+            field=models.FloatField(
+                blank=True, help_text="Weight in pounds", null=True
+            ),
         ),
         migrations.DeleteModel(
-            name='UserData',
+            name="UserData",
         ),
     ]

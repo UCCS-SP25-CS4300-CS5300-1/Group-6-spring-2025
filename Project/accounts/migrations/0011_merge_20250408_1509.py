@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0006_userprofile_friends_friendrequest'),
-        ('accounts', '0010_alter_useraccexercise_user'),
+        ("accounts", "0006_userprofile_friends_friendrequest"),
+        ("accounts", "0010_alter_useraccexercise_user"),
     ]
 
-    operations = [
-    ]
+    operations = []

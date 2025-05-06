@@ -5,45 +5,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0003_goal_injury_alter_userprofile_fitness_level_and_more'),
+        ("accounts", "0003_goal_injury_alter_userprofile_fitness_level_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FitnessLevel',
+            name="FitnessLevel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.RemoveField(
-            model_name='userdata',
-            name='date',
+            model_name="userdata",
+            name="date",
         ),
         migrations.AddField(
-            model_name='userdata',
-            name='height',
+            model_name="userdata",
+            name="height",
             field=models.FloatField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='userdata',
-            name='weight',
+            model_name="userdata",
+            name="weight",
             field=models.FloatField(blank=True, null=True),
         ),
         migrations.RemoveField(
-            model_name='userdata',
-            name='goals',
+            model_name="userdata",
+            name="goals",
         ),
         migrations.AlterField(
-            model_name='userdata',
-            name='fitness_level',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounts.fitnesslevel'),
+            model_name="userdata",
+            name="fitness_level",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="accounts.fitnesslevel",
+            ),
         ),
         migrations.AddField(
-            model_name='userdata',
-            name='goals',
-            field=models.ManyToManyField(to='accounts.goal'),
+            model_name="userdata",
+            name="goals",
+            field=models.ManyToManyField(to="accounts.goal"),
         ),
     ]

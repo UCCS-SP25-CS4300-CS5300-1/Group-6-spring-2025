@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,25 +14,59 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserData',
+            name="UserData",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(auto_now_add=True)),
-                ('bmi', models.FloatField(blank=True, null=True)),
-                ('fitness_level', models.CharField(blank=True, max_length=100, null=True)),
-                ('goals', models.TextField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField(auto_now_add=True)),
+                ("bmi", models.FloatField(blank=True, null=True)),
+                (
+                    "fitness_level",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                ("goals", models.TextField(blank=True, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bmi', models.FloatField(blank=True, null=True)),
-                ('fitness_level', models.CharField(blank=True, max_length=100, null=True)),
-                ('goals', models.TextField(blank=True, null=True)),
-                ('injury_history', models.TextField(blank=True, null=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("bmi", models.FloatField(blank=True, null=True)),
+                (
+                    "fitness_level",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                ("goals", models.TextField(blank=True, null=True)),
+                ("injury_history", models.TextField(blank=True, null=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

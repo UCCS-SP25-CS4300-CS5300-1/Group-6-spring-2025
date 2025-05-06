@@ -5,15 +5,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0013_alter_fooddatabase_carbs_alter_fooddatabase_fat_and_more'),
+        ("accounts", "0013_alter_fooddatabase_carbs_alter_fooddatabase_fat_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='fooddatabase',
-            name='datelog',
+            model_name="fooddatabase",
+            name="datelog",
             field=models.DateField(default=datetime.date.today),
         ),
     ]

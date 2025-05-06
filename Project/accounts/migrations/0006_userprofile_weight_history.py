@@ -4,15 +4,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0005_alter_userprofile_height_alter_userprofile_weight_and_more'),
+        ("accounts", "0005_alter_userprofile_height_alter_userprofile_weight_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='weight_history',
-            field=models.CharField(blank=True, choices=[('beginner', 'Beginner – New to exercise or returning after a long break. Low endurance, strength, and flexibility.'), ('intermediate', 'Intermediate – Engages in regular physical activity (e.g., 1-3 times per week), has moderate endurance and strength.'), ('advanced', 'Advanced – High fitness level with consistent training (e.g., 3+ times per week), strong endurance, strength, and flexibility.'), ('athlete', 'Athlete – Trains for specific performance goals (e.g., competitive sports, weightlifting, endurance events).'), ('rehab', 'Rehabilitation/Recovery – Focused on regaining fitness after an injury, surgery, or medical condition.'), ('senior', 'Senior/Low Impact – Prioritizes joint-friendly and lower-intensity movements, often for older adults or those with physical limitations.')], max_length=200, null=True),
+            model_name="userprofile",
+            name="weight_history",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    (
+                        "beginner",
+                        "Beginner – New to exercise or returning after a long break. Low endurance, strength, and flexibility.",
+                    ),
+                    (
+                        "intermediate",
+                        "Intermediate – Engages in regular physical activity (e.g., 1-3 times per week), has moderate endurance and strength.",
+                    ),
+                    (
+                        "advanced",
+                        "Advanced – High fitness level with consistent training (e.g., 3+ times per week), strong endurance, strength, and flexibility.",
+                    ),
+                    (
+                        "athlete",
+                        "Athlete – Trains for specific performance goals (e.g., competitive sports, weightlifting, endurance events).",
+                    ),
+                    (
+                        "rehab",
+                        "Rehabilitation/Recovery – Focused on regaining fitness after an injury, surgery, or medical condition.",
+                    ),
+                    (
+                        "senior",
+                        "Senior/Low Impact – Prioritizes joint-friendly and lower-intensity movements, often for older adults or those with physical limitations.",
+                    ),
+                ],
+                max_length=200,
+                null=True,
+            ),
         ),
     ]
