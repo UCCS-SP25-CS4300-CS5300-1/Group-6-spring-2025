@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.crypto import get_random_string
