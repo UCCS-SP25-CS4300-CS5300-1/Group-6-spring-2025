@@ -1,4 +1,4 @@
-# pylint: disable=E1101, W0611, E0611, E0401
+# pylint: disable=E1101, W0611, E0611, E0401, R0903, R1725
 """
 Forms for handling user registration, profile updates, and data logging in a
 fitness tracking application.

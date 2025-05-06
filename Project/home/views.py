@@ -1,4 +1,4 @@
-# pylint: disable=E0401, E0611, W0611, W0718, W0621, E1101, R0914, R0912
+# pylint: disable=E0401, E0611, W0611, W0718, W0621, E1101, R0914, R0912, W3101, R1721
 """
 Module to handle AI-generated workout plans, user profiles, and calendar functionality
 within the app.

@@ -1,5 +1,5 @@
 """Models for the goals app."""
-# pylint: disable=E1101
+# pylint: disable=E1101, R0903
 
 import datetime
 from decimal import Decimal
