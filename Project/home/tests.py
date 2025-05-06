@@ -85,8 +85,7 @@ class NewViewTests(TestCase):
         """
         Test that a workout plan is generated when multiple days are provided in the input.
         """
-        input_text = "Fitness Level: Intermediate; Goals: Build Muscle; Injuries:\
-            None; Selected Days: Monday, Wednesday, Friday"
+        input_text = "Fitness Level: Intermediate; Goals: Build Muscle; Injuries: None; Selected Days: Monday, Wednesday, Friday"
 
         # Simulates AJAX request,
         response = self.client.post(

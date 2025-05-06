@@ -17,10 +17,10 @@ jobs:
     - name: Run Tests
       run: |
         cd Project
-        python3 manage.py test || true
+        python3 manage.py test
     - name: Run Pylint
       run: |
-        pylint Project > pylint_output.txt|| true
+        pylint Project > pylint_output.txt
     - name: Upload Pylint Report
       uses: actions/upload-artifact@v4
       with:

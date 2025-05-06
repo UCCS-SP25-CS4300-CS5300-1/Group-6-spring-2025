@@ -22,33 +22,27 @@ class UserProfile(models.Model):
     FITNESS_LEVEL_CHOICES = [
         (
             "beginner",
-            "Beginner – New to exercise or returning after a long break. \
-                Low endurance, strength, and flexibility.",
+            "Beginner – New to exercise or returning after a long break. Low endurance, strength, and flexibility.",
         ),
         (
             "intermediate",
-            "Intermediate – Engages in regular physical activity (e.g., 1-3 times per week), \
-                has moderate endurance and strength.",
+            "Intermediate – Engages in regular physical activity (e.g., 1-3 times per week), has moderate endurance and strength.",
         ),
         (
             "advanced",
-            "Advanced – High fitness level with consistent training (e.g., 3+ times per week), \
-                strong endurance, strength, and flexibility.",
+            "Advanced – High fitness level with consistent training (e.g., 3+ times per week), strong endurance, strength, and flexibility.",
         ),
         (
             "athlete",
-            "Athlete – Trains for specific performance goals (e.g., competitive sports, \
-                weightlifting, endurance events).",
+            "Athlete – Trains for specific performance goals (e.g., competitive sports, weightlifting, endurance events).",
         ),
         (
             "rehab",
-            "Rehabilitation/Recovery – Focused on regaining fitness after an injury, \
-                surgery, or medical condition.",
+            "Rehabilitation/Recovery – Focused on regaining fitness after an injury, surgery, or medical condition.",
         ),
         (
             "senior",
-            "Senior/Low Impact – Prioritizes joint-friendly and lower-intensity movements, \
-                often for older adults or those with physical limitations.",
+            "Senior/Low Impact – Prioritizes joint-friendly and lower-intensity movements, often for older adults or those with physical limitations.",
         ),
     ]
 
