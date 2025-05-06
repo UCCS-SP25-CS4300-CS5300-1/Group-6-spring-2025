@@ -1,4 +1,4 @@
-# pylint: disable=E0401, E0611, E0606, W0612, C0103, E1101
+# pylint: disable=E0401, E0611, E0606, W0612, C0103, E1101, R0914, R1705, W3101
 """
 This module handles user authentication, profile management, friend requests, and logging data in
 the user account system.

@@ -1,4 +1,4 @@
-# pylint: disable=C0301, E0401, E0611, W0613
+# pylint: disable=C0301, E0401, E0611, W0613, E1101, E0307
 """Models for user fitness profiles, goals, injuries, exercise logs, and food tracking."""
 
 from datetime import date

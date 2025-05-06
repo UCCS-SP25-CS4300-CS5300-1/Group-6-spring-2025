@@ -1,4 +1,4 @@
-# pylint: disable=E0401, E0611, W0611, W0105, C0103, C0301, E1101
+# pylint: disable=E0401, E0611, W0611, W0105, C0103, C0301, E1101, W3101
 """
 This module contains test cases for various views, forms, and AI integration in a fitness
 application.
