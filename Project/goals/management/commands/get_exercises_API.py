@@ -1,32 +1,43 @@
+"""Command-line utility to fetch exercises by name from the ExerciseDB API."""
+# pylint: disable=invalid-name
+
 import http.client
 import json
 import time
 import urllib.parse
 
-# Load accessible names
-with open("accessible_exercise_names.txt", "r", encoding="utf-8") as f:
-    exercise_names = [line.strip() for line in f if line.strip()]
 
-conn = http.client.HTTPSConnection("exercisedb.p.rapidapi.com")
-
-headers = {
-    'x-rapidapi-key': "584fb71dc8msh70a768bec023ee2p1deb47jsna5aa2d4e703b",
-    'x-rapidapi-host': "exercisedb.p.rapidapi.com"
-}
-
-matched = []
-
-for name in exercise_names:
-    # Properly URL encode the name
-    encoded_name = urllib.parse.quote(name.lower())
-    endpoint = f"/exercises/name/{encoded_name}?offset=0&limit=1"
-
+def main():
+    """
+    Load exercise names from a file, query the ExerciseDB API,
+    and save matched exercises to a JSON file.
+    """
     try:
-        conn.request("GET", endpoint, headers=headers)
-        res = conn.getresponse()
-        data = res.read()
+        with open("accessible_exercise_names.txt", "r", encoding="utf-8") as f:
+            exercise_names = [line.strip() for line in f if line.strip()]
+    except OSError as e:
+        print(f"Error reading input file: {e}")
+        return
 
-        result = json.loads(data.decode("utf-8"))
+    conn = http.client.HTTPSConnection("exercisedb.p.rapidapi.com")
+    headers = {
+        "x-rapidapi-host": "exercisedb.p.rapidapi.com",
+        "x-rapidapi-key": "584fb71dc8msh70a768bec023ee2p1deb47jsna5aa2d4e703b",
+    }
+
+    matched = []
+
+    for name in exercise_names:
+        encoded_name = urllib.parse.quote(name.lower())
+        endpoint_path = f"/exercises/name/{encoded_name}?offset=0&limit=1"
+        try:
+            conn.request("GET", endpoint_path, headers=headers)
+            res = conn.getresponse()
+            data = res.read()
+            result = json.loads(data.decode("utf-8"))
+        except (http.client.HTTPException, json.JSONDecodeError) as e:
+            print(f"Error fetching {name}: {e}")
+            continue
 
         if isinstance(result, list) and result:
             matched.append(result[0])
@@ -34,14 +45,17 @@ for name in exercise_names:
         else:
             print(f"✗ Not found: {name}")
 
-    except Exception as e:
-        print(f"Error with {name}: {e}")
+        time.sleep(0.3)
 
-    # Optional delay to avoid hitting rate limits (tweak as needed)
-    time.sleep(0.3)
+    try:
+        with open("final_accessible_exercises.json", "w", encoding="utf-8") as f:
+            json.dump(matched, f, indent=4)
+    except OSError as e:
+        print(f"Error writing output file: {e}")
+        return
 
-# Save the results to a JSON file
-with open("final_accessible_exercises.json", "w", encoding="utf-8") as f:
-    json.dump(matched, f, indent=4)
+    print(f"\nFinished! Saved {len(matched)} matched exercises.")
 
-print(f"\nFinished! Saved {len(matched)} matched exercises.")
+
+if __name__ == "__main__":
+    main()
