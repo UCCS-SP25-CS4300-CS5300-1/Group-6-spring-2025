@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -136,7 +136,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #
-FORCE_SCRIPT_NAME = "/proxy/3000"
+# FORCE_SCRIPT_NAME = "/proxy/3000"
 
 # Use x fowarded host header to determine original host
 USE_X_FORWARDED_HOST = True
@@ -145,8 +145,8 @@ USE_X_FORWARDED_HOST = True
 BASE_URL = os.getenv('BASE_URL', '/')
 
 # Redirect to home if user logs in or out
-LOGIN_REDIRECT_URL = '/'  
-LOGOUT_REDIRECT_URL = '/' 
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # For User Creation adding Max's environment as a trusted origin
 CSRF_TRUSTED_ORIGINS = [

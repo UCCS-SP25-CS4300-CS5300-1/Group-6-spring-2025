@@ -1,0 +1,3 @@
+# pylint: disable=R0801
+
+# Migration code...
